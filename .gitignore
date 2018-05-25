@@ -98,3 +98,4 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/macos,gradle,intellij
 
 state.json
+*.pyc
