@@ -58,7 +58,7 @@ public class AlertHandlerServlet extends HttpServlet
             // Store info in DB
             System.out.println("umbox: " + umboxName);
             System.out.println("alert: " + alertText);
-            SQLAlertDB.getInstance("").storeAlert(umboxName, alertText);
+            SQLAlertDB.getInstance("postgres").storeAlert(umboxName, alertText);
 
         }
         catch (JSONException e)
