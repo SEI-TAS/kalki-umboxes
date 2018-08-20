@@ -47,7 +47,7 @@ public class SQLAlertDB implements IAlertsDB
     {
         try (Connection conn = getDBConnection())
         {
-            PreparedStatement insertAlert = conn.prepareStatement("INSERT INTO alert (umbox_id, info, stamp) VALUES (?,?,?);");
+            PreparedStatement insertAlert = conn.prepareStatement("INSERT INTO alert (umbox_external_id, info, stamp) VALUES (?,?,?);");
             insertAlert.setString(1, umboxId);
             insertAlert.setString(2, alertText);
             insertAlert.setLong(3, System.currentTimeMillis());
@@ -134,18 +134,17 @@ public class SQLAlertDB implements IAlertsDB
             throw e;
         }
 
-        String alertTableSQL = "CREATE TABLE alert ("
+        String alertTableSQL = "CREATE TABLE alert_history ("
                 + "id serial PRIMARY KEY, "
-                + "umbox_id varchar(255) NOT NULL, "
+                + "umbox_external_id varchar(255) NOT NULL, "
                 + "info varchar(255) NOT NULL, "
                 + "stamp bigint NOT NULL "
                 + ");";
 
-        String umboxTableSQL = "CREATE TABLE umbox ("
+        String umboxTableSQL = "CREATE TABLE umbox_instance ("
                 + "id serial PRIMARY KEY, "
-                + "umbox_id varchar(255) NOT NULL, "
-                + "umbox_name varchar(255) NOT NULL, "
-                + "device varchar(255) NOT NULL, "
+                + "umbox_external_id varchar(255) NOT NULL, "
+                + "device_id varchar(255) NOT NULL, "
                 + "started_at bigint NOT NULL "
                 + ");";
 
