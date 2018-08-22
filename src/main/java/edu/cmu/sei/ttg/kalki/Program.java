@@ -21,7 +21,7 @@ public class Program
         try
         {
             // Just to ensure DB is created and ready.
-            SQLAlertDB.getInstance("");
+            SQLAlertDB.getInstance("postgres");
 
             Server server = new Server(SERVER_PORT);
             ServletContextHandler handler = new ServletContextHandler(server, ALERT_URL);
