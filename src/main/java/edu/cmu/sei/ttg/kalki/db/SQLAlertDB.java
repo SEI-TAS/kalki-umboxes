@@ -47,7 +47,7 @@ public class SQLAlertDB implements IAlertsDB
     {
         try (Connection conn = getDBConnection())
         {
-            PreparedStatement insertAlert = conn.prepareStatement("INSERT INTO alert (umbox_external_id, info, stamp) VALUES (?,?,?);");
+            PreparedStatement insertAlert = conn.prepareStatement("INSERT INTO alert_history (umbox_external_id, info, stamp) VALUES (?,?,?);");
             insertAlert.setString(1, umboxId);
             insertAlert.setString(2, alertText);
             insertAlert.setLong(3, System.currentTimeMillis());
