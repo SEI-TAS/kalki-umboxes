@@ -5,7 +5,7 @@ import webutils
 
 # TODO: make these two configurable.
 LOG_PATH = "snort.log"
-ALERT_HANDLER_SERVER = u"128.237.209.65"
+ALERT_HANDLER_SERVER = u"192.168.122.41"
 
 ALERT_HANDLER_URL = "/alert/"
 ALERT_HANDLER_PORT = 6060
