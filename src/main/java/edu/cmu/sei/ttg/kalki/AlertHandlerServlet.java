@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.cmu.sei.ttg.kalki.db.FileAlertDB;
 import edu.cmu.sei.ttg.kalki.db.SQLAlertDB;
 import org.eclipse.jetty.http.HttpStatus;
 
@@ -23,7 +22,7 @@ public class AlertHandlerServlet extends HttpServlet
 {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException
+            throws ServletException
     {
         // Parse the JSON data from the alert.
         JSONObject alertData;

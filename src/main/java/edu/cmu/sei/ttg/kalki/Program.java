@@ -1,6 +1,7 @@
 package edu.cmu.sei.ttg.kalki;
 
 import edu.cmu.sei.ttg.kalki.db.SQLAlertDB;
+import kalkidb.database.Postgres;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
@@ -12,6 +13,10 @@ public class Program
     private static final String ALERT_URL = "/alert";
     private static final int SERVER_PORT = 6060;
 
+    private static final String DB_NAME = "kalkidb";
+    private static final String DB_USER = "kalkiuser";
+    private static final String DB_PWD = "kalkipass";
+
     /**
      * Simply starts a Jetty server, with a handler for new alert notifications.
      * @param args
@@ -21,7 +26,10 @@ public class Program
         try
         {
             // Just to ensure DB is created and ready.
-            SQLAlertDB.getInstance("postgres");
+            Postgres.createUserIfNotExists("postgres", DB_USER, DB_PWD);
+            Postgres.createDBIfNotExist("postgres", DB_NAME, DB_USER);
+            Postgres.initialize(DB_NAME, DB_USER, DB_PWD);
+            Postgres.setupDatabase();
 
             Server server = new Server(SERVER_PORT);
             ServletContextHandler handler = new ServletContextHandler(server, ALERT_URL);

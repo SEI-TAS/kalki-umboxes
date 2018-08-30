@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=AlertSender
+Exec=/home/umbox/alert-senders/alert_sender.py
+Path=/home/umbox/alert-senders/
+X-GNOME-Autostart-enabled=true

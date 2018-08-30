@@ -9,6 +9,7 @@ mainClassName = 'edu.cmu.sei.ttg.kalki.Program'
 sourceCompatibility = 1.8
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -16,4 +17,5 @@ dependencies {
     compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.10.RC0'
     compile group: 'org.json', name: 'json', version: '20180130'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+    compile group: 'edu.cmu.sei.ttg', name: 'kalki-db', version: '0.0.4-SNAPSHOT'
 }
