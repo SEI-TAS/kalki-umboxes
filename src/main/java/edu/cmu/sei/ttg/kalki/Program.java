@@ -27,9 +27,12 @@ public class Program
         {
             // Just to ensure DB is created and ready.
             Postgres.createUserIfNotExists("postgres", DB_USER, DB_PWD);
-            Postgres.createDBIfNotExist("postgres", DB_NAME, DB_USER);
+            boolean dbCreated = Postgres.createDBIfNotExist("postgres", DB_NAME, DB_USER);
             Postgres.initialize(DB_NAME, DB_USER, DB_PWD);
-            Postgres.setupDatabase();
+            if(dbCreated)
+            {
+                Postgres.setupDatabase();
+            }
 
             Server server = new Server(SERVER_PORT);
             ServletContextHandler handler = new ServletContextHandler(server, ALERT_URL);
