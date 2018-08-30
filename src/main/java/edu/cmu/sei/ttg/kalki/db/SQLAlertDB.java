@@ -20,9 +20,9 @@ public class SQLAlertDB implements IAlertsDB
     private static final String DEFAULT_DB_URL = "jdbc:postgresql://localhost:5432";
 
     // The default db name, user and password.
-    private static final String DEFAULT_USER = "alert_user";
-    private static final String DEFAULT_PWD = "alert_user_pwd";
-    private static final String DEFAULT_DB_NAME = "alerts";
+    private static final String DEFAULT_USER = "kalkiuser";
+    private static final String DEFAULT_PWD = "kalkipass";
+    private static final String DEFAULT_DB_NAME = "kalkidb";
 
     // The singleton instance.
     private static SQLAlertDB instance = null;
