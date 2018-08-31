@@ -26,8 +26,11 @@ public class Program
         try
         {
             // Just to ensure DB is created and ready.
-            Postgres.createUserIfNotExists("postgres", DB_USER, DB_PWD);
-            boolean dbCreated = Postgres.createDBIfNotExist("postgres", DB_NAME, DB_USER);
+            String rootPassword = "postgres";
+            //Postgres.removeDatabase(rootPassword, DB_NAME);
+            //Postgres.removeUser(rootPassword, DB_USER);
+            Postgres.createUserIfNotExists(rootPassword, DB_USER, DB_PWD);
+            boolean dbCreated = Postgres.createDBIfNotExists(rootPassword, DB_NAME, DB_USER);
             Postgres.initialize(DB_NAME, DB_USER, DB_PWD);
             if(dbCreated)
             {
