@@ -1,15 +1,14 @@
 package edu.cmu.sei.ttg.kalki;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.cmu.sei.ttg.kalki.db.SQLAlertDB;
+import kalkidb.database.Postgres;
+import kalkidb.models.AlertHistory;
 import org.eclipse.jetty.http.HttpStatus;
 
 import org.json.JSONException;
@@ -57,16 +56,14 @@ public class AlertHandlerServlet extends HttpServlet
             // Store info in DB
             System.out.println("umbox: " + umboxName);
             System.out.println("alert: " + alertText);
-            SQLAlertDB.getInstance("").storeAlert(umboxName, alertText);
-
+            AlertHistory alertHistory = new AlertHistory();
+            alertHistory.setUmboxExternalId(umboxName);
+            alertHistory.setInfo(alertText);
+            Postgres.insertAlertHistory(alertHistory);
         }
         catch (JSONException e)
         {
             throw new ServletException("Error parsing JSON request string: " + e.toString());
-        }
-        catch (SQLException e)
-        {
-            throw new ServletException("Error storing alert: " + e.toString());
         }
 
         response.setStatus(HttpStatus.OK_200);
