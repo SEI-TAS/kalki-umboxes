@@ -33,7 +33,9 @@ class LoginRequest:
 
 
 def log_default_creds(ip):
-    logging.warning("DEFAULT_CRED: Login attempt with default credentials from " + ip)
+    msg = "DEFAULT_CRED: Login attempt with default credentials from " + ip
+    logging.warning(msg)
+    print(msg)
     return
 
 
@@ -43,19 +45,18 @@ def track_login(ip, user_name):
     if key not in login_requests.keys():
         login_request = LoginRequest(ip, user_name)
         login_requests[key] = login_request
-        print("Login attempt " + str(login_request.count))
     else:
         login_request = login_requests[key]
         login_request.count += 1
-        print("Login attempt " + str(login_request.count))
 
         current_attempt_time = time.time()
         if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
-            print("Diff in seconds: " + str((current_attempt_time - login_request.attempt_times[0])))
             minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
-            print("Time from first attempt: " + str(minutes_from_first_attempt))
+            print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
             if minutes_from_first_attempt < REPEATED_ATTEMPTS_INTERVAL_MINS:
-                logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes")
+                msg = "MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes"
+                logging.error(msg)
+                print(msg)
 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
             login_request.attempt_times.pop(0)
@@ -70,6 +71,7 @@ def main():
     basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
     logging.basicConfig(filename=LOG_FILE_PATH, level=logging.DEBUG)
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+    print("Listening on raw socket...\n")
 
     last_tcp_sequence = 0
     while True:
