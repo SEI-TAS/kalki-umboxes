@@ -2,6 +2,7 @@ import socket
 import time
 import re
 import logging
+import traceback
 from base64 import b64decode
 
 from networking.ethernet import Ethernet
@@ -12,8 +13,8 @@ from networking.http import HTTP
 login_requests = {}
 
 # Default credentials for the device
-DEFAULT_USERNAME = "hello"
-DEFAULT_PASSWORD = "world"
+DEFAULT_USERNAME = "Username"
+DEFAULT_PASSWORD = "Password"
 
 LOG_FILE_PATH = "snort.log"
 REPEATED_ATTEMPTS_INTERVAL_MINS = 30
@@ -92,10 +93,11 @@ def main():
                                                 log_default_creds(ipv4.src)
                                             track_login(ipv4.src, username)
                                     except Exception as ex:
-                                        print("Regex exception")
-                                        print(ex)
-                        except:
-                            print("HTTP exception")
+                                        print("Exception processing credentials: " + str(ex))
+                                        traceback.print_exc()
+                        except Exception as ex:
+                            print("HTTP exception: " + str(ex))
+                            traceback.print_exc()
 
 
 if __name__ == '__main__':
