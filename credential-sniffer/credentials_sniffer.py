@@ -54,7 +54,7 @@ def track_login(ip, user_name):
             minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
             print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
             if minutes_from_first_attempt < REPEATED_ATTEMPTS_INTERVAL_MINS:
-                msg = "MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes"
+                msg = "MULTIPLE_LOGIN : More than " + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes"
                 logging.error(msg)
                 print(msg)
 
