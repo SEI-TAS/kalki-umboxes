@@ -77,15 +77,17 @@ def main():
             if ipv4.proto == 6:
                 tcp = TCP(ipv4.data)
 
-                if tcp.sequence == last_tcp_sequence:
-                    print("Ignoring duplicate TCP packet")
-                    continue
-                else:
-                    last_tcp_sequence = tcp.sequence
-
                 if len(tcp.data) > 0:
                     # HTTP
                     if tcp.dest_port == IOT_SERVER_PORT:
+                        # Avoid duplicate packets.
+                        print("TCP sequence: " + tcp.sequence)
+                        if tcp.sequence == last_tcp_sequence:
+                            print("Ignoring duplicate TCP packet")
+                            continue
+                        else:
+                            last_tcp_sequence = tcp.sequence
+
                         try:
                             http = HTTP(tcp.data)
                             http_info = str(http.data).split('\n')
