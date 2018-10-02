@@ -77,12 +77,14 @@ def main():
                         try:
                             http = HTTP(tcp.data)
                             http_info = str(http.data).split('\n')
+                            print("Received HTTP data: " + http_info)
                             for line in http_info:
                                 if 'Authorization' in line:
                                     try:
-                                        p = re.compile('Authorization: Basic (.*)')
-                                        if p.match(line):
-                                            username = b64decode(p.match(line).group(1)).decode("ascii").split(":")[0]
+                                        compiled_pattern = re.compile('Authorization: Basic (.*)')
+                                        if compiled_pattern.match(line):
+                                            print("Found line with authoriation info: " + line)
+                                            username = b64decode(compiled_pattern.match(line).group(1)).decode("ascii").split(":")[0]
                                             #print("username is: "+username) 
                                             if username == DEFAULT_USERNAME:
                                                 log_default_creds(ipv4.src)
