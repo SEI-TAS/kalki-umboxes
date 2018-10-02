@@ -51,9 +51,11 @@ def track_login(ip, user_name):
 
         current_attempt_time = time.time()
         if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
-            time_from_last_attempt_in_minutes = (current_attempt_time - login_request.attempt_times[0]) / 60
-            if time_from_last_attempt_in_minutes < REPEATED_ATTEMPTS_INTERVAL_MINS:
-                logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(time_from_last_attempt_in_minutes) + " minutes")
+            print("Diff in seconds: " + str((current_attempt_time - login_request.attempt_times[0])))
+            minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
+            print("Time from first attempt: " + str(minutes_from_first_attempt))
+            if minutes_from_first_attempt < REPEATED_ATTEMPTS_INTERVAL_MINS:
+                logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes")
 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
             login_request.attempt_times.pop(0)
