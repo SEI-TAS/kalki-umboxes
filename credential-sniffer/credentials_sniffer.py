@@ -1,3 +1,5 @@
+# NOTE: this needs to be run with sudo and python 3.
+
 import socket
 import time
 import re
