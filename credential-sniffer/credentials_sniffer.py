@@ -42,6 +42,8 @@ def track_login(ip, user_name):
     key = hash(ip + user_name)
     if key in login_requests.keys():
         login_request = login_requests[key]
+        print("Login attempt " + str(login_request.count))
+        
         login_request.attempts[login_request.count - 1] = time.time()
         login_request.count += 1
 
@@ -56,6 +58,7 @@ def track_login(ip, user_name):
     else:
         login_request = LoginRequest(ip, user_name)
         login_requests[key] = login_request
+        print("Login attempt " + str(login_request.count))
 
 
 def main():
