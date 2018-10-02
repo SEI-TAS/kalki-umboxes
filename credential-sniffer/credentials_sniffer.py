@@ -42,10 +42,9 @@ def track_login(ip, user_name):
     key = hash(ip + user_name)
     if key in login_requests.keys():
         login_request = login_requests[key]
-        print("Login attempt " + str(login_request.count))
-        
         login_request.attempts[login_request.count - 1] = time.time()
         login_request.count += 1
+        print("Login attempt " + str(login_request.count))
 
         if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
             time_from_last_attempt_in_minutes = (login_request.attempts[login_request.count - 1] - login_request.attempts[0]) / 60
@@ -66,6 +65,7 @@ def main():
     logging.basicConfig(filename=LOG_FILE_PATH, level=logging.DEBUG)
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 
+    last_tcp_sequence = 0
     while True:
         raw_data, addr = conn.recvfrom(65535)
         eth = Ethernet(raw_data)
@@ -76,6 +76,12 @@ def main():
             # TCP
             if ipv4.proto == 6:
                 tcp = TCP(ipv4.data)
+
+                if tcp.sequence == last_tcp_sequence:
+                    print("Ignoring duplicate TCP packet")
+                    continue
+                else:
+                    last_tcp_sequence = tcp.sequence
 
                 if len(tcp.data) > 0:
                     # HTTP
