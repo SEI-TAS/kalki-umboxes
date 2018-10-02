@@ -28,7 +28,8 @@ class LoginRequest:
         self.user = user
         self.count = 1
         self.delete = 0
-        self.attempts = [time.time(), 0, 0, 0]
+        self.attempts = [0] * MAX_ATTEMPTS
+        self.attempts[0] = time.time()
 
 
 def log_default_creds(ip):
@@ -41,10 +42,10 @@ def track_login(ip, user_name):
     key = hash(ip + user_name)
     if key in login_requests.keys():
         login_request = login_requests[key]
-        login_request.attempts[login_request.count] = time.time()
+        login_request.attempts[login_request.count - 1] = time.time()
         login_request.count += 1
 
-        if login_request.count > MAX_ATTEMPTS * 2: # There is duplication of packets
+        if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
             time_from_last_attempt_in_minutes = (login_request.attempts[login_request.count - 1] - login_request.attempts[0]) / 60
             if time_from_last_attempt_in_minutes < REPEATED_ATTEMPTS_INTERVAL_MINS:
                 logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(time_from_last_attempt_in_minutes) + " minutes")
