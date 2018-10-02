@@ -28,8 +28,8 @@ class LoginRequest:
         self.user = user
         self.count = 1
         self.delete = 0
-        self.attempts = [0] * MAX_ATTEMPTS
-        self.attempts[0] = time.time()
+        self.attempt_times = [0] * MAX_ATTEMPTS
+        self.attempt_times[0] = time.time()
 
 
 def log_default_creds(ip):
@@ -40,24 +40,28 @@ def log_default_creds(ip):
 def track_login(ip, user_name):
     # print("in tracking " + ip + " " + user_name)
     key = hash(ip + user_name)
-    if key in login_requests.keys():
+    if key not in login_requests.keys():
+        login_request = LoginRequest(ip, user_name)
+        login_requests[key] = login_request
+        print("Login attempt " + str(login_request.count))
+    else:
         login_request = login_requests[key]
-        login_request.attempts[login_request.count - 1] = time.time()
         login_request.count += 1
         print("Login attempt " + str(login_request.count))
 
+        current_attempt_time = time.time()
         if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
-            time_from_last_attempt_in_minutes = (login_request.attempts[login_request.count - 1] - login_request.attempts[0]) / 60
+            time_from_last_attempt_in_minutes = (current_attempt_time - login_request.attempt_times[0]) / 60
             if time_from_last_attempt_in_minutes < REPEATED_ATTEMPTS_INTERVAL_MINS:
                 logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(time_from_last_attempt_in_minutes) + " minutes")
 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
-            login_request.attempts = login_requests[1:]
+            login_request.attempt_times = login_requests[1:]
+            login_request.attempt_times.append(0)
             login_request.count -= 1
-    else:
-        login_request = LoginRequest(ip, user_name)
-        login_requests[key] = login_request
-        print("Login attempt " + str(login_request.count))
+
+        # Store this last attempt.
+        login_request.attempt_times[login_request.count - 1] = current_attempt_time
 
 
 def main():
@@ -81,7 +85,7 @@ def main():
                     # HTTP
                     if tcp.dest_port == IOT_SERVER_PORT:
                         # Avoid duplicate packets.
-                        print("TCP sequence: " + str(tcp.sequence))
+                        print("\nTCP sequence: " + str(tcp.sequence))
                         if tcp.sequence == last_tcp_sequence:
                             print("Ignoring duplicate TCP packet")
                             continue
