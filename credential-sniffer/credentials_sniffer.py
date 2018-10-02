@@ -81,7 +81,7 @@ def main():
                     # HTTP
                     if tcp.dest_port == IOT_SERVER_PORT:
                         # Avoid duplicate packets.
-                        print("TCP sequence: " + tcp.sequence)
+                        print("TCP sequence: " + str(tcp.sequence))
                         if tcp.sequence == last_tcp_sequence:
                             print("Ignoring duplicate TCP packet")
                             continue
