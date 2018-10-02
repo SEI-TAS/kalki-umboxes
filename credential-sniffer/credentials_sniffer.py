@@ -56,7 +56,7 @@ def track_login(ip, user_name):
                 logging.error("MULTIPLE_LOGIN : More than" + str(MAX_ATTEMPTS) + " attempts in " + str(time_from_last_attempt_in_minutes) + " minutes")
 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
-            login_request.attempt_times = login_requests[1:]
+            login_request.attempt_times.pop(0)
             login_request.attempt_times.append(0)
             login_request.count -= 1
 
