@@ -77,7 +77,7 @@ def main():
                         try:
                             http = HTTP(tcp.data)
                             http_info = str(http.data).split('\n')
-                            print("Received HTTP data: " + http_info)
+                            print("Received HTTP data: " + str(http.data))
                             for line in http_info:
                                 if 'Authorization' in line:
                                     try:
