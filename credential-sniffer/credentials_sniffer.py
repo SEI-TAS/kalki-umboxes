@@ -57,6 +57,7 @@ def track_login(ip, user_name):
 
 
 def main():
+    basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
     logging.basicConfig(filename=LOG_FILE_PATH, level=logging.DEBUG)
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 
@@ -81,12 +82,13 @@ def main():
                             for line in http_info:
                                 if 'Authorization' in line:
                                     try:
-                                        compiled_pattern = re.compile('Authorization: Basic (.*)')
-                                        if compiled_pattern.match(line):
-                                            print("Found line with authoriation info: " + line)
-                                            username = b64decode(compiled_pattern.match(line).group(1)).decode("ascii").split(":")[0]
-                                            #print("username is: "+username) 
-                                            if username == DEFAULT_USERNAME:
+                                        match = basic_authorization_pattern.match(line)
+                                        if match:
+                                            print("Found line with authorization info: " + line)
+                                            credentials = b64decode(match.group(1)).decode("ascii")
+                                            print("Credentials: " + credentials)
+                                            username, password = credentials.split(":")
+                                            if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
                                                 log_default_creds(ipv4.src)
                                             track_login(ipv4.src, username)
                                     except Exception as ex:
