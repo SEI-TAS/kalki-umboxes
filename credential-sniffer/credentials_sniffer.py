@@ -27,7 +27,7 @@ class LoginRequest:
         self.user = user
         self.count = 1
         self.delete = 0
-        self.attemps = [time.time(), 0, 0, 0]
+        self.attempts = [time.time(), 0, 0, 0]
 
 
 def log_default_creds(ip):
