@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import time
-from filetail import FileTail
+import os
+from argparse import ArgumentParser
 
+from filetail import FileTail
 import alerts
 
-# TODO: make these two configurable.
+# TODO: make these configurable.
 LOG_PATH = "sniffer.log"
 ALERT_HANDLER_SERVER = u"127.0.0.1"
 
@@ -46,26 +48,36 @@ def send_alerts_from_tail(patterns, file_path):
                 alerts.send_umbox_alert(ALERT_HANDLER_SERVER, alert_text=pattern['alert_text'])
 
 
-def send_ping_alerts_from_file():
+def send_ping_alerts_from_file(file_path):
     """Sends alerts once a PING message is found, forever."""
     patterns = []
     patterns.append({'search_text': 'ICMP', 'alert_text': 'ping_alert'})
 
-    send_alerts_from_file(patterns, LOG_PATH)
+    send_alerts_from_file(patterns, file_path)
 
 
-def send_credential_alerts_from_tail():
+def send_credential_alerts_from_tail(file_path):
     """Sends alerts once credential attacks are found in file, tailing."""
     patterns = []
     patterns.append({'search_text': 'DEFAULT_CRED', 'alert_text': 'login with default credentials'})
     patterns.append({'search_text': 'MULTIPLE_LOGIN', 'alert_text': 'multiple login attempts in 30 min'})
 
-    send_alerts_from_tail(patterns, LOG_PATH)
+    send_alerts_from_tail(patterns, file_path)
+
+
+def parse_arguments():
+    parser = ArgumentParser()
+    parser.add_argument("-f", "--file", dest="logfile", default=True, help="log file to check")
+    args = parser.parse_args()
+    return args
 
 
 def main():
+    args = parse_arguments()
+    full_file_path = os.path.abspath(args.logfile)
+    print("Starting log checker on file: " + full_file_path)
     #send_ping_alerts_from_file()
-    send_credential_alerts_from_tail()
+    send_credential_alerts_from_tail(full_file_path)
 
 
 if __name__ == '__main__':
