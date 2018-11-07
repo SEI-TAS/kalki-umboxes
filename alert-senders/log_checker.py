@@ -6,7 +6,7 @@ from filetail import FileTail
 import alerts
 
 # TODO: make these two configurable.
-LOG_PATH = "snort.log"
+LOG_PATH = "sniffer.log"
 ALERT_HANDLER_SERVER = u"127.0.0.1"
 
 
