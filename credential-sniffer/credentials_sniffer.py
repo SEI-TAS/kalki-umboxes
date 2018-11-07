@@ -4,6 +4,7 @@ import socket
 import time
 import re
 import logging
+import sys
 import traceback
 from base64 import b64decode
 
@@ -24,6 +25,23 @@ REPEATED_ATTEMPTS_INTERVAL_MINS = 30
 MAX_ATTEMPTS = 4
 IOT_SERVER_PORT = 9010
 
+# Global logger.
+logger = None
+
+
+def setup_custom_logger(name, file_path):
+    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                  datefmt='%Y-%m-%d %H:%M:%S')
+    handler = logging.FileHandler(file_path, mode='w')
+    handler.setFormatter(formatter)
+    screen_handler = logging.StreamHandler(stream=sys.stdout)
+    screen_handler.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    logger.addHandler(screen_handler)
+    return logger
+
 
 class LoginRequest:
     def __init__(self, ip, user):
@@ -37,7 +55,7 @@ class LoginRequest:
 
 def log_default_creds(ip):
     msg = "DEFAULT_CRED: Login attempt with default credentials from " + ip
-    logging.warning(msg)
+    logger.warning(msg)
     print(msg)
     return
 
@@ -58,7 +76,7 @@ def track_login(ip, user_name):
             print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
             if minutes_from_first_attempt < REPEATED_ATTEMPTS_INTERVAL_MINS:
                 msg = "MULTIPLE_LOGIN : More than " + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
-                logging.error(msg)
+                logger.error(msg)
                 print(msg)
 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
@@ -72,7 +90,10 @@ def track_login(ip, user_name):
 
 def main():
     basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
-    logging.basicConfig(filename=LOG_FILE_PATH, level=logging.DEBUG)
+
+    global logger
+    logger = setup_custom_logger("main", LOG_FILE_PATH)
+
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
     print("Listening on raw socket...\n")
 
