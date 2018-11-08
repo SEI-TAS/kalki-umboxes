@@ -1,0 +1,8 @@
+[Unit]
+Description=Credentials Sniffer service
+
+[Service]
+ExecStart=/home/umbox/credential-sniffer/sniffer.sh
+
+[Install]
+WantedBy=multi-user.target
