@@ -37,7 +37,7 @@ class FileTail(object):
                  interval=0.1,          # sleep time to wait if no data is present (dynamically changes)
                  #min_interval=0.01,     # min sleep time
                  max_interval=5,        # max sleep time 
-                 max_wait=60,           # max time to wait with no data before reopening file
+                 max_wait=10,           # max time to wait with no data before reopening file
                  reopen_check="inode",  # how to check if file is different (inode or time) - inode does not work on win32
                  encoding="utf-8"       # file encoding
                 ):
