@@ -20,11 +20,13 @@ login_requests = {}
 DEFAULT_USERNAME = "Username"
 DEFAULT_PASSWORD = "Password"
 
-LOG_FILE_PATH = "sniffer.log"
+# Port to sniff on.
+IOT_SERVER_PORT = 9010
 
+# Internal parameters.
+LOG_FILE_PATH = "sniffer.log"
 REPEATED_ATTEMPTS_INTERVAL_MINS = 30
 MAX_ATTEMPTS = 4
-IOT_SERVER_PORT = 9010
 
 # Global logger.
 logger = None
