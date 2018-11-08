@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # NOTE: this needs to be run with sudo and python 3. This will only work on Linux due to the use of the AF_SOCKET type.
 
 import socket

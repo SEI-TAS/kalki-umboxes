@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=AlertSender
-Exec=/home/umbox/alert-senders/alert_sender.py
+Exec=bash -c 'pipenv run python /home/umbox/alert-senders/log_checker.py -f ../credential-sniffer/sniffer.log > log.txt  2> &1'
 Path=/home/umbox/alert-senders/
 X-GNOME-Autostart-enabled=true
