@@ -55,8 +55,8 @@ def send_ping_alerts_from_file(file_path, server_ip):
 def send_credential_alerts_from_tail(file_path, server_ip):
     """Sends alerts once credential attacks are found in file, tailing."""
     patterns = []
-    patterns.append({'search_text': 'DEFAULT_CRED', 'alert_text': 'login with default credentials'})
-    patterns.append({'search_text': 'MULTIPLE_LOGIN', 'alert_text': 'multiple login attempts in 30 min'})
+    patterns.append({'search_text': 'DEFAULT_CRED', 'alert_text': 'login_attempt_with_default_credentials'})
+    patterns.append({'search_text': 'MULTIPLE_LOGIN', 'alert_text': 'multiple_login_attempts_in_short_time'})
 
     send_alerts_from_tail(patterns, file_path, server_ip)
 
