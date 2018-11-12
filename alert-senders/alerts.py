@@ -14,7 +14,7 @@ def send_umbox_alert(server_ip, alert_text):
     """An API request to the Alert Handler to send alerts about the current mbox, using MAC to identify it."""
 
     # Get the mac of the card we will use for the control plane. It will be used as the ID for this umbox.
-    LOCAL_MAC = _local_mac_for_remote_ip(server_ip.decode('utf-8'))
+    local_mac = _local_mac_for_remote_ip(server_ip.decode('utf-8'))
 
     # Try sending the alert a couple of times.
     max_retries = 3
@@ -23,7 +23,7 @@ def send_umbox_alert(server_ip, alert_text):
     print("Sending alert {}".format(alert_text))
     while curr_retry < max_retries:
         try:
-            return send_alert(server_ip, umbox_id=LOCAL_MAC, alert_text=alert_text)
+            return send_alert(server_ip, alerter_id=local_mac, alert_text=alert_text)
         except requests.exceptions.ConnectionError, e:
             curr_retry += 1
             print("Error sending alert: " + str(e))
@@ -35,7 +35,7 @@ def send_umbox_alert(server_ip, alert_text):
                 break
 
 
-def send_alert(server_ip, umbox_id, alert_text):
+def send_alert(server_ip, alerter_id, alert_text):
     """A generic API request to Alert Handler."""
 
     url = "http://" + str(server_ip) + ":" + str(ALERT_HANDLER_PORT) + ALERT_HANDLER_URL
@@ -44,7 +44,7 @@ def send_alert(server_ip, umbox_id, alert_text):
     headers["Content-Type"] = "application/json"
 
     payload = {}
-    payload['umbox'] = umbox_id
+    payload['alerter'] = alerter_id
     payload['alert'] = alert_text
 
     req = requests.Request('POST', url, headers=headers, json=payload)

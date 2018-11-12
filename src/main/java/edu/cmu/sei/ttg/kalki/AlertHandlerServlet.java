@@ -50,7 +50,7 @@ public class AlertHandlerServlet extends HttpServlet
         try
         {
             // Get information about the alert.
-            String alerterId = alertData.getString("umbox");
+            String alerterId = alertData.getString("alerter");
             String alertText = alertData.getString("alert");
 
             // Store info in DB
