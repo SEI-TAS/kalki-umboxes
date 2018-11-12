@@ -50,14 +50,14 @@ public class AlertHandlerServlet extends HttpServlet
         try
         {
             // Get information about the alert.
-            String umboxName = alertData.getString("umbox");
+            String alerterId = alertData.getString("umbox");
             String alertText = alertData.getString("alert");
 
             // Store info in DB
-            System.out.println("umbox: " + umboxName);
+            System.out.println("alerterId: " + alerterId);
             System.out.println("alert: " + alertText);
             AlertHistory alertHistory = new AlertHistory();
-            alertHistory.setUmboxExternalId(umboxName);
+            alertHistory.setAlerterId(alerterId);
             alertHistory.setInfo(alertText);
             Postgres.insertAlertHistory(alertHistory);
         }
