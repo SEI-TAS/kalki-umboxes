@@ -58,7 +58,8 @@ public class AlertHandlerServlet extends HttpServlet
             System.out.println("alert: " + alertText);
             AlertHistory alertHistory = new AlertHistory();
             alertHistory.setAlerterId(alerterId);
-            alertHistory.setInfo(alertText);
+            alertHistory.setName(alertText);
+            alertHistory.setSource("umbox");
             Postgres.insertAlertHistory(alertHistory);
         }
         catch (JSONException e)
