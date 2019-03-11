@@ -23,10 +23,17 @@ DEFAULT_PASSWORD = "Password"
 # Port to sniff on.
 IOT_SERVER_PORT = 9010
 
+# NIC to bind to.
+NIC_NAME = "ens9"
+
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
 REPEATED_ATTEMPTS_INTERVAL_MINS = 30
 MAX_ATTEMPTS = 4
+ECHO_ON = True
+
+# "Protocol" number used in Linux to indicate we want to listen to ALL packets.
+ETH_P_ALL = 3
 
 # Global logger.
 logger = None
@@ -97,54 +104,68 @@ def main():
     global logger
     logger = setup_custom_logger("main", LOG_FILE_PATH)
 
-    conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-    print("Listening on raw socket...\n")
+    conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
+    conn.bind((NIC_NAME, 0))
+    print("Listening on raw socket on interface {}...\n".format(NIC_NAME))
 
     last_tcp_sequence = 0
     while True:
+        # Received data from raw socket.
         raw_data, addr = conn.recvfrom(65535)
+
+        if ECHO_ON:
+            # Echo it back before processing, to act transparently.
+            conn.send(raw_data)
+
+        # Ethernet
         eth = Ethernet(raw_data)
+        if eth.proto != 8:  # IPv4
+            # Ignore non-IPv4 packets
+            continue
+
+        print("Ethernet packet with src {} and dest {} received...".format(eth.src_mac, eth.dest_mac))
+
         # IPv4
-        if eth.proto == 8:
-            ipv4 = IPv4(eth.data)
+        ipv4 = IPv4(eth.data)
+        if ipv4.proto != 6:  # TCP
+            # Ignore non-TCP IPv4 packets.
+            continue
 
-            # TCP
-            if ipv4.proto == 6:
-                tcp = TCP(ipv4.data)
+        # TCP
+        tcp = TCP(ipv4.data)
+        if len(tcp.data) == 0 or tcp.dest_port != IOT_SERVER_PORT:
+            continue
 
-                if len(tcp.data) > 0:
-                    # HTTP
-                    if tcp.dest_port == IOT_SERVER_PORT:
-                        # Avoid duplicate packets.
-                        print("\nTCP sequence: " + str(tcp.sequence))
-                        if tcp.sequence == last_tcp_sequence:
-                            print("Ignoring duplicate TCP packet")
-                            continue
-                        else:
-                            last_tcp_sequence = tcp.sequence
+        # Avoid duplicate packets.
+        print("\nTCP sequence: " + str(tcp.sequence))
+        if tcp.sequence == last_tcp_sequence:
+            print("Ignoring duplicate TCP packet")
+            continue
+        else:
+            last_tcp_sequence = tcp.sequence
 
-                        try:
-                            http = HTTP(tcp.data)
-                            http_info = str(http.data).split('\n')
-                            print("Received HTTP data: " + str(http.data))
-                            for line in http_info:
-                                if 'Authorization' in line:
-                                    try:
-                                        match = basic_authorization_pattern.match(line)
-                                        if match:
-                                            print("Found line with authorization info: " + line)
-                                            credentials = b64decode(match.group(1)).decode("ascii")
-                                            print("Credentials: " + credentials)
-                                            username, password = credentials.split(":")
-                                            if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
-                                                log_default_creds(ipv4.src)
-                                            track_login(ipv4.src, username)
-                                    except Exception as ex:
-                                        print("Exception processing credentials: " + str(ex))
-                                        traceback.print_exc()
-                        except Exception as ex:
-                            print("HTTP exception: " + str(ex))
-                            traceback.print_exc()
+        try:
+            http = HTTP(tcp.data)
+            http_info = str(http.data).split('\n')
+            print("Received HTTP data: " + str(http.data))
+            for line in http_info:
+                if 'Authorization' in line:
+                    try:
+                        match = basic_authorization_pattern.match(line)
+                        if match:
+                            print("Found line with authorization info: " + line)
+                            credentials = b64decode(match.group(1)).decode("ascii")
+                            print("Credentials: " + credentials)
+                            username, password = credentials.split(":")
+                            if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
+                                log_default_creds(ipv4.src)
+                            track_login(ipv4.src, username)
+                    except Exception as ex:
+                        print("Exception processing credentials: " + str(ex))
+                        traceback.print_exc()
+        except Exception as ex:
+            print("HTTP exception: " + str(ex))
+            traceback.print_exc()
 
 
 if __name__ == '__main__':
