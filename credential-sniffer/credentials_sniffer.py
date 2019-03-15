@@ -108,10 +108,10 @@ def main():
 
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     conn.bind((NIC_NAME, 0))
-    print("Listening on raw socket on interface {}...\n".format(NIC_NAME))
+    print("Listening on raw socket on interface {}...".format(NIC_NAME))
 
-    nic_mac = netifaces.ifaddresses('eth0')[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on NIC is {}".format(nic_mac))
+    nic_mac = netifaces.ifaddresses(NIC_NAME)[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on NIC is {}\n".format(nic_mac))
 
     last_tcp_sequence = 0
     while True:
@@ -120,6 +120,7 @@ def main():
 
         if ECHO_ON:
             # Echo it back before processing, to act transparently.
+            print("Echoing data received back through raw socket.")
             conn.send(raw_data)
 
         # Ethernet
