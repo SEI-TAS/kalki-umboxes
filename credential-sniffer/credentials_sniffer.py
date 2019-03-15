@@ -9,6 +9,8 @@ import sys
 import traceback
 from base64 import b64decode
 
+import netifaces
+
 from networking.ethernet import Ethernet
 from networking.ipv4 import IPv4
 from networking.tcp import TCP
@@ -108,6 +110,9 @@ def main():
     conn.bind((NIC_NAME, 0))
     print("Listening on raw socket on interface {}...\n".format(NIC_NAME))
 
+    nic_mac = netifaces.ifaddresses('eth0')[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on NIC is {}".format(nic_mac))
+
     last_tcp_sequence = 0
     while True:
         # Received data from raw socket.
@@ -119,7 +124,7 @@ def main():
 
         # Ethernet
         eth = Ethernet(raw_data)
-        #print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto))
+        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto))
         if eth.proto != 8:  # IPv4
             # Ignore non-IPv4 packets
             continue
