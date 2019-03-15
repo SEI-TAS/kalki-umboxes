@@ -119,20 +119,21 @@ def main():
 
         # Ethernet
         eth = Ethernet(raw_data)
+        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto))
         if eth.proto != 8:  # IPv4
             # Ignore non-IPv4 packets
             continue
 
-        print("Ethernet packet with src {} and dest {} received...".format(eth.src_mac, eth.dest_mac))
-
         # IPv4
         ipv4 = IPv4(eth.data)
+        print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
         if ipv4.proto != 6:  # TCP
             # Ignore non-TCP IPv4 packets.
             continue
 
         # TCP
         tcp = TCP(ipv4.data)
+        print("TCP packet with src port {}, dest port {}, received...".format(tcp.src_port, tcp.dest_port))
         if len(tcp.data) == 0 or tcp.dest_port != IOT_SERVER_PORT:
             continue
 
