@@ -108,10 +108,10 @@ def main():
 
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     conn.bind((NIC_NAME, 0))
-    print("Listening on raw socket on interface {}...".format(NIC_NAME))
+    print("Listening on raw socket on interface {}...".format(NIC_NAME), flush=True)
 
     nic_mac = netifaces.ifaddresses(NIC_NAME)[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on NIC is {}\n".format(nic_mac))
+    print("Local MAC on NIC is {}\n".format(nic_mac), flush=True)
 
     last_tcp_sequence = 0
     while True:
@@ -120,12 +120,12 @@ def main():
 
         if ECHO_ON:
             # Echo it back before processing, to act transparently.
-            print("Echoing data received back through raw socket.")
+            print("Echoing data received back through raw socket.", flush=True)
             conn.send(raw_data)
 
         # Ethernet
         eth = Ethernet(raw_data)
-        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto))
+        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
         if eth.proto != 8:  # IPv4
             # Ignore non-IPv4 packets
             continue
@@ -139,14 +139,14 @@ def main():
 
         # TCP
         tcp = TCP(ipv4.data)
-        print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data))
+        print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
         if len(tcp.data) == 0 or tcp.dest_port != IOT_SERVER_PORT:
             continue
 
         # Avoid duplicate packets.
-        print("\nTCP sequence: " + str(tcp.sequence))
+        print("\nTCP sequence: " + str(tcp.sequence), flush=True)
         if tcp.sequence == last_tcp_sequence:
-            print("Ignoring duplicate TCP packet")
+            print("Ignoring duplicate TCP packet", flush=True)
             continue
         else:
             last_tcp_sequence = tcp.sequence
@@ -154,24 +154,24 @@ def main():
         try:
             http = HTTP(tcp.data)
             http_info = str(http.data).split('\n')
-            print("Received HTTP data: " + str(http.data))
+            print("Received HTTP data: " + str(http.data), flush=True)
             for line in http_info:
                 if 'Authorization' in line:
                     try:
                         match = basic_authorization_pattern.match(line)
                         if match:
-                            print("Found line with authorization info: " + line)
+                            print("Found line with authorization info: " + lin, flush=True)
                             credentials = b64decode(match.group(1)).decode("ascii")
-                            print("Credentials: " + credentials)
+                            print("Credentials: " + credentials, flush=True)
                             username, password = credentials.split(":")
                             if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
                                 log_default_creds(ipv4.src)
                             track_login(ipv4.src, username)
                     except Exception as ex:
-                        print("Exception processing credentials: " + str(ex))
+                        print("Exception processing credentials: " + str(ex), flush=True)
                         traceback.print_exc()
         except Exception as ex:
-            print("HTTP exception: " + str(ex))
+            print("HTTP exception: " + str(ex), flush=True)
             traceback.print_exc()
 
 
