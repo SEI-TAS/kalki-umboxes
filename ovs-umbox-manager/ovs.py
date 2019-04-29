@@ -155,11 +155,11 @@ def main():
     switch = RemoteVSwitch(args.datanodeip, DEFAULT_SWITCH_PORT)
 
     if args.command == "add_rule" or args.command == "del_rule":
-        print("Source IP: " + args.sourceip)
-        print("Destination IP: " + args.destip)
+        print("Source IP: " + str(args.sourceip))
+        print("Destination IP: " + str(args.destip))
         print("Input port name: " + str(args.inport))
         print("Output port name: " + str(args.outport))
-        print("Priority: " + args.priority)
+        print("Priority: " + str(args.priority))
 
         # First get port numbers if needed.
         in_port_number = get_port_number(args.datanodeip, args.inport)

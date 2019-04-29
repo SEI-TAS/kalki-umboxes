@@ -26,7 +26,7 @@ DEFAULT_PASSWORD = "Password"
 IOT_SERVER_PORT = 9010
 
 # NIC to bind to.
-NIC_NAME = "ens9"
+NIC_NAME = "ens3"
 
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
