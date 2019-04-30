@@ -138,6 +138,14 @@ class VmUmbox(object):
         cursor = conn.cursor()
         cursor.execute("SELECT path, id FROM umbox_image WHERE name=%s", (self.image_name,))
         image_info = cursor.fetchone()
+
+        if image_info is None:
+            cursor.close()
+            conn.close()
+            msg = "Could not find Umbox image with name {}".format(self.image_name)
+            logger.error(msg)
+            raise Exception(msg)
+
         self.image_path = image_info[0]
         self.image_id = image_info[1]
         cursor.close()
