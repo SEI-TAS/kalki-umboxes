@@ -6,5 +6,5 @@
 # $5: OVS port the device is reachable through.
 python ovs.py -c add_rule -s $1 -di $2 -i $4 -o $3 -p 100
 python ovs.py -c add_rule -s $1 -di $2 -i $3 -o $5 -p 110
-python ovs.py -c add_rule -s $1 -si $2 -i $5 -o $3 -p 100
-python ovs.py -c add_rule -s $1 -si $2 -i $3 -o $4 -p 110
+#python ovs.py -c add_rule -s $1 -si $2 -i $5 -o $3 -p 100
+#python ovs.py -c add_rule -s $1 -si $2 -i $3 -o $4 -p 110
