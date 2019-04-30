@@ -19,6 +19,10 @@ class OpenFlowRule(object):
         self.type = type
         self.in_port = in_port
         self.out_port = out_port
+
+        if self.type is None:
+            self.type = "ip"
+
         self.priority = DEFAULT_PRIORITY
         self.src_ip = None
         self.dest_ip = None
@@ -126,6 +130,7 @@ def parse_arguments():
     parser.add_argument("-i", "--inport", dest="inport", required=False, help="Input port name/number on virtual switch")
     parser.add_argument("-o", "--outport", dest="outport", required=False, help="Output port name/number on virtual switch")
     parser.add_argument("-p", "--priority", dest="priority", required=False, help="Priority")
+    parser.add_argument("-t", "--type", dest="type", required=False, help="Traffic Type")
     args = parser.parse_args()
     return args
 
@@ -155,6 +160,7 @@ def main():
     switch = RemoteVSwitch(args.datanodeip, DEFAULT_SWITCH_PORT)
 
     if args.command == "add_rule" or args.command == "del_rule":
+        print("Traffic Type: " + str(args.type))
         print("Source IP: " + str(args.sourceip))
         print("Destination IP: " + str(args.destip))
         print("Input port name: " + str(args.inport))
@@ -166,7 +172,7 @@ def main():
         out_port_number = get_port_number(args.datanodeip, args.outport)
 
         # Set up rule with received IPs and OVS ports.
-        rule = OpenFlowRule("ip", in_port_number, out_port_number)
+        rule = OpenFlowRule(args.type, in_port_number, out_port_number)
         rule.src_ip = args.sourceip
         rule.dest_ip = args.destip
         if args.priority is not None:
