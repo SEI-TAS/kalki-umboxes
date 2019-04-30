@@ -15,14 +15,13 @@ DEFAULT_OVSDB_PORT = 6654
 class OpenFlowRule(object):
     """Represents an OF rule."""
 
-    def __init__(self, type, in_port, out_port):
-        self.type = type
+    def __init__(self, in_port, out_port, proto=None, nw_dest_port=None):
         self.in_port = in_port
         self.out_port = out_port
+        self.proto = proto
+        self.nw_dest_port = nw_dest_port
 
-        if self.type is None:
-            self.type = "ip"
-
+        self.type = "ip"
         self.priority = DEFAULT_PRIORITY
         self.src_ip = None
         self.dest_ip = None
@@ -33,6 +32,12 @@ class OpenFlowRule(object):
 
         if self.type is not None:
             rule_string += "{}, ".format(self.type)
+
+        if self.proto is not None:
+            rule_string += "nw_proto={}, ".format(self.proto)
+
+        if self.nw_dest_port is not None:
+            rule_string += "tcp_dst={}, ".format(self.nw_dest_port)
 
         if self.priority is not None:
             rule_string += "priority={}, ".format(self.priority)
@@ -130,7 +135,8 @@ def parse_arguments():
     parser.add_argument("-i", "--inport", dest="inport", required=False, help="Input port name/number on virtual switch")
     parser.add_argument("-o", "--outport", dest="outport", required=False, help="Output port name/number on virtual switch")
     parser.add_argument("-p", "--priority", dest="priority", required=False, help="Priority")
-    parser.add_argument("-t", "--type", dest="type", required=False, help="Traffic Type")
+    parser.add_argument("-pr", "--proto", dest="proto", required=False, help="IP Protocol")
+    parser.add_argument("-ndp", "--nw_dest_port", dest="nw_dest_port", required=False, help="IP Dest Port")
     args = parser.parse_args()
     return args
 
@@ -160,7 +166,8 @@ def main():
     switch = RemoteVSwitch(args.datanodeip, DEFAULT_SWITCH_PORT)
 
     if args.command == "add_rule" or args.command == "del_rule":
-        print("Traffic Type: " + str(args.type))
+        print("Protocol: " + str(args.proto))
+        print("Dest NW Port: " + str(args.nw_dest_port))
         print("Source IP: " + str(args.sourceip))
         print("Destination IP: " + str(args.destip))
         print("Input port name: " + str(args.inport))
@@ -172,7 +179,7 @@ def main():
         out_port_number = get_port_number(args.datanodeip, args.outport)
 
         # Set up rule with received IPs and OVS ports.
-        rule = OpenFlowRule(args.type, in_port_number, out_port_number)
+        rule = OpenFlowRule(in_port_number, out_port_number, args.proto, args.nw_dest_port)
         rule.src_ip = args.sourceip
         rule.dest_ip = args.destip
         if args.priority is not None:
