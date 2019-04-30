@@ -160,7 +160,7 @@ def main():
                     try:
                         match = basic_authorization_pattern.match(line)
                         if match:
-                            print("Found line with authorization info: " + lin, flush=True)
+                            print("Found line with authorization info: " + line, flush=True)
                             credentials = b64decode(match.group(1)).decode("ascii")
                             print("Credentials: " + credentials, flush=True)
                             username, password = credentials.split(":")
