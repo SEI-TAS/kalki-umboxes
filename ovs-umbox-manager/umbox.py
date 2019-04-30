@@ -142,7 +142,7 @@ class VmUmbox(object):
         if image_info is None:
             cursor.close()
             conn.close()
-            msg = "Could not find Umbox image with name {}".format(self.image_name)
+            msg = "Could not find Umbox image with name {} in database".format(self.image_name)
             logger.error(msg)
             raise Exception(msg)
 
