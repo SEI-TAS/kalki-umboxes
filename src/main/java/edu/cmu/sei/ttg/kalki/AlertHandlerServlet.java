@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kalkidb.database.Postgres;
-import kalkidb.models.AlertHistory;
+import kalkidb.models.Alert;
 import org.eclipse.jetty.http.HttpStatus;
 
 import org.json.JSONException;
@@ -56,11 +56,11 @@ public class AlertHandlerServlet extends HttpServlet
             // Store info in DB
             System.out.println("alerterId: " + alerterId);
             System.out.println("alert: " + alertText);
-            AlertHistory alertHistory = new AlertHistory();
-            alertHistory.setAlerterId(alerterId);
-            alertHistory.setName(alertText);
-            alertHistory.setSource("umbox");
-            Postgres.insertAlertHistory(alertHistory);
+            Alert currentAlert = new Alert();
+            currentAlert.setAlerterId(alerterId);
+            currentAlert.setName(alertText);
+            //alertHistory.setSource("umbox");
+            Postgres.insertAlert(currentAlert);
         }
         catch (JSONException e)
         {
