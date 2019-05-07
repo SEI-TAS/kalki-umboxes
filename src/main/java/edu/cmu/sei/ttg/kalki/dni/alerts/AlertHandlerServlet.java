@@ -1,4 +1,4 @@
-package edu.cmu.sei.ttg.kalki;
+package edu.cmu.sei.ttg.kalki.dni.alerts;
 
 import java.io.BufferedReader;
 
@@ -50,14 +50,14 @@ public class AlertHandlerServlet extends HttpServlet
         try
         {
             // Get information about the alert.
-            String alerterId = alertData.getString("alerter");
+            String umboxId = alertData.getString("umbox");
             String alertText = alertData.getString("alert");
 
             // Store info in DB
-            System.out.println("alerterId: " + alerterId);
+            System.out.println("umboxId: " + umboxId);
             System.out.println("alert: " + alertText);
             Alert currentAlert = new Alert();
-            currentAlert.setAlerterId(alerterId);
+            currentAlert.setAlerterId(umboxId);
             currentAlert.setName(alertText);
             //alertHistory.setSource("umbox");
             Postgres.insertAlert(currentAlert);

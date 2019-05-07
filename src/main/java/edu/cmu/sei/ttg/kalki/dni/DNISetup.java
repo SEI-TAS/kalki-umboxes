@@ -10,19 +10,18 @@ import java.sql.SQLException;
 /**
  * Entry point for the program.
  */
-public class Program
+public class DNISetup
 {
     /**
-     * Simply starts a Jetty server, with a handler for new alert notifications.
-     * @param args
+     * Sets up the Config and Postgres singletons, starts up the AlertHandler http server.
      */
-    public static void main(String[] args)
+    public static void startUpComponents()
     {
         try
         {
             Config.load("config.json");
 
-            Program.setupDatabase();
+            DNISetup.setupDatabase();
 
             AlertServerStartup.start();
         }
@@ -60,24 +59,6 @@ public class Program
         {
             // Create tables, triggers, and more.
             Postgres.setupDatabase();
-
-            // Inserts basic data for testing.
-            insertTestData();
         }
     }
-
-    /***
-     * Inserts default data to run simple tests.
-     */
-    private static void insertTestData()
-    {
-        Group newGroup = new Group("testGroup");
-        Postgres.insertGroup(newGroup).whenComplete((groupId, exception) -> {
-            int defaultType = 1;
-            String deviceIp = "192.168.56.103";
-            Device newDevice = new Device("testDevice", "test device", defaultType, groupId, deviceIp, 10, 10);
-            Postgres.insertDevice(newDevice);
-        });
-    }
-
 }
