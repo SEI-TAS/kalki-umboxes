@@ -45,8 +45,8 @@ def setup_custom_logger(name):
     return logger
 
 
-def create_and_start_umbox(data_node_ip, umbox_id, image_name, image_path, device_id, control_bridge, data_bridge):
-    umbox = VmUmbox(umbox_id, image_name, image_path, device_id, control_bridge, data_bridge)
+def create_and_start_umbox(data_node_ip, umbox_id, image_name, image_path, control_bridge, data_bridge):
+    umbox = VmUmbox(umbox_id, image_name, image_path, control_bridge, data_bridge)
     #umbox.create_linked_image()
     umbox.start(data_node_ip)
     logger.info("Umbox started.")
@@ -75,15 +75,13 @@ def generate_mac(instance_id):
 class VmUmbox(object):
     """Class that stores information about a VM that is working as a umbox."""
 
-    def __init__(self, umbox_id, image_name, image_path=None, device_id=None, control_bridge=None, data_bridge=None):
+    def __init__(self, umbox_id, image_name, image_path=None, control_bridge=None, data_bridge=None):
         """Default constructor."""
         self.umbox_id = umbox_id
         self.image_name = image_name
         self.instance_name = image_name + NUM_SEPARATOR + self.umbox_id
 
         self.image_path = image_path
-        self.device_id = device_id
-
         self.control_bridge = control_bridge
         self.data_bridge = data_bridge
         self.control_iface_name = CONTROL_TUN_PREFIX + self.umbox_id
@@ -193,9 +191,11 @@ def parse_arguments():
     parser = ArgumentParser()
     parser.add_argument("-c", "--command", dest="command", required=True, help="Command: start or stop")
     parser.add_argument("-s", "--server", dest="datanodeip", required=True, help="IP of the data node server")
-    parser.add_argument("-d", "--deviceid", dest="deviceid", required=False, help="device id")
+    parser.add_argument("-u", "--umbox", dest="umboxid", required=False, help="id of the umbox instance")
     parser.add_argument("-i", "--image", dest="imagename", required=False, help="name of the umbox image")
-    parser.add_argument("-u", "--umbox", dest="umboxname", required=False, help="name of the umbox instance")
+    parser.add_argument("-p", "--imagepath", dest="imagepath", required=False, help="the path to the image file")
+    parser.add_argument("-bc", "--bridgecontrol", dest="controlbr", required=False, help="name of the control virtual bridge")
+    parser.add_argument("-bd", "--bridgedata", dest="databr", required=False, help="name of the data ovs virtual bridge")
     args = parser.parse_args()
     return args
 
@@ -208,17 +208,20 @@ def main():
     logger.info("Command: " + args.command)
     logger.info("Data node to use: " + args.datanodeip)
     if args.command == "start":
-        logger.info("Device ID: " + args.deviceid)
+        logger.info("Umbox ID: " + args.umboxid)
         logger.info("Image name: " + args.imagename)
+        logger.info("Image path: " + args.imagepath)
+        logger.info("Control bridge: " + args.controlbr)
+        logger.info("Data bridge: " + args.databr)
 
-        umbox = create_and_start_umbox(args.datanodeip, args.deviceid, args.imagename)
+        umbox = create_and_start_umbox(args.datanodeip, args.umboxid, args.imagename, args.imagepath, args.controlbr, args.databr)
 
         # Print the TAP device name so that it can be returned and used by ovs commands if needed.
         print(umbox.data_iface_name)
     else:
-        logger.info("Instance: " + args.umboxname)
+        logger.info("Instance: " + args.imagename + "-" + args.umboxid)
 
-        stop_umbox(args.datanodeip, args.umboxname)
+        stop_umbox(args.datanodeip, args.umboxid, args.imagename)
 
 
 if __name__ == '__main__':
