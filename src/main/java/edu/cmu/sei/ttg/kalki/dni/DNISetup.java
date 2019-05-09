@@ -1,9 +1,8 @@
 package edu.cmu.sei.ttg.kalki.dni;
 
 import edu.cmu.sei.ttg.kalki.dni.alerts.AlertServerStartup;
+import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
-import kalkidb.models.Device;
-import kalkidb.models.Group;
 
 import java.sql.SQLException;
 

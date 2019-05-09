@@ -1,6 +1,7 @@
 package edu.cmu.sei.ttg.kalki.dni;
 
 import edu.cmu.sei.ttg.kalki.dni.umbox.Umbox;
+import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
 import kalkidb.models.Device;
 import kalkidb.models.Group;
@@ -12,7 +13,10 @@ import kalkidb.models.UmboxImage;
 public class Test
 {
     private static int testDeviceId = -1;
-    private static String testImageName = "umbox-sniffer";
+    private static int testUmboxImageId = -1;
+
+    private static final String TEST_IMAGE_NAME = "umbox-sniffer";
+    private static final String TEST_IMAGE_PATH = "/home/kalki/images/umbox-sniffer.qcow2";
 
     /**
      * Entry point for the program.
@@ -21,13 +25,18 @@ public class Test
     {
         try
         {
+            Config.data.put("db_reset", "true");
+            Config.data.put("db_name", "kalkidb_test");
+            Config.data.put("db_user", "kalkiuser_test");
+
             DNISetup.startUpComponents();
 
-            String resetDB = Config.data.get("db_reset");
-            if(resetDB.equals("true"))
+            insertTestData();
+
+            // Wait for data to be inserted.
+            while(testUmboxImageId == -1)
             {
-                insertTestData();
-                // TODO: Sleep or wait for dev id to be inserted?
+                Thread.sleep(100);
             }
 
             runSimpleTest();
@@ -53,7 +62,7 @@ public class Test
             });
         });
 
-        UmboxImage image = new UmboxImage("umbox-sniffer", "/home/kalki/images/umbox-sniffer.qcow2");
+        UmboxImage image = new UmboxImage(TEST_IMAGE_NAME, TEST_IMAGE_PATH);
         Postgres.insertUmboxImage(image).whenComplete((umboxImageId, exception) -> {
             testUmboxImageId = umboxImageId;
         });
@@ -64,6 +73,27 @@ public class Test
      */
     private static void runSimpleTest()
     {
-        Umbox.startDeviceUmbox(testImageName, testDeviceId);
+        Postgres.findDevice(testDeviceId).whenComplete((device, exception) ->
+        {
+            Postgres.findUmboxImage(testUmboxImageId).whenComplete((image, imageExc) ->
+            {
+                Umbox umbox = new Umbox(image, device);
+                System.out.println("Starting VM.");
+                umbox.start();
+
+                int sleepInSeconds = 20;
+                try
+                {
+                    Thread.sleep(sleepInSeconds * 1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Stopping VM");
+                umbox.stop();
+            });
+        });
     }
 }
