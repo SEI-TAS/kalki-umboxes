@@ -48,7 +48,6 @@ public class Umbox
         this.device = null;
         this.umboxId = instanceId;
 
-
         setupCommand();
     }
 
@@ -82,8 +81,9 @@ public class Umbox
 
     /**
      * Starts a new umbox.
+     * @returns the name of the OVS port the umbox was connected to.
      */
-    public void start()
+    public String start()
     {
         List<String> command = (ArrayList) commandInfo.clone();
         command.add("-c");
@@ -91,16 +91,20 @@ public class Umbox
 
         try
         {
-            CommandExecutor.executeCommand(command);
+            List<String> output = CommandExecutor.executeCommand(command);
 
             // Store in the DB the information about the newly created umbox instance.
             UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
             instance.insert();
+
+            return output.get(0);
         }
         catch (RuntimeException e)
         {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     /**
