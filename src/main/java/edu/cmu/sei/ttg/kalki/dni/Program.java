@@ -1,5 +1,7 @@
 package edu.cmu.sei.ttg.kalki.dni;
 
+import edu.cmu.sei.ttg.kalki.dni.utils.Config;
+
 /**
  * Entry point for the program.
  */
@@ -13,6 +15,7 @@ public class Program
     {
         try
         {
+            Config.load("config.json");
             DNISetup.startUpComponents();
         }
         catch(Exception e)

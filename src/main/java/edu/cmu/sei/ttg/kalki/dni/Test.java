@@ -25,6 +25,8 @@ public class Test
     {
         try
         {
+            Config.load("config.json");
+
             Config.data.put("db_reset", "true");
             Config.data.put("db_name", "kalkidb_test");
             Config.data.put("db_user", "kalkiuser_test");
@@ -34,10 +36,12 @@ public class Test
             insertTestData();
 
             // Wait for data to be inserted.
-            while(testUmboxImageId == -1)
+            while(testDeviceId == -1 || testUmboxImageId == -1)
             {
                 Thread.sleep(100);
             }
+
+            System.out.println("Test data finished inserting.");
 
             runSimpleTest();
         }

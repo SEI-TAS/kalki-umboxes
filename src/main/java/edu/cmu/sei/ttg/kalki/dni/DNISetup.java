@@ -18,8 +18,6 @@ public class DNISetup
     {
         try
         {
-            Config.load("config.json");
-
             DNISetup.setupDatabase();
 
             AlertServerStartup.start();
