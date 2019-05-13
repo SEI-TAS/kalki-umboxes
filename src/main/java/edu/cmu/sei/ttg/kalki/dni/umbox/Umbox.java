@@ -97,7 +97,7 @@ public class Umbox
             UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
             instance.insert();
 
-            return output.get(0);
+            return output.get(output.size() - 1);
         }
         catch (RuntimeException e)
         {
