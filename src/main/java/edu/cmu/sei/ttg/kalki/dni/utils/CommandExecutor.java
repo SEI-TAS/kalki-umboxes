@@ -21,6 +21,7 @@ public class CommandExecutor
 
         try
         {
+            System.out.println("Executing new command: " + commandAndParams.toString());
             Process process = processBuilder.start();
             BufferedReader outputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

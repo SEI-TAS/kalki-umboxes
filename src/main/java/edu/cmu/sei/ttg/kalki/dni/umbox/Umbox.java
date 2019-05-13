@@ -98,7 +98,6 @@ public class Umbox
             instance.insert();
 
             String portName = output.get(output.size() - 1);
-            System.out.println(output.toString());
             System.out.println("Umbox port name: " + portName);
             return portName;
         }
