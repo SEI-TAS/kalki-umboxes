@@ -47,12 +47,14 @@ public class RemoteOVSDB
      */
     private List<String> sendCommand(String command, List<String> arguments)
     {
+        System.out.print("Preparing command to OVS DB.");
         List<String> commandInfo = new ArrayList<>();
         commandInfo.add(TOOL_COMMAND);
         commandInfo.add(MessageFormat.format(SERVER_PARAM, serverIp, port));
         commandInfo.addAll(Arrays.asList(command.split(" ")));
         commandInfo.addAll(arguments);
 
+        System.out.print("Sending command to OVS DB: " + commandInfo.toString());
         List<String> output = CommandExecutor.executeCommand(commandInfo);
         return output;
     }
