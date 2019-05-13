@@ -33,36 +33,36 @@ public class OpenFlowRule
 
         if(trafficType != null)
         {
-            ruleString = MessageFormat.format("{0}, ", trafficType);
+            ruleString += MessageFormat.format("{0}, ", trafficType);
         }
 
         if(priority != null)
         {
-            ruleString = MessageFormat.format("priority={0}, ", priority);
+            ruleString += MessageFormat.format("priority={0}, ", priority);
         }
 
         if(inputPort != null)
         {
-            ruleString = MessageFormat.format("in_port={0}, ", inputPort);
+            ruleString += MessageFormat.format("in_port={0}, ", inputPort);
         }
 
         if(sourceIpAddress != null)
         {
-            ruleString = MessageFormat.format("ip_src={0}, ", sourceIpAddress);
+            ruleString += MessageFormat.format("ip_src={0}, ", sourceIpAddress);
         }
 
         if(destIpAddress != null)
         {
-            ruleString = MessageFormat.format("ip_dst={0}, ", destIpAddress);
+            ruleString += MessageFormat.format("ip_dst={0}, ", destIpAddress);
         }
 
         if(outputPort != null)
         {
-            ruleString = MessageFormat.format("actions=output:{0}, ", outputPort);
+            ruleString += MessageFormat.format("actions=output:{0}, ", outputPort);
         }
         else if(outputPort.equals("-1"))
         {
-            ruleString = "actions=drop";
+            ruleString += "actions=drop";
         }
 
         ruleString += "\"";
