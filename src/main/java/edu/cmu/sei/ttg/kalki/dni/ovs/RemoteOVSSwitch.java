@@ -65,7 +65,7 @@ public class RemoteOVSSwitch
     private List<String> sendCommand(String command, List<String> arguments)
     {
         List<String> commandInfo = new ArrayList<>();
-        commandInfo.add(TOOL_COMMAND);
+        commandInfo.addAll(Arrays.asList(TOOL_COMMAND.split(" ")));
         commandInfo.add(command);
         commandInfo.add(MessageFormat.format(SERVER_PARAM, serverIp, port));
         commandInfo.addAll(arguments);
