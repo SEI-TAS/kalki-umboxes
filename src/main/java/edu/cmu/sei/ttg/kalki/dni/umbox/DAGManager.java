@@ -20,6 +20,7 @@ public class DAGManager
         Umbox umbox = new Umbox(image, device);
         System.out.println("Starting Umbox.");
         String portName = umbox.start();
+        System.out.println("Port name : " + portName);
 
         RemoteOVSDB ovsdb = new RemoteOVSDB(Config.data.get("data_node_ip"));
         String umboxPortId = ovsdb.getPortId(portName);
