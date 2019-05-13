@@ -15,7 +15,7 @@ import vm.diskimage
 
 MAX_INSTANCES = 1000
 NUM_SEPARATOR = "-"
-XML_VM_TEMPLATE = "vm/vm_template.xml"
+XML_VM_TEMPLATE = "ovs-umbox-manager/vm/vm_template.xml"
 
 # Base names for the TUN/TAP virtual interfaces on the data node that handle the VM interfaces.
 CONTROL_TUN_PREFIX = "vnucont"
