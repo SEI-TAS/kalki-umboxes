@@ -14,9 +14,8 @@ import java.util.List;
 public class RemoteOVSDB
 {
     private static final String TOOL_COMMAND = "ovs-vsctl";
-    private static final String SERVER_PARAM = "--db=tcp:{0}:{1}";
-    private static final String GET_PORT_COMMAND = "get Interface";
-    private static final String GET_PORT_COMMAND_PARAM = "ofport";
+    private static final String SERVER_PARAM = "--db=tcp:{0}:{1,number,#}";
+    private static final String GET_PORT_COMMAND = "get Interface {0} ofport";
 
     private static final int DEFAULT_PORT = 6654;
 
@@ -39,7 +38,7 @@ public class RemoteOVSDB
      */
     public String getPortId(String portName)
     {
-        List<String> output = sendCommand(GET_PORT_COMMAND + " " + portName, new ArrayList<>());
+        List<String> output = sendCommand(MessageFormat.format(GET_PORT_COMMAND, portName), new ArrayList<>());
         return output.get(0);
     }
 
@@ -53,7 +52,6 @@ public class RemoteOVSDB
         commandInfo.add(TOOL_COMMAND);
         commandInfo.add(MessageFormat.format(SERVER_PARAM, serverIp, port));
         commandInfo.addAll(Arrays.asList(command.split(" ")));
-        commandInfo.add(GET_PORT_COMMAND_PARAM);
         commandInfo.addAll(arguments);
 
         System.out.print("Sending command to OVS DB: " + commandInfo.toString());
