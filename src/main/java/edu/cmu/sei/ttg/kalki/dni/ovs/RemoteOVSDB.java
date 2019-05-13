@@ -15,7 +15,7 @@ public class RemoteOVSDB
 {
     private static final String TOOL_COMMAND = "ovs-vsctl";
     private static final String SERVER_PARAM = "--db=tcp:{0}:{1}";
-    private static final String GET_PORT_COMMAND = "get Interface {0} ofport";
+    private static final String GET_PORT_COMMAND = "get Interface {0,number,#} ofport";
 
     private static final int DEFAULT_PORT = 6654;
 
