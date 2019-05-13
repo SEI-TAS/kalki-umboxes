@@ -4,6 +4,7 @@ import edu.cmu.sei.ttg.kalki.dni.utils.CommandExecutor;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /***
@@ -49,7 +50,7 @@ public class RemoteOVSDB
         List<String> commandInfo = new ArrayList<>();
         commandInfo.add(TOOL_COMMAND);
         commandInfo.add(MessageFormat.format(SERVER_PARAM, serverIp, port));
-        commandInfo.add(command);
+        commandInfo.addAll(Arrays.asList(command.split(" ")));
         commandInfo.addAll(arguments);
 
         List<String> output = CommandExecutor.executeCommand(commandInfo);
