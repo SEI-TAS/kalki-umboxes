@@ -29,7 +29,7 @@ public class OpenFlowRule
 
     public String toString()
     {
-        String ruleString = "\"";
+        String ruleString = "";
 
         if(trafficType != null)
         {
@@ -65,7 +65,7 @@ public class OpenFlowRule
             ruleString += "actions=drop";
         }
 
-        ruleString += "\"";
+        ruleString += "";
         return ruleString;
     }
 }
