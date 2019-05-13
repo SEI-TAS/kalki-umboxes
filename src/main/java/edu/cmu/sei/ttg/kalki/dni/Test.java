@@ -1,5 +1,6 @@
 package edu.cmu.sei.ttg.kalki.dni;
 
+import edu.cmu.sei.ttg.kalki.dni.umbox.DAGManager;
 import edu.cmu.sei.ttg.kalki.dni.umbox.Umbox;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
@@ -43,7 +44,7 @@ public class Test
 
             System.out.println("Test data finished inserting.");
 
-            runSimpleTest();
+            runOvsTest();
         }
         catch(Exception e)
         {
@@ -97,6 +98,34 @@ public class Test
 
                 System.out.println("Stopping VM");
                 umbox.stop();
+            });
+        });
+    }
+
+    /***
+     * Simple test to try out starting and directing traffic to a umbox.
+     */
+    private static void runOvsTest()
+    {
+        Postgres.findDevice(testDeviceId).whenComplete((device, exception) ->
+        {
+            Postgres.findUmboxImage(testUmboxImageId).whenComplete((image, imageExc) ->
+            {
+                System.out.println("Starting umbox.");
+                Umbox umbox = DAGManager.startAndRedirectToUmbox(image, device);
+
+                int sleepInSeconds = 20;
+                try
+                {
+                    Thread.sleep(sleepInSeconds * 1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Stopping umbox");
+                DAGManager.stopAndClearRedirection(umbox, device);
             });
         });
     }

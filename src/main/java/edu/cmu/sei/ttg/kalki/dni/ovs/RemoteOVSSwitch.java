@@ -13,8 +13,7 @@ import java.util.List;
  */
 public class RemoteOVSSwitch
 {
-    // TODO: how to handle sudo permissions needed for this command?
-    private static final String TOOL_COMMAND = "sudo ovs-ofctl -O OpenFlow13";
+    private static final String TOOL_COMMAND = "ovs-ofctl -O OpenFlow13";
     private static final String SERVER_PARAM = "tcp:{0}:{1}";
 
     private static final String CMD_SHOW = "show";

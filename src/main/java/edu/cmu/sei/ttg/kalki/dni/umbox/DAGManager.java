@@ -15,7 +15,7 @@ public class DAGManager
      * @param image
      * @param device
      */
-    public static void startAndRedirectToUmbox(UmboxImage image, Device device)
+    public static Umbox startAndRedirectToUmbox(UmboxImage image, Device device)
     {
         Umbox umbox = new Umbox(image, device);
         System.out.println("Starting Umbox.");
@@ -27,26 +27,19 @@ public class DAGManager
         {
             redirectToUmbox(device.getIp(), Config.data.get("ovs_devices_network_port"), umboxPortId, Config.data.get("ovs_external_network_port"));
         }
+
+        return umbox;
     }
 
     /**
      * Stops a given umbox and clears rules directing traffic to it.
-     * @param image
-     * @param umboxId
      */
-    public static void stopAndClearRedirection(UmboxImage image, int umboxId)
+    public static void stopAndClearRedirection(Umbox umbox, Device device)
     {
-        Postgres.findUmboxInstance(String.valueOf(umboxId)).whenComplete((instance, exception) ->
-        {
-            Postgres.findDevice(instance.getDeviceId()).whenComplete((device, exceptionDev) ->
-            {
-                clearRedirectToUmbox(device.getIp());
+        clearRedirectToUmbox(device.getIp());
 
-                Umbox umbox = new Umbox(image, umboxId);
-                System.out.println("Stopping umbox.");
-                umbox.stop();
-            });
-        });
+        System.out.println("Stopping umbox.");
+        umbox.stop();
     }
 
     /**

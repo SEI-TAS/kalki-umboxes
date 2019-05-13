@@ -12,8 +12,7 @@ import java.util.List;
  */
 public class RemoteOVSDB
 {
-    // TODO: how to handle sudo permissions needed for this command?
-    private static final String TOOL_COMMAND = "sudo ovs-vsctl";
+    private static final String TOOL_COMMAND = "ovs-vsctl";
     private static final String SERVER_PARAM = "--db=tcp:{0}:{1}";
     private static final String GET_PORT_COMMAND = "get Interface {0} ofport";
 
