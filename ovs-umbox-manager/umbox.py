@@ -107,7 +107,7 @@ class VmUmbox(object):
         # Get the descriptor and inflate it to something we can work with.
         xml_descriptor = vm_descriptor.VirtualMachineDescriptor(xml_descriptor_string)
 
-        xml_descriptor.set_uuid(uuid.uuid4())
+        xml_descriptor.set_uuid(str(uuid.uuid4()))
         xml_descriptor.set_name(self.instance_name)
 
         # TODO: change this back to instance_disk_path when we are able to create it.
