@@ -16,22 +16,23 @@ public class CommandExecutor
     {
         List<String> outputs = new ArrayList<>();
         ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.redirectErrorStream(true);
         processBuilder.command(commandAndParams);
 
         try
         {
             Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader outputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
+            System.out.println("Command output: ");
             String line;
-            while((line = reader.readLine()) != null)
+            while((line = outputReader.readLine()) != null)
             {
                 outputs.add(line);
+                System.out.println(line);
             }
 
             int exitVal = process.waitFor();
-            System.out.println("Command output: ");
-            System.out.println(outputs.toString());
             if(exitVal == 0)
             {
                 System.out.println("Command execution returned successfully.");
