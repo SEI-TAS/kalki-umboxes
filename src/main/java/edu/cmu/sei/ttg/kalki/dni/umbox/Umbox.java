@@ -97,7 +97,10 @@ public class Umbox
             UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
             instance.insert();
 
-            return output.get(output.size() - 1);
+            String portName = output.get(output.size() - 1);
+            System.out.println(output.toString());
+            System.out.println("Umbox port name: " + portName);
+            return portName;
         }
         catch (RuntimeException e)
         {
