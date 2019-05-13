@@ -28,7 +28,7 @@ class OpenFlowRule(object):
 
     def build_rule(self):
         """Creates a string with the flow rule from the information in this object."""
-        rule_string = "\""
+        rule_string = ""
 
         if self.type is not None:
             rule_string += "{}, ".format(self.type)
@@ -56,7 +56,7 @@ class OpenFlowRule(object):
         elif self.out_port == -1:
             rule_string += "actions=drop"
 
-        return rule_string + "\""
+        return rule_string + ""
 
 
 class RemoteVSwitch(object):
