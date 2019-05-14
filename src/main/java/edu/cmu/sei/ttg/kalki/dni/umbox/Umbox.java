@@ -120,11 +120,12 @@ public class Umbox
 
         try
         {
+            System.out.println("Executing stop command.");
             CommandExecutor.executeCommand(command);
 
             Postgres.findUmboxInstance(String.valueOf(umboxId)).whenComplete((umboxInstance, exception) ->
             {
-                // TODO: Keep instance marked as off, instead of deleting it.
+                System.out.println("Deleting umbox instance from DB.");
                 Postgres.deleteUmboxInstance(umboxInstance.getId());
             });
         }

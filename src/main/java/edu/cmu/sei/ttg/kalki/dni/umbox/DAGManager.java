@@ -4,7 +4,6 @@ import edu.cmu.sei.ttg.kalki.dni.ovs.OpenFlowRule;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSDB;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSSwitch;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
-import kalkidb.database.Postgres;
 import kalkidb.models.Device;
 import kalkidb.models.UmboxImage;
 
@@ -74,7 +73,7 @@ public class DAGManager
         OpenFlowRule allToDevice = new OpenFlowRule(null, null, null, null, deviceIp);
 
         RemoteOVSSwitch vSwitch = new RemoteOVSSwitch(Config.data.get("data_node_ip"));
-        vSwitch.addRule(allFromDevice);
-        vSwitch.addRule(allToDevice);
+        vSwitch.removeRule(allFromDevice);
+        vSwitch.removeRule(allToDevice);
     }
 }
