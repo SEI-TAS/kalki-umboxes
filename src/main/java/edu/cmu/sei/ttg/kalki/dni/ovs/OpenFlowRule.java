@@ -58,11 +58,14 @@ public class OpenFlowRule
 
         if(outputPort != null)
         {
-            ruleString += MessageFormat.format("actions=output:{0}, ", outputPort);
-        }
-        else if(outputPort.equals("-1"))
-        {
-            ruleString += "actions=drop";
+            if(outputPort.equals("-1"))
+            {
+                ruleString += "actions=drop";
+            }
+            else
+            {
+                ruleString += MessageFormat.format("actions=output:{0}, ", outputPort);
+            }
         }
 
         ruleString += "";

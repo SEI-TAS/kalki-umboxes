@@ -69,6 +69,8 @@ public class DAGManager
      */
     private static void clearRedirectToUmbox(String deviceIp)
     {
+        System.out.println("Clearing up rules for device: " + deviceIp);
+
         OpenFlowRule allFromDevice = new OpenFlowRule(null, null, null, deviceIp, null);
         OpenFlowRule allToDevice = new OpenFlowRule(null, null, null, null, deviceIp);
 
