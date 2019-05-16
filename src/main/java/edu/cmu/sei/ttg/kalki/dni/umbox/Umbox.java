@@ -1,25 +1,21 @@
 package edu.cmu.sei.ttg.kalki.dni.umbox;
 
-import edu.cmu.sei.ttg.kalki.dni.utils.CommandExecutor;
-import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
 import kalkidb.models.Device;
 import kalkidb.models.UmboxImage;
 import kalkidb.models.UmboxInstance;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Umbox
+public abstract class Umbox
 {
     private static final int MAX_INSTANCES = 1000;
 
-    private int umboxId;
-    private Device device;
-    private UmboxImage image;
-
-    private ArrayList<String> commandInfo;
+    protected int umboxId;
+    protected Device device;
+    protected UmboxImage image;
+    protected String ovsPortName = "";
 
     /***
      * Constructor for new umboxes.
@@ -34,8 +30,6 @@ public class Umbox
         // Generate random id.
         Random rand = new Random();
         umboxId = rand.nextInt(MAX_INSTANCES);
-
-        setupCommand();
     }
 
     /***
@@ -47,81 +41,42 @@ public class Umbox
         this.image = image;
         this.device = null;
         this.umboxId = instanceId;
-
-        setupCommand();
-    }
-
-    /***
-     * Common parameters that are the same (needed or optional) for all comands.
-     */
-    private void setupCommand()
-    {
-        String dataNodeIP = Config.data.get("data_node_ip");
-        String ovsDataBridge = Config.data.get("ovs_data_bridge");
-        String controlBridge = Config.data.get("control_bridge");
-        String umboxToolPath = Config.data.get("umbox_tool_path");
-
-        // Basic command parameters.
-        commandInfo = new ArrayList<>();
-        commandInfo.add("python");
-        commandInfo.add(umboxToolPath);
-        commandInfo.add("-s");
-        commandInfo.add(dataNodeIP);
-        commandInfo.add("-u");
-        commandInfo.add(String.valueOf(umboxId));
-        commandInfo.add("-i");
-        commandInfo.add(image.getName());
-        commandInfo.add("-p");
-        commandInfo.add(image.getPath());
-        commandInfo.add("-bc");
-        commandInfo.add(controlBridge);
-        commandInfo.add("-bd");
-        commandInfo.add(ovsDataBridge);
     }
 
     /**
-     * Starts a new umbox.
+     * Starts a new umbox and stores its info in the DB.
      * @returns the name of the OVS port the umbox was connected to.
      */
-    public String start()
+    public String startAndStore()
     {
-        List<String> command = (ArrayList) commandInfo.clone();
-        command.add("-c");
-        command.add("start");
-
         try
         {
-            List<String> output = CommandExecutor.executeCommand(command);
+            List<String> output = start();
 
             // Store in the DB the information about the newly created umbox instance.
             UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
             instance.insert();
 
-            String portName = output.get(output.size() - 1);
-            System.out.println("Umbox port name: " + portName);
-            return portName;
+            // Assuming the port name was the last thing printed in the output, get it and return it.
+            ovsPortName = output.get(output.size() - 1);
+            System.out.println("Umbox port name: " + ovsPortName);
+            return ovsPortName;
         }
         catch (RuntimeException e)
         {
             e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
 
     /**
-     * Stops a running umbox.
+     * Stops a running umbox and clears its info from the DB.
      */
-    public void stop()
+    public void stopAndClear()
     {
-        List<String> command = (ArrayList) commandInfo.clone();
-        command.add("-c");
-        command.add("stop");
-
         try
         {
-            System.out.println("Executing stop command.");
-            CommandExecutor.executeCommand(command);
+            stop();
 
             Postgres.findUmboxInstance(String.valueOf(umboxId)).whenComplete((umboxInstance, exception) ->
             {
@@ -134,5 +89,16 @@ public class Umbox
             e.printStackTrace();
         }
     }
+
+    /**
+     * Starts a new umbox.
+     * @returns the name of the OVS port the umbox was connected to.
+     */
+    protected abstract List<String> start();
+
+    /**
+     * Stops a running umbox.
+     */
+    protected abstract List<String> stop();
 
 }

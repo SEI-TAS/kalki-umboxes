@@ -14,12 +14,17 @@ public class DAGManager
      * @param image
      * @param device
      */
-    public static Umbox startAndRedirectToUmbox(UmboxImage image, Device device)
+    public static Umbox setupUmboxForDevice(UmboxImage image, Device device)
     {
-        Umbox umbox = new Umbox(image, device);
+        // Here we are explicitly stating we are using VMUmboxes. If we wanted to change to another implementation,
+        // for now it would be enough to change it here.
+        Umbox umbox = new VMUmbox(image, device);
+
         System.out.println("Starting Umbox.");
-        String portName = umbox.start();
+        String portName = umbox.startAndStore();
         System.out.println("Port name : " + portName);
+
+        clearRedirectForDevice(device.getIp());
 
         RemoteOVSDB ovsdb = new RemoteOVSDB(Config.data.get("data_node_ip"));
         String umboxPortId = ovsdb.getPortId(portName);
@@ -34,12 +39,12 @@ public class DAGManager
     /**
      * Stops a given umbox and clears rules directing traffic to it.
      */
-    public static void stopAndClearRedirection(Umbox umbox, Device device)
+    public static void clearUmboxForDevice(Umbox umbox, Device device)
     {
-        clearRedirectToUmbox(device.getIp());
+        clearRedirectForDevice(device.getIp());
 
         System.out.println("Stopping umbox.");
-        umbox.stop();
+        umbox.stopAndClear();
     }
 
     /**
@@ -67,7 +72,7 @@ public class DAGManager
      * Clears all rules related to incoming and outgoing traffic for a given device.
      * @param deviceIp
      */
-    private static void clearRedirectToUmbox(String deviceIp)
+    private static void clearRedirectForDevice(String deviceIp)
     {
         System.out.println("Clearing up rules for device: " + deviceIp);
 

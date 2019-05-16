@@ -112,7 +112,7 @@ public class Test
             Postgres.findUmboxImage(testUmboxImageId).whenComplete((image, imageExc) ->
             {
                 System.out.println("Starting umbox and setting rules.");
-                Umbox umbox = DAGManager.startAndRedirectToUmbox(image, device);
+                Umbox umbox = DAGManager.setupUmboxForDevice(image, device);
 
                 System.out.println("Waiting for some seconds...");
                 int sleepInSeconds = 20;
@@ -126,7 +126,7 @@ public class Test
                 }
 
                 System.out.println("Clearing rules and stopping umbox");
-                DAGManager.stopAndClearRedirection(umbox, device);
+                DAGManager.clearUmboxForDevice(umbox, device);
             });
         });
     }

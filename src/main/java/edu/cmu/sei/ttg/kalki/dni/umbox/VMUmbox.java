@@ -1,0 +1,97 @@
+package edu.cmu.sei.ttg.kalki.dni.umbox;
+
+import edu.cmu.sei.ttg.kalki.dni.utils.CommandExecutor;
+import edu.cmu.sei.ttg.kalki.dni.utils.Config;
+import kalkidb.models.Device;
+import kalkidb.models.UmboxImage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class VMUmbox extends Umbox
+{
+    private ArrayList<String> commandInfo;
+
+    public VMUmbox(UmboxImage image, Device device)
+    {
+        super(image, device);
+        setupCommand();
+    }
+
+    public VMUmbox(UmboxImage image, int instanceId)
+    {
+        super(image, instanceId);
+        setupCommand();
+    }
+
+    /***
+     * Common parameters that are the same (needed or optional) for all comands.
+     */
+    private void setupCommand()
+    {
+        String dataNodeIP = Config.data.get("data_node_ip");
+        String ovsDataBridge = Config.data.get("ovs_data_bridge");
+        String controlBridge = Config.data.get("control_bridge");
+        String umboxToolPath = Config.data.get("umbox_tool_path");
+
+        // Basic command parameters.
+        commandInfo = new ArrayList<>();
+        commandInfo.add("python");
+        commandInfo.add(umboxToolPath);
+        commandInfo.add("-s");
+        commandInfo.add(dataNodeIP);
+        commandInfo.add("-u");
+        commandInfo.add(String.valueOf(umboxId));
+        commandInfo.add("-i");
+        commandInfo.add(image.getName());
+        commandInfo.add("-p");
+        commandInfo.add(image.getPath());
+        commandInfo.add("-bc");
+        commandInfo.add(controlBridge);
+        commandInfo.add("-bd");
+        commandInfo.add(ovsDataBridge);
+    }
+
+    /**
+     * Starts a new umbox.
+     * @returns the name of the OVS port the umbox was connected to.
+     */
+    protected List<String> start()
+    {
+        List<String> command = (ArrayList) commandInfo.clone();
+        command.add("-c");
+        command.add("start");
+
+        try
+        {
+            return CommandExecutor.executeCommand(command);
+        }
+        catch (RuntimeException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Stops a running umbox.
+     */
+    protected List<String> stop()
+    {
+        List<String> command = (ArrayList) commandInfo.clone();
+        command.add("-c");
+        command.add("stop");
+
+        try
+        {
+            System.out.println("Executing stop command.");
+            return CommandExecutor.executeCommand(command);
+        }
+        catch (RuntimeException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+}

@@ -27,6 +27,10 @@ public class OpenFlowRule
         this.destIpAddress = destIpAddress;
     }
 
+    /***
+     * Converts the rule into a string representation that can be used by the ovs tool that adds flows.
+     * @return
+     */
     public String toString()
     {
         String ruleString = "";
