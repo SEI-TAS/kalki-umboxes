@@ -1,8 +1,10 @@
 package edu.cmu.sei.ttg.kalki.dni;
 
 import edu.cmu.sei.ttg.kalki.dni.alerts.AlertServerStartup;
+import edu.cmu.sei.ttg.kalki.dni.umbox.DeviceSecurityStateInsertHandler;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
+import kalkidb.listeners.InsertListener;
 
 import java.sql.SQLException;
 
@@ -19,6 +21,8 @@ public class DNISetup
         try
         {
             DNISetup.setupDatabase();
+
+            InsertListener.startUpListener("devSecStateInsertTrigger", new DeviceSecurityStateInsertHandler());
 
             AlertServerStartup.start();
         }

@@ -2,6 +2,7 @@ package edu.cmu.sei.ttg.kalki.dni;
 
 import edu.cmu.sei.ttg.kalki.dni.umbox.DAGManager;
 import edu.cmu.sei.ttg.kalki.dni.umbox.Umbox;
+import edu.cmu.sei.ttg.kalki.dni.umbox.VMUmbox;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
 import kalkidb.models.Device;
@@ -82,9 +83,9 @@ public class Test
         {
             Postgres.findUmboxImage(testUmboxImageId).whenComplete((image, imageExc) ->
             {
-                Umbox umbox = new Umbox(image, device);
+                Umbox umbox = new VMUmbox(image, device);
                 System.out.println("Starting VM.");
-                umbox.start();
+                umbox.startAndStore();
 
                 int sleepInSeconds = 20;
                 try
@@ -97,7 +98,7 @@ public class Test
                 }
 
                 System.out.println("Stopping VM");
-                umbox.stop();
+                umbox.stopAndClear();
             });
         });
     }

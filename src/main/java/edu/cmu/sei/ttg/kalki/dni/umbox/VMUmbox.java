@@ -42,10 +42,13 @@ public class VMUmbox extends Umbox
         commandInfo.add(dataNodeIP);
         commandInfo.add("-u");
         commandInfo.add(String.valueOf(umboxId));
-        commandInfo.add("-i");
-        commandInfo.add(image.getName());
-        commandInfo.add("-p");
-        commandInfo.add(image.getPath());
+        if(image != null)
+        {
+            commandInfo.add("-i");
+            commandInfo.add(image.getName());
+            commandInfo.add("-p");
+            commandInfo.add(image.getPath());
+        }
         commandInfo.add("-bc");
         commandInfo.add(controlBridge);
         commandInfo.add("-bd");
