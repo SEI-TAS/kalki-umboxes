@@ -48,7 +48,7 @@ public class Test
 
             System.out.println("Test data finished inserting.");
 
-            runOvsTest();
+            runTriggerTest();
         }
         catch(Exception e)
         {
