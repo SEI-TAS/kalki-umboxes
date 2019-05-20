@@ -33,7 +33,7 @@ public class DNISetup
     }
 
     /**
-     * Creates DB objects if needed, but also intializes the DB singleton.
+     * Creates DB objects if needed, but also initializes the DB singleton.
      * @throws SQLException
      */
     private static void setupDatabase() throws SQLException

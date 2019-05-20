@@ -6,6 +6,7 @@ import edu.cmu.sei.ttg.kalki.dni.umbox.VMUmbox;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import kalkidb.database.Postgres;
 import kalkidb.models.Device;
+import kalkidb.models.DeviceSecurityState;
 import kalkidb.models.Group;
 import kalkidb.models.UmboxImage;
 
@@ -16,7 +17,9 @@ public class Test
 {
     private static int testDeviceId = -1;
     private static int testUmboxImageId = -1;
+    private static int testUmboxLookupId = -1;
 
+    private static final int suspDeviceState = 2;
     private static final String TEST_IMAGE_NAME = "umbox-sniffer";
     private static final String TEST_IMAGE_PATH = "/home/kalki/images/umbox-sniffer.qcow2";
 
@@ -38,7 +41,7 @@ public class Test
             insertTestData();
 
             // Wait for data to be inserted.
-            while(testDeviceId == -1 || testUmboxImageId == -1)
+            while(testUmboxLookupId == -1)
             {
                 Thread.sleep(100);
             }
@@ -65,19 +68,21 @@ public class Test
             Device newDevice = new Device("testDevice", "test device", defaultType, groupId, deviceIp, 10, 10);
             Postgres.insertDevice(newDevice).whenComplete((deviceId, devException) -> {
                 testDeviceId = deviceId;
-            });
-        });
 
-        UmboxImage image = new UmboxImage(TEST_IMAGE_NAME, TEST_IMAGE_PATH);
-        Postgres.insertUmboxImage(image).whenComplete((umboxImageId, exception) -> {
-            testUmboxImageId = umboxImageId;
+                UmboxImage image = new UmboxImage(TEST_IMAGE_NAME, TEST_IMAGE_PATH);
+                Postgres.insertUmboxImage(image).whenComplete((umboxImageId, umException) ->
+                {
+                    testUmboxImageId = umboxImageId;
+                    testUmboxLookupId = Postgres.insertUmboxLookup(umboxImageId, defaultType, suspDeviceState, 1);
+                });
+            });
         });
     }
 
     /***
      * Simple test to try out starting and directing traffic to a umbox.
      */
-    private static void runSimpleTest()
+    private static void runVmTest()
     {
         Postgres.findDevice(testDeviceId).whenComplete((device, exception) ->
         {
@@ -130,5 +135,14 @@ public class Test
                 DAGManager.clearUmboxForDevice(umbox, device);
             });
         });
+    }
+
+    /***
+     * Full test based on trigger. Inserts a new sec state for a device, simulating that its state has changed.
+     */
+    private static void runTriggerTest()
+    {
+        DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, suspDeviceState);
+        Postgres.insertDeviceSecurityState(secState);
     }
 }
