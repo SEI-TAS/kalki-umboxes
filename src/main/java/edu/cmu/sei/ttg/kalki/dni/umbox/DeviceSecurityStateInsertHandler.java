@@ -47,7 +47,7 @@ public class DeviceSecurityStateInsertHandler implements IInsertHandler
                 List<UmboxImage> umboxImages = Postgres.findUmboxImagesByDeviceTypeAndSecState(device.getType().getId(), stateChange.getId());
 
                 // TODO: add support for multiple umbox images in one DAG, at least as a pipe, one after another.
-                System.out.println("Found umboxes for device type and current state.");
+                System.out.println("Found umboxes for device type and current state, number of umboxes: " + umboxImages.size());
                 UmboxImage image = umboxImages.get(0);
                 if(image != null)
                 {
