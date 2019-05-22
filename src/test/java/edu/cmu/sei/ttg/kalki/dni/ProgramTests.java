@@ -10,10 +10,15 @@ import kalkidb.models.DeviceSecurityState;
 import kalkidb.models.Group;
 import kalkidb.models.UmboxImage;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 /***
  * Simple class for quick tests.
  */
-public class Test
+class ProgramTests
 {
     private static int testDeviceId = -1;
     private static int testUmboxImageId = -1;
@@ -24,36 +29,28 @@ public class Test
     private static final String TEST_IMAGE_PATH = "/home/kalki/images/umbox-sniffer.qcow2";
 
     /**
-     * Entry point for the program.
+     * Sets up test DB, main program threads, and config singleton data.
      */
-    public static void main(String[] args)
+    @BeforeAll
+    static void setUpEnviornment() throws IOException, InterruptedException
     {
-        try
+        Config.load("config.json");
+
+        Config.data.put("db_reset", "true");
+        Config.data.put("db_name", "kalkidb_test");
+        Config.data.put("db_user", "kalkiuser_test");
+
+        DNISetup.startUpComponents();
+
+        insertTestData();
+
+        // Wait for data to be inserted.
+        while(testUmboxLookupId == -1)
         {
-            Config.load("config.json");
-
-            Config.data.put("db_reset", "true");
-            Config.data.put("db_name", "kalkidb_test");
-            Config.data.put("db_user", "kalkiuser_test");
-
-            DNISetup.startUpComponents();
-
-            insertTestData();
-
-            // Wait for data to be inserted.
-            while(testUmboxLookupId == -1)
-            {
-                Thread.sleep(100);
-            }
-
-            System.out.println("Test data finished inserting.");
-
-            runTriggerTest();
+            Thread.sleep(100);
         }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+
+        System.out.println("Test data finished inserting.");
     }
 
     /***
@@ -82,7 +79,7 @@ public class Test
     /***
      * Simple test to try out starting and directing traffic to a umbox.
      */
-    private static void runVmTest()
+    void runVmTest()
     {
         Postgres.findDevice(testDeviceId).whenComplete((device, exception) ->
         {
@@ -111,7 +108,7 @@ public class Test
     /***
      * Simple test to try out starting and directing traffic to a umbox.
      */
-    private static void runOvsTest()
+    void runOvsTest()
     {
         Postgres.findDevice(testDeviceId).whenComplete((device, exception) ->
         {
@@ -140,7 +137,8 @@ public class Test
     /***
      * Full test based on trigger. Inserts a new sec state for a device, simulating that its state has changed.
      */
-    private static void runTriggerTest()
+    @Test
+    void runTriggerTest()
     {
         DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, SUSP_DEVICE_STATE_ID);
         Postgres.insertDeviceSecurityState(secState);

@@ -9,7 +9,7 @@
   "db_name": "kalkidb",
   "db_user": "kalkiuser",
   "db_password": "kalkipass",
-  "db_reset": "true",
+  "db_reset": "false",
 
   "umbox_tool_path": "./ovs-umbox-manager/umbox.py"
 }
