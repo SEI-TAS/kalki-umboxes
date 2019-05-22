@@ -19,7 +19,7 @@ public class Test
     private static int testUmboxImageId = -1;
     private static int testUmboxLookupId = -1;
 
-    private static final int suspDeviceState = 2;
+    private static final int SUSP_DEVICE_STATE_ID = 2;
     private static final String TEST_IMAGE_NAME = "umbox-sniffer";
     private static final String TEST_IMAGE_PATH = "/home/kalki/images/umbox-sniffer.qcow2";
 
@@ -73,7 +73,7 @@ public class Test
                 Postgres.insertUmboxImage(image).whenComplete((umboxImageId, umException) ->
                 {
                     testUmboxImageId = umboxImageId;
-                    testUmboxLookupId = Postgres.insertUmboxLookup(umboxImageId, defaultType, suspDeviceState, 1);
+                    testUmboxLookupId = Postgres.insertUmboxLookup(umboxImageId, defaultType, SUSP_DEVICE_STATE_ID, 1);
                 });
             });
         });
@@ -142,7 +142,7 @@ public class Test
      */
     private static void runTriggerTest()
     {
-        DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, suspDeviceState);
+        DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, SUSP_DEVICE_STATE_ID);
         Postgres.insertDeviceSecurityState(secState);
     }
 }
