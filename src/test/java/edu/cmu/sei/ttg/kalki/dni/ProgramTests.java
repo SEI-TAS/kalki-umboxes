@@ -138,9 +138,14 @@ class ProgramTests
      * Full test based on trigger. Inserts a new sec state for a device, simulating that its state has changed.
      */
     @Test
-    void runTriggerTest()
+    void runTriggerTest() throws InterruptedException
     {
         DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, SUSP_DEVICE_STATE_ID);
         Postgres.insertDeviceSecurityState(secState);
+
+        // Simple wait to have time to check out results.
+        System.out.println("Sleeping to allow manual evaluation...");
+        Thread.sleep(60000);
+        System.out.println("Finished sleeping.");
     }
 }
