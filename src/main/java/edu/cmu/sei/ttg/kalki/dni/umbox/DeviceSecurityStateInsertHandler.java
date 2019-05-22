@@ -44,10 +44,10 @@ public class DeviceSecurityStateInsertHandler implements IInsertHandler
                 // TODO: better sync this? Maybe first create new umboxes, then clear previous rules,
                 //  then redirect and then stop old ones?
                 // Now create the new ones.
-                List<UmboxImage> umboxImages = Postgres.findUmboxImagesByDeviceTypeAndSecState(device.getType().getId(), stateChange.getId());
+                List<UmboxImage> umboxImages = Postgres.findUmboxImagesByDeviceTypeAndSecState(device.getType().getId(), stateChange.getStateId());
 
                 // TODO: add support for multiple umbox images in one DAG, at least as a pipe, one after another.
-                System.out.println("Found umboxes for device type " + device.getType().getId() + " and current state " + deviceSecurityStateId + " , number of umboxes: " + umboxImages.size());
+                System.out.println("Found umboxes for device type " + device.getType().getId() + " and current state " + stateChange.getStateId() + " , number of umboxes: " + umboxImages.size());
                 if(umboxImages.size() > 0)
                 {
                     UmboxImage image = umboxImages.get(0);
