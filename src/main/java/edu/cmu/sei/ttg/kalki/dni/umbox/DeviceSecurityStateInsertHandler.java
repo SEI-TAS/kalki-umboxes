@@ -13,6 +13,7 @@ public class DeviceSecurityStateInsertHandler implements IInsertHandler
     @Override
     public void handleNewInsertion(int deviceSecurityStateId)
     {
+        System.out.println("Handling new device security state insertion with id: <" + deviceSecurityStateId + ">.");
         DeviceSecurityState stateChange = Postgres.findDeviceSecurityState(deviceSecurityStateId);
         int deviceId = stateChange.getDeviceId();
 
