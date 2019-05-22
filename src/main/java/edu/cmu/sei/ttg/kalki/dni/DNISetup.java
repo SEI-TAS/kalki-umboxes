@@ -13,6 +13,8 @@ import java.sql.SQLException;
  */
 public class DNISetup
 {
+    private static final String NEW_SEC_STATE_TRIGGER = "devSecurityStateNotify";
+
     /**
      * Sets up the Config and Postgres singletons, starts up the AlertHandler http server.
      */
@@ -22,7 +24,7 @@ public class DNISetup
         {
             DNISetup.setupDatabase();
 
-            InsertListener.startUpListener("devSecStateInsertTrigger", new DeviceSecurityStateInsertHandler());
+            InsertListener.startUpListener(NEW_SEC_STATE_TRIGGER, new DeviceSecurityStateInsertHandler());
 
             AlertServerStartup.start();
         }

@@ -13,7 +13,6 @@ public class DeviceSecurityStateInsertHandler implements IInsertHandler
     @Override
     public void handleNewInsertion(int deviceSecurityStateId)
     {
-        // TODO: switch this to get a specific security state change.
         DeviceSecurityState stateChange = Postgres.findDeviceSecurityState(deviceSecurityStateId);
         int deviceId = stateChange.getDeviceId();
 
@@ -36,7 +35,7 @@ public class DeviceSecurityStateInsertHandler implements IInsertHandler
                 // Now create the new ones.
                 List<UmboxImage> umboxImages = Postgres.findUmboxImagesByDeviceTypeAndSecState(device.getType().getId(), stateChange.getId());
 
-                // TODO: add support for multiple umbox images in one DAG.
+                // TODO: add support for multiple umbox images in one DAG, at least as a pipe, one after another.
                 UmboxImage image = umboxImages.get(0);
                 if(image != null)
                 {
