@@ -76,6 +76,8 @@ public class DAGManager
     {
         System.out.println("Clearing up rules for device: " + deviceIp);
 
+        // TODO: get device and external OVS ports, and have 4 specific removals here to match the 4 that are added.
+        // Otherwise, when we add rules from control node to device, this would end up being removed here as well.
         OpenFlowRule allFromDevice = new OpenFlowRule(null, null, null, deviceIp, null);
         OpenFlowRule allToDevice = new OpenFlowRule(null, null, null, null, deviceIp);
 

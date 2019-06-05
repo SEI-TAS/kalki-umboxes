@@ -5,12 +5,14 @@ import os.path
 import logging
 import sys
 import random
+import json
 from argparse import ArgumentParser
 
 
+import requests
+
 import vm.vmutils as vmutils
 import vm.vm_descriptor as vm_descriptor
-import vm.diskimage
 
 
 MAX_INSTANCES = 1000
@@ -21,9 +23,10 @@ XML_VM_TEMPLATE = "ovs-umbox-manager/vm/vm_template.xml"
 CONTROL_TUN_PREFIX = "vnucont"
 DATA_TUN_PREFIX = "vnudata"
 
-# Path to stored VM umbox images in data node.
-DATA_NODE_IMAGES_PATH = "/home/kalki/images/"
-INSTANCES_FOLDER = "instances"
+BASE_CLONE_API_URL = "/clone"
+INSTANCE_PATH_KEY = "instance_path"
+API_CLONE_METHOD = "POST"
+API_CLEAN_METHOD = "DELETE"
 
 # Global logger.
 logger = None
@@ -91,15 +94,7 @@ class VmUmbox(object):
         self.control_mac_address = generate_mac(self.umbox_id)
         self.data_mac_address = generate_mac(self.umbox_id)
 
-        #self.instance_disk_path = os.path.join(DATA_NODE_IMAGES_PATH, INSTANCES_FOLDER, self.instance_name)
-
         logger.info("VM name: " + self.instance_name)
-
-    #def create_linked_image(self):
-    #    """Create a linked qcow2 file so that we don't modify the template, and we don't have to copy the complete image."""
-        # TODO: find way to do this remotely.
-        #template_image = vm.diskimage.DiskImage(self.image_path)
-        #template_image.create_linked_qcow2_image(self.instance_disk_path)
 
     def get_updated_descriptor(self, xml_descriptor_string):
         """Updates an XML containing the description of the VM with the current info of this VM."""
@@ -110,8 +105,7 @@ class VmUmbox(object):
         xml_descriptor.set_uuid(str(uuid.uuid4()))
         xml_descriptor.set_name(self.instance_name)
 
-        # TODO: change this back to instance_disk_path when we are able to create it.
-        xml_descriptor.set_disk_image(self.image_path, 'qcow2')
+        xml_descriptor.set_disk_image(self.instance_path, 'qcow2')
 
         logger.info('Adding OVS connected network interface, using tap: ' + self.data_iface_name)
         xml_descriptor.add_bridge_interface(self.data_bridge, self.data_mac_address, target=self.data_iface_name, ovs=True)
@@ -132,6 +126,10 @@ class VmUmbox(object):
     def start(self, hypervisor_host_ip):
         """Creates a new VM using the XML template plus the information set up for this umbox."""
         self._connect_to_remote_hypervisor(hypervisor_host_ip)
+
+        # First clone remote image for new instance.
+        json_reply = self.__send_api_command(hypervisor_host_ip, API_CLONE_METHOD, "{0}/{1}".format(self.image_name, self.instance_name))
+        self.instance_path = json.loads(json_reply)[INSTANCE_PATH_KEY]
 
         # Set up VM information from template and umbox data.
         template_xml_file = os.path.abspath(XML_VM_TEMPLATE)
@@ -182,9 +180,25 @@ class VmUmbox(object):
             vm.connect_to_virtual_machine_by_name(self.instance_name)
             vm.destroy()
 
-            #TODO: destroy instance image file.
+            # Destroy instance image file.
+            json_reply = self.__send_api_command(hypervisor_host_ip, API_CLEAN_METHOD, "{0}".format(self.instance_name))
+            print "Remote instance image deletion response: " + json_reply
         except:
             logger.warning("VM not found.")
+
+    def __send_api_command(self, host, method, command):
+        remote_url = 'http://{0}' + BASE_CLONE_API_URL + '/{1}'.format(host, command)
+        print remote_url
+
+        req = requests.Request(method, remote_url)
+        prepared = req.prepare()
+        session = requests.Session()
+        response = session.send(prepared)
+
+        if response.status_code != requests.codes.ok:
+            raise Exception('Error sending request {}: {} - {}'.format(command, response.status_code, response.text))
+
+        return response.text
 
 
 def parse_arguments():

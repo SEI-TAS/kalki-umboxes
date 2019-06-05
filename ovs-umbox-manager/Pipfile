@@ -6,7 +6,8 @@ name = "pypi"
 [packages]
 libvirt-python = "==4.2.0"
 requests = "==2.18.4"
-"psycopg2" = "*"
+flask = "*"
+flask-restful = "*"
 
 [dev-packages]
 
