@@ -4,11 +4,11 @@ import edu.cmu.sei.ttg.kalki.dni.umbox.DAGManager;
 import edu.cmu.sei.ttg.kalki.dni.umbox.Umbox;
 import edu.cmu.sei.ttg.kalki.dni.umbox.VMUmbox;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
-import kalkidb.database.Postgres;
-import kalkidb.models.Device;
-import kalkidb.models.DeviceSecurityState;
-import kalkidb.models.Group;
-import kalkidb.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.database.Postgres;
+import edu.cmu.sei.ttg.kalki.models.Device;
+import edu.cmu.sei.ttg.kalki.models.DeviceSecurityState;
+import edu.cmu.sei.ttg.kalki.models.DeviceType;
+import edu.cmu.sei.ttg.kalki.models.UmboxImage;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -58,20 +58,18 @@ class ProgramTests
      */
     private static void insertTestData()
     {
-        Group newGroup = new Group("testGroup");
-        Postgres.insertGroup(newGroup).whenComplete((groupId, exception) -> {
-            int defaultType = 1;
-            String deviceIp = "192.168.56.103";
-            Device newDevice = new Device("testDevice", "test device", defaultType, groupId, deviceIp, 10, 10);
-            Postgres.insertDevice(newDevice).whenComplete((deviceId, devException) -> {
-                testDeviceId = deviceId;
+        int defaultType = 1;
+        DeviceType defType = new DeviceType(1, "test");
+        String deviceIp = "192.168.56.103";
+        Device newDevice = new Device("testDevice", "test device", defType, deviceIp, 10, 10);
+        Postgres.insertDevice(newDevice).whenComplete((deviceId, devException) -> {
+            testDeviceId = deviceId;
 
-                UmboxImage image = new UmboxImage(TEST_IMAGE_NAME, TEST_IMAGE_PATH);
-                Postgres.insertUmboxImage(image).whenComplete((umboxImageId, umException) ->
-                {
-                    testUmboxImageId = umboxImageId;
-                    testUmboxLookupId = Postgres.insertUmboxLookup(umboxImageId, defaultType, SUSP_DEVICE_STATE_ID, 1);
-                });
+            UmboxImage image = new UmboxImage(TEST_IMAGE_NAME, TEST_IMAGE_PATH);
+            Postgres.insertUmboxImage(image).whenComplete((umboxImageId, umException) ->
+            {
+                testUmboxImageId = umboxImageId;
+                testUmboxLookupId = Postgres.insertUmboxLookup(umboxImageId, defaultType, SUSP_DEVICE_STATE_ID, 1);
             });
         });
     }
