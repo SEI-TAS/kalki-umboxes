@@ -1,14 +1,14 @@
 package edu.cmu.sei.ttg.kalki.dni.umbox;
 
-import kalkidb.database.Postgres;
-import kalkidb.listeners.IInsertHandler;
-import kalkidb.models.DeviceSecurityState;
-import kalkidb.models.UmboxImage;
-import kalkidb.models.UmboxInstance;
+import edu.cmu.sei.ttg.kalki.database.Postgres;
+import edu.cmu.sei.ttg.kalki.listeners.InsertHandler;
+import edu.cmu.sei.ttg.kalki.models.DeviceSecurityState;
+import edu.cmu.sei.ttg.kalki.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.models.UmboxInstance;
 
 import java.util.List;
 
-public class DeviceSecurityStateInsertHandler implements IInsertHandler
+public class DeviceSecurityStateInsertHandler implements InsertHandler
 {
     @Override
     public void handleNewInsertion(int deviceSecurityStateId)

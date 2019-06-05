@@ -3,8 +3,8 @@ package edu.cmu.sei.ttg.kalki.dni;
 import edu.cmu.sei.ttg.kalki.dni.alerts.AlertServerStartup;
 import edu.cmu.sei.ttg.kalki.dni.umbox.DeviceSecurityStateInsertHandler;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
-import kalkidb.database.Postgres;
-import kalkidb.listeners.InsertListener;
+import edu.cmu.sei.ttg.kalki.database.Postgres;
+import edu.cmu.sei.ttg.kalki.listeners.InsertListener;
 
 import java.sql.SQLException;
 

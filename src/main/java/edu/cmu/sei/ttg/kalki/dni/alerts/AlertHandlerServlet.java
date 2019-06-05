@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kalkidb.database.Postgres;
-import kalkidb.models.Alert;
+import edu.cmu.sei.ttg.kalki.database.Postgres;
+import edu.cmu.sei.ttg.kalki.models.Alert;
 import org.eclipse.jetty.http.HttpStatus;
 
 import org.json.JSONException;
