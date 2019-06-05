@@ -1,9 +1,9 @@
 package edu.cmu.sei.ttg.kalki.dni.umbox;
 
-import kalkidb.database.Postgres;
-import kalkidb.models.Device;
-import kalkidb.models.UmboxImage;
-import kalkidb.models.UmboxInstance;
+import edu.cmu.sei.ttg.kalki.database.Postgres;
+import edu.cmu.sei.ttg.kalki.models.Device;
+import edu.cmu.sei.ttg.kalki.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.models.UmboxInstance;
 
 import java.util.List;
 import java.util.Random;

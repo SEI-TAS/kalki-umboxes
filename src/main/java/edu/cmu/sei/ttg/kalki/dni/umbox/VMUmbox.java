@@ -2,8 +2,8 @@ package edu.cmu.sei.ttg.kalki.dni.umbox;
 
 import edu.cmu.sei.ttg.kalki.dni.utils.CommandExecutor;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
-import kalkidb.models.Device;
-import kalkidb.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.models.Device;
+import edu.cmu.sei.ttg.kalki.models.UmboxImage;
 
 import java.util.ArrayList;
 import java.util.List;

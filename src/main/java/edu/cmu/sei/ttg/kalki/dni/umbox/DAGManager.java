@@ -4,8 +4,8 @@ import edu.cmu.sei.ttg.kalki.dni.ovs.OpenFlowRule;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSDB;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSSwitch;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
-import kalkidb.models.Device;
-import kalkidb.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.models.Device;
+import edu.cmu.sei.ttg.kalki.models.UmboxImage;
 
 public class DAGManager
 {
