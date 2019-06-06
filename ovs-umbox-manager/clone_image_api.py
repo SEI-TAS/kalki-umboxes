@@ -21,7 +21,7 @@ class ImageClone(Resource):
     def post(self, image_name, instance_name):
         """Clones an existing disk image for a new instance."""
         # Create a new disk image object based on the given image filename.
-        image_path = os.path.join(DATA_NODE_IMAGES_PATH, image_name)
+        image_path = os.path.join(DATA_NODE_IMAGES_PATH, image_name, ".qcow2")
         template_image = vm.diskimage.DiskImage(image_path)
 
         # Clone the image for a new instance image.
