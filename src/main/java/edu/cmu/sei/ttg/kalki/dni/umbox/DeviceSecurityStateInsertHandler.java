@@ -52,7 +52,16 @@ public class DeviceSecurityStateInsertHandler implements InsertHandler
                 {
                     UmboxImage image = umboxImages.get(0);
                     System.out.println("Starting umbox and setting rules.");
-                    DAGManager.setupUmboxForDevice(image, device);
+
+                    try
+                    {
+                        DAGManager.setupUmboxForDevice(image, device);
+                    }
+                    catch(RuntimeException e)
+                    {
+                        System.out.println("Error setting up umbox: " e.toString());
+                        e.printStackTrace();
+                    }
                 }
                 else
                 {

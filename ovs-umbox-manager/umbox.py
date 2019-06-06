@@ -188,7 +188,7 @@ class VmUmbox(object):
             logger.warning("VM not found.")
 
     def __send_api_command(self, host, method, command):
-        remote_url = 'http://{0}' + BASE_CLONE_API_URL + ':{1}/{2}'.format(host, API_CLONE_PORT, command)
+        remote_url = 'http://{0}:{1}/{2}/{3}'.format(host, API_CLONE_PORT, BASE_CLONE_API_URL, command)
         print remote_url
 
         req = requests.Request(method, remote_url)

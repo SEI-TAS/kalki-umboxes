@@ -24,6 +24,11 @@ public class DAGManager
         String portName = umbox.startAndStore();
         System.out.println("Port name : " + portName);
 
+        if(portName == null)
+        {
+            throw new RuntimeException("Could not get umbox OVS port!");
+        }
+
         clearRedirectForDevice(device.getIp());
 
         RemoteOVSDB ovsdb = new RemoteOVSDB(Config.data.get("data_node_ip"));
