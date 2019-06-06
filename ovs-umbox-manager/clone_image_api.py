@@ -45,7 +45,7 @@ def main():
     api = Api(app)
     api.add_resource(ImageClone, BASE_URL + "/<string:image_name>/<string:instance_name>")
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
 
 
 if __name__ == "__main__":

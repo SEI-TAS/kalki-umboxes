@@ -23,6 +23,7 @@ XML_VM_TEMPLATE = "ovs-umbox-manager/vm/vm_template.xml"
 CONTROL_TUN_PREFIX = "vnucont"
 DATA_TUN_PREFIX = "vnudata"
 
+API_CLONE_PORT = "5000"
 BASE_CLONE_API_URL = "/clone"
 INSTANCE_PATH_KEY = "instance_path"
 API_CLONE_METHOD = "POST"
@@ -187,7 +188,7 @@ class VmUmbox(object):
             logger.warning("VM not found.")
 
     def __send_api_command(self, host, method, command):
-        remote_url = 'http://{0}' + BASE_CLONE_API_URL + '/{1}'.format(host, command)
+        remote_url = 'http://{0}' + BASE_CLONE_API_URL + ':{1}/{2}'.format(host, API_CLONE_PORT, command)
         print remote_url
 
         req = requests.Request(method, remote_url)
