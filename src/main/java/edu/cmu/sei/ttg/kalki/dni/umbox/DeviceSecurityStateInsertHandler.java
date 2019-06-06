@@ -59,7 +59,7 @@ public class DeviceSecurityStateInsertHandler implements InsertHandler
                     }
                     catch(RuntimeException e)
                     {
-                        System.out.println("Error setting up umbox: " e.toString());
+                        System.out.println("Error setting up umbox: " + e.toString());
                         e.printStackTrace();
                     }
                 }
