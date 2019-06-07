@@ -145,5 +145,11 @@ class ProgramTests
         System.out.println("Sleeping to allow manual evaluation...");
         Thread.sleep(60000);
         System.out.println("Finished sleeping.");
+
+        System.out.println("Clearing rules and stopping umbox");
+        Postgres.findDevice(testDeviceId).whenComplete((device, e) ->
+        {
+            DAGManager.clearUmboxesForDevice(device);
+        });
     }
 }

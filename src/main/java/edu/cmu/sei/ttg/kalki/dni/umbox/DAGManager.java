@@ -1,11 +1,15 @@
 package edu.cmu.sei.ttg.kalki.dni.umbox;
 
+import edu.cmu.sei.ttg.kalki.database.Postgres;
 import edu.cmu.sei.ttg.kalki.dni.ovs.OpenFlowRule;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSDB;
 import edu.cmu.sei.ttg.kalki.dni.ovs.RemoteOVSSwitch;
 import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import edu.cmu.sei.ttg.kalki.models.Device;
 import edu.cmu.sei.ttg.kalki.models.UmboxImage;
+import edu.cmu.sei.ttg.kalki.models.UmboxInstance;
+
+import java.util.List;
 
 public class DAGManager
 {
@@ -50,6 +54,26 @@ public class DAGManager
 
         System.out.println("Stopping umbox.");
         umbox.stopAndClear();
+    }
+
+    /**
+     * Stops all umboxes for the given device, and clears all rules to them.
+     * @param device
+     */
+    public static void clearUmboxesForDevice(Device device)
+    {
+        clearRedirectForDevice(device.getIp());
+
+        Postgres.findUmboxInstances(device.getId()).whenComplete((instances, e) ->
+        {
+            System.out.println("Stopping all umboxes for this device.");
+            for(UmboxInstance instance : instances)
+            {
+                System.out.println("Stopping umbox.");
+                Umbox umbox = new VMUmbox(null, Integer.parseInt(instance.getAlerterId()));
+                umbox.stopAndClear();
+            }
+        });
     }
 
     /**
