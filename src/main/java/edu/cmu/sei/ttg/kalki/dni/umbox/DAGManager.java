@@ -62,6 +62,8 @@ public class DAGManager
      */
     public static void clearUmboxesForDevice(Device device)
     {
+        System.out.println("Clearing all umboxes for this device.");
+
         clearRedirectForDevice(device.getIp());
 
         Postgres.findUmboxInstances(device.getId()).whenComplete((instances, e) ->

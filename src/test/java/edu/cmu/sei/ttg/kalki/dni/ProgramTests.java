@@ -151,5 +151,16 @@ class ProgramTests
         {
             DAGManager.clearUmboxesForDevice(device);
         });
+
+        System.out.println("Waiting for async cleanup");
+        try
+        {
+            Thread.sleep(5 * 1000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 }
