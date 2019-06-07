@@ -25,7 +25,7 @@ class ImageClone(Resource):
         template_image = vm.diskimage.DiskImage(image_path)
 
         # Clone the image for a new instance image.
-        instance_disk_path = os.path.join(DATA_NODE_IMAGES_PATH, INSTANCES_FOLDER, instance_name)
+        instance_disk_path = os.path.join(DATA_NODE_IMAGES_PATH, INSTANCES_FOLDER, instance_name + ".qcow2")
         template_image.create_linked_qcow2_image(instance_disk_path)
 
         return {INSTANCE_PATH_KEY: instance_disk_path}
