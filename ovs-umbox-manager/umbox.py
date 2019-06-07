@@ -234,7 +234,9 @@ def main():
         # Print the TAP device name so that it can be returned and used by ovs commands if needed.
         print(umbox.data_iface_name)
     else:
-        logger.info("Instance: " + args.imagename + "-" + args.umboxid)
+        logger.info("Umbox ID: " + args.umboxid)
+        logger.info("Image name: " + str(args.imagename))
+        logger.info("Instance: " + str(args.imagename) + "-" + args.umboxid)
 
         stop_umbox(args.datanodeip, args.umboxid, args.imagename)
 

@@ -72,8 +72,11 @@ public class DAGManager
             for(UmboxInstance instance : instances)
             {
                 System.out.println("Stopping umbox.");
-                Umbox umbox = new VMUmbox(null, Integer.parseInt(instance.getAlerterId()));
-                umbox.stopAndClear();
+                Postgres.findUmboxImage(instance.getUmboxImageId()).whenComplete((image, eImage) ->
+                {
+                    Umbox umbox = new VMUmbox(image, Integer.parseInt(instance.getAlerterId()));
+                    umbox.stopAndClear();
+                });
             }
         });
     }
