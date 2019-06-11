@@ -135,7 +135,7 @@ class ProgramTests
     /***
      * Full test based on trigger. Inserts a new sec state for a device, simulating that its state has changed.
      */
-    @Test
+    //@Test
     void runTriggerTest() throws InterruptedException
     {
         DeviceSecurityState secState = new DeviceSecurityState(testDeviceId, SUSP_DEVICE_STATE_ID);
