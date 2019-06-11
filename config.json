@@ -11,5 +11,5 @@
   "db_password": "kalkipass",
   "db_reset": "false",
 
-  "umbox_tool_path": "./ovs-umbox-manager/umbox.py"
+  "umbox_tool_path": "./vm-umbox-tool/umbox.py"
 }
