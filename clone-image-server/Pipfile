@@ -4,8 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-libvirt-python = "==4.2.0"
-requests = "==2.18.4"
 flask = "*"
 flask-restful = "*"
 

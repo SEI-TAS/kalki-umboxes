@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 
-import vm.diskimage
+import diskimage
 
 # Path to stored VM umbox images in data node.
 DATA_NODE_IMAGES_PATH = "/home/kalki/images/"
@@ -22,7 +22,7 @@ class ImageClone(Resource):
         """Clones an existing disk image for a new instance."""
         # Create a new disk image object based on the given image filename.
         image_path = os.path.join(DATA_NODE_IMAGES_PATH, image_name + ".qcow2")
-        template_image = vm.diskimage.DiskImage(image_path)
+        template_image = diskimage.DiskImage(image_path)
 
         # Clone the image for a new instance image.
         instance_disk_path = os.path.join(DATA_NODE_IMAGES_PATH, INSTANCES_FOLDER, instance_name + ".qcow2")
