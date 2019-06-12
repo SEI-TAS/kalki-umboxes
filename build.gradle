@@ -34,6 +34,6 @@ test {
 }
 
 docker {
-    name 'edu.cmu.sei.ttg/kalki/kalki-dni:latest'
+    name 'kalki/kalki-dni'
     files tasks.distTar.outputs, "config.json"
 }

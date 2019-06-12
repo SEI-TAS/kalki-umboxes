@@ -1,9 +1,21 @@
 FROM openjdk:8
 
+# Install Python 2.7, pip and pipenv
+RUN apt update \
+&& apt -yqq install python python-pip \
+&& pip install pipenv
+
+# Install Libvirt (dev)
+RUN apt -yqq install libvirt-dev
+
+# Install ovs-tools
+RUN apt -yqq install openvswitch-common openvswitch-switch
+
 ENV PROJECT_NAME dni
 ENV DIST_NAME $PROJECT_NAME-1.0-SNAPSHOT
 
-EXPOSE 8080
+# AlertServer is listening here.
+EXPOSE 6060
 
 COPY $DIST_NAME.tar /app/
 WORKDIR /app

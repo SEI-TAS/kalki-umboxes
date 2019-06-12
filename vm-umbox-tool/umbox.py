@@ -17,8 +17,7 @@ import vm.vm_descriptor as vm_descriptor
 
 MAX_INSTANCES = 1000
 NUM_SEPARATOR = "-"
-XML_VM_TEMPLATE = "vm-umbox-tool/vm/vm_template.xml"
-# TODO: note that this path above only works when called from the Java code. Direct calls from same folder will fail.
+XML_VM_TEMPLATE = "vm/vm_template.xml"
 
 # Base names for the TUN/TAP virtual interfaces on the data node that handle the VM interfaces.
 CONTROL_TUN_PREFIX = "vnucont"

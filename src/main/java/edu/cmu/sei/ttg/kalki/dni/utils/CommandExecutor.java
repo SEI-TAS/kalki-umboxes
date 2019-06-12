@@ -1,6 +1,7 @@
 package edu.cmu.sei.ttg.kalki.dni.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -12,12 +13,13 @@ public class CommandExecutor
      * Executes the given external command.
      * @param commandAndParams
      */
-    public static List<String> executeCommand(List<String> commandAndParams)
+    public static List<String> executeCommand(List<String> commandAndParams, String workingDir)
     {
         List<String> outputs = new ArrayList<>();
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.redirectErrorStream(true);
         processBuilder.command(commandAndParams);
+        processBuilder.directory(new File(workingDir));
 
         try
         {

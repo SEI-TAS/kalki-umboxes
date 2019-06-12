@@ -11,6 +11,7 @@ import java.util.List;
 public class VMUmbox extends Umbox
 {
     private ArrayList<String> commandInfo;
+    private String commandWorkingDir;
 
     public VMUmbox(UmboxImage image, Device device)
     {
@@ -32,12 +33,15 @@ public class VMUmbox extends Umbox
         String dataNodeIP = Config.data.get("data_node_ip");
         String ovsDataBridge = Config.data.get("ovs_data_bridge");
         String controlBridge = Config.data.get("control_bridge");
-        String umboxToolPath = Config.data.get("umbox_tool_path");
+        String commandWorkingDir = Config.data.get("umbox_tool_path");
+        String umboxToolCommand = Config.data.get("umbox_tool_cmd");
 
         // Basic command parameters.
         commandInfo = new ArrayList<>();
+        commandInfo.add("pipenv");
+        commandInfo.add("run");
         commandInfo.add("python");
-        commandInfo.add(umboxToolPath);
+        commandInfo.add(umboxToolCommand);
         commandInfo.add("-s");
         commandInfo.add(dataNodeIP);
         commandInfo.add("-u");
@@ -67,7 +71,7 @@ public class VMUmbox extends Umbox
 
         try
         {
-            return CommandExecutor.executeCommand(command);
+            return CommandExecutor.executeCommand(command, commandWorkingDir);
         }
         catch (RuntimeException e)
         {
@@ -88,7 +92,7 @@ public class VMUmbox extends Umbox
         try
         {
             System.out.println("Executing stop command.");
-            return CommandExecutor.executeCommand(command);
+            return CommandExecutor.executeCommand(command, commandWorkingDir);
         }
         catch (RuntimeException e)
         {

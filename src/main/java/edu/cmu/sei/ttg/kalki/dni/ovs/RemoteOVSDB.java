@@ -55,7 +55,7 @@ public class RemoteOVSDB
         commandInfo.addAll(arguments);
 
         System.out.print("Sending command to OVS DB: " + commandInfo.toString());
-        List<String> output = CommandExecutor.executeCommand(commandInfo);
+        List<String> output = CommandExecutor.executeCommand(commandInfo, "./");
         return output;
     }
 }
