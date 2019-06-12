@@ -53,13 +53,15 @@ public abstract class Umbox
         {
             List<String> output = start();
 
-            // Store in the DB the information about the newly created umbox instance.
-            UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
-            instance.insert();
-
             // Assuming the port name was the last thing printed in the output, get it and return it.
             ovsPortName = output.get(output.size() - 1);
             System.out.println("Umbox port name: " + ovsPortName);
+            if (ovsPortName != null)
+            {
+                // Store in the DB the information about the newly created umbox instance.
+                UmboxInstance instance = new UmboxInstance(String.valueOf(umboxId), image.getId(), device.getId());
+                instance.insert();
+            }
             return ovsPortName;
         }
         catch (RuntimeException e)
