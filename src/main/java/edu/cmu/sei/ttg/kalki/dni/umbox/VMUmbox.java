@@ -5,6 +5,7 @@ import edu.cmu.sei.ttg.kalki.dni.utils.Config;
 import edu.cmu.sei.ttg.kalki.models.Device;
 import edu.cmu.sei.ttg.kalki.models.UmboxImage;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,9 @@ public class VMUmbox extends Umbox
         String dataNodeIP = Config.data.get("data_node_ip");
         String ovsDataBridge = Config.data.get("ovs_data_bridge");
         String controlBridge = Config.data.get("control_bridge");
-        String commandWorkingDir = Config.data.get("umbox_tool_path");
         String umboxToolCommand = Config.data.get("umbox_tool_cmd");
+
+        commandWorkingDir = Paths.get(System.getProperty("user.dir"), Config.data.get("umbox_tool_path")).toString();
 
         // Basic command parameters.
         commandInfo = new ArrayList<>();

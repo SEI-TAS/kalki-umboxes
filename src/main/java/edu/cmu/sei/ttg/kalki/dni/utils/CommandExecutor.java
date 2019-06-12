@@ -15,6 +15,8 @@ public class CommandExecutor
      */
     public static List<String> executeCommand(List<String> commandAndParams, String workingDir)
     {
+        System.out.println("Command will be executed from dir: " + workingDir);
+
         List<String> outputs = new ArrayList<>();
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.redirectErrorStream(true);
@@ -23,7 +25,7 @@ public class CommandExecutor
 
         try
         {
-            System.out.println("Executing new command: " + commandAndParams.toString());
+            System.out.println("Executing command: " + commandAndParams.toString());
             Process process = processBuilder.start();
             BufferedReader outputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
