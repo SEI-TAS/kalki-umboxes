@@ -23,5 +23,9 @@ RUN tar -xvf $DIST_NAME.tar
 
 COPY config.json /app/$DIST_NAME
 
+# Setup pipenv for VM Umbox tool
+WORKDIR /app/$DIST_NAME/vm-umbox-tool
+RUN pipenv install
+
 WORKDIR /app/$DIST_NAME
 CMD ["bash", "bin/dni"]
