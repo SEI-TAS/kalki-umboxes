@@ -70,7 +70,7 @@ public class RemoteOVSSwitch
         commandInfo.add(MessageFormat.format(SERVER_PARAM, serverIp, port));
         commandInfo.addAll(arguments);
 
-        List<String> output = CommandExecutor.executeCommand(commandInfo);
+        List<String> output = CommandExecutor.executeCommand(commandInfo, "./");
         return output;
     }
 }
