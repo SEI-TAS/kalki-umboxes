@@ -36,7 +36,9 @@ class ProgramTests
     {
         Config.load("config.json");
 
-        Config.data.put("db_reset", "true");
+        Config.data.put("db_recreate", "true");
+        Config.data.put("db_setup", "true");
+        Config.data.put("db_rootuser", "kalkiuser");
         Config.data.put("db_name", "kalkidb_test");
         Config.data.put("db_user", "kalkiuser_test");
 

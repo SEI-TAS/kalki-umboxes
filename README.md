@@ -49,7 +49,7 @@ The following parameters do not need to be changed, if the Data Node is configur
 The simplest way to use this component is by creating a Docker container. To do this, first the component
 needs to be compiled and a Docker image be created from it. To do this, execute the following command:
 
-  `./gradlew docker`
+  `./gradlew docker -i`
 
 To execute a container from that image, execute the following command:
 
