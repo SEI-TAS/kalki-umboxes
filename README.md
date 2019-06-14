@@ -30,6 +30,9 @@ changed from their defaults if the rest of the system is synchronized to use the
 
 Parameters that will usually need to be configured:
  - <b>data_node_ip</b>: the IP address of the Data Node through the control plane. 
+ - <b>db_host</b>: the IP address or hostname of the DB server. Usually localhost, but it has to be kalki-db if using
+ Docker.
+ - <b>db_port</b>: Usually the default port can be used.
  - <b>db_name, db_user, db_password</b>: need to be consistent with the actual DB information being used.
  - <b>db_recreate, db_root_password</b>: only needed if we want DNI to forcefully drop and recreate the DB.
  - <b>db_setup</b>: only needed if we want DNI to create all tables and DB items (should only be used once).

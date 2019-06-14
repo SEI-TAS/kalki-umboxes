@@ -38,7 +38,9 @@ public class DNISetup
      */
     private static void setupDatabase() throws SQLException
     {
-        String rootPassword = Config.data.get("db_root_password");;
+        String rootPassword = Config.data.get("db_root_password");
+        String dbHost = Config.data.get("db_host");
+        String dbPort = Config.data.get("db_port");
         String dbName = Config.data.get("db_name");
         String dbUser = Config.data.get("db_user");
         String dbPass = Config.data.get("db_password");
@@ -55,7 +57,7 @@ public class DNISetup
         }
 
         // Make initial connection, setting up the singleton.
-        Postgres.initialize(dbName, dbUser, dbPass);
+        Postgres.initialize(dbHost, dbPort, dbName, dbUser, dbPass);
 
         if(setupDB.equals("true"))
         {

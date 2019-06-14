@@ -1,6 +1,8 @@
 {
   "data_node_ip": "192.168.58.102",
 
+  "db_host": "kalki-db",
+  "db_port": "5432",
   "db_name": "kalkidb",
   "db_user": "kalkiuser",
   "db_password": "kalkipass",
