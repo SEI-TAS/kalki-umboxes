@@ -1,16 +1,16 @@
 {
   "data_node_ip": "192.168.58.102",
-  "control_bridge": "br-control",
-  "ovs_data_bridge": "ovs-br",
-  "ovs_devices_network_port": "1",
-  "ovs_external_network_port": "2",
 
-  "db_root_password": "postgres",
   "db_name": "kalkidb",
   "db_user": "kalkiuser",
   "db_password": "kalkipass",
-  "db_reset": "false",
 
-  "umbox_tool_path": "./vm-umbox-tool",
-  "umbox_tool_cmd": "umbox.py"
+  "db_root_password": "postgres",
+  "db_recreate": "false",
+  "db_setup": "false",
+
+  "control_bridge": "br-control",
+  "ovs_data_bridge": "ovs-br",
+  "ovs_devices_network_port": "1",
+  "ovs_external_network_port": "2"
 }

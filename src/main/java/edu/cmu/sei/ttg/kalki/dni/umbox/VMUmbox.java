@@ -11,6 +11,9 @@ import java.util.List;
 
 public class VMUmbox extends Umbox
 {
+    private static final String UMBOX_TOOL_PATH = "./vm-umbox-tool";
+    private static final String UMBOX_TOOL_FILE = "umbox.py";
+
     private ArrayList<String> commandInfo;
     private String commandWorkingDir;
 
@@ -34,16 +37,15 @@ public class VMUmbox extends Umbox
         String dataNodeIP = Config.data.get("data_node_ip");
         String ovsDataBridge = Config.data.get("ovs_data_bridge");
         String controlBridge = Config.data.get("control_bridge");
-        String umboxToolCommand = Config.data.get("umbox_tool_cmd");
 
-        commandWorkingDir = Paths.get(System.getProperty("user.dir"), Config.data.get("umbox_tool_path")).toString();
+        commandWorkingDir = Paths.get(System.getProperty("user.dir"), UMBOX_TOOL_PATH).toString();
 
         // Basic command parameters.
         commandInfo = new ArrayList<>();
         commandInfo.add("pipenv");
         commandInfo.add("run");
         commandInfo.add("python");
-        commandInfo.add(umboxToolCommand);
+        commandInfo.add(UMBOX_TOOL_FILE);
         commandInfo.add("-s");
         commandInfo.add(dataNodeIP);
         commandInfo.add("-u");

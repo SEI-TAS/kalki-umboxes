@@ -42,9 +42,10 @@ public class DNISetup
         String dbName = Config.data.get("db_name");
         String dbUser = Config.data.get("db_user");
         String dbPass = Config.data.get("db_password");
-        String resetDB = Config.data.get("db_reset");
+        String recreateDB = Config.data.get("db_recreate");
+        String setupDB = Config.data.get("db_setup");
 
-        if(resetDB.equals("true"))
+        if(recreateDB.equals("true"))
         {
             // Recreate DB and user.
             Postgres.removeDatabase(rootPassword, dbName);
@@ -56,7 +57,7 @@ public class DNISetup
         // Make initial connection, setting up the singleton.
         Postgres.initialize(dbName, dbUser, dbPass);
 
-        if(resetDB.equals("true"))
+        if(setupDB.equals("true"))
         {
             // Create tables, triggers, and more.
             Postgres.setupDatabase();
