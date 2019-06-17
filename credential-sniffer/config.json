@@ -1,0 +1,10 @@
+{
+  "device_port": "9010",
+  "nic": "ens3",
+
+  "default_username": "Username",
+  "default_password": "Password",
+
+  "max_attempts": "4",
+  "max_attempts_interval_mins": "30"
+}

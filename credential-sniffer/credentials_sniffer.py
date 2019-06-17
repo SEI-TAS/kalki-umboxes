@@ -7,6 +7,7 @@ import re
 import logging
 import sys
 import traceback
+import json
 from base64 import b64decode
 
 import netifaces
@@ -18,20 +19,8 @@ from networking.http import HTTP
 
 login_requests = {}
 
-# Default credentials for the device
-DEFAULT_USERNAME = "Username"
-DEFAULT_PASSWORD = "Password"
-
-# Port to sniff on.
-IOT_SERVER_PORT = 9010
-
-# NIC to bind to.
-NIC_NAME = "ens3"
-
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
-REPEATED_ATTEMPTS_INTERVAL_MINS = 30
-MAX_ATTEMPTS = 4
 ECHO_ON = True
 
 # "Protocol" number used in Linux to indicate we want to listen to ALL packets.
@@ -56,12 +45,12 @@ def setup_custom_logger(name, file_path):
 
 
 class LoginRequest:
-    def __init__(self, ip, user):
+    def __init__(self, ip, user, max_attempts):
         self.ip = ip
         self.user = user
         self.count = 1
         self.delete = 0
-        self.attempt_times = [0] * MAX_ATTEMPTS
+        self.attempt_times = [0] * max_attempts
         self.attempt_times[0] = time.time()
 
 
@@ -72,22 +61,22 @@ def log_default_creds(ip):
     return
 
 
-def track_login(ip, user_name):
+def track_login(ip, user_name, config):
     # print("in tracking " + ip + " " + user_name)
     key = hash(ip + user_name)
     if key not in login_requests.keys():
-        login_request = LoginRequest(ip, user_name)
+        login_request = LoginRequest(ip, user_name, config["max_attempts"])
         login_requests[key] = login_request
     else:
         login_request = login_requests[key]
         login_request.count += 1
 
         current_attempt_time = time.time()
-        if login_request.count > MAX_ATTEMPTS: # There is duplication of packets
+        if login_request.count > config["max_attempts"]: # There is duplication of packets
             minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
             print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
-            if minutes_from_first_attempt < REPEATED_ATTEMPTS_INTERVAL_MINS:
-                msg = "MULTIPLE_LOGIN : More than " + str(MAX_ATTEMPTS) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
+            if minutes_from_first_attempt < config["max_attempts_interval_mins"]:
+                msg = "MULTIPLE_LOGIN : More than " + str(config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
                 logger.error(msg)
                 print(msg)
 
@@ -100,17 +89,26 @@ def track_login(ip, user_name):
         login_request.attempt_times[login_request.count - 1] = current_attempt_time
 
 
+def load_config():
+    """Loads config from external file."""
+    with open("config.json") as json_config:
+        config = json.load(json_config)
+    return config
+
+
 def main():
     basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
     global logger
     logger = setup_custom_logger("main", LOG_FILE_PATH)
 
+    config = load_config()
+
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     conn.bind((NIC_NAME, 0))
-    print("Listening on raw socket on interface {}...".format(NIC_NAME), flush=True)
+    print("Listening on raw socket on interface {}...".format(config["nic"]), flush=True)
 
-    nic_mac = netifaces.ifaddresses(NIC_NAME)[netifaces.AF_LINK][0]['addr']
+    nic_mac = netifaces.ifaddresses(config["nic"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on NIC is {}\n".format(nic_mac), flush=True)
 
     last_tcp_sequence = 0
@@ -140,7 +138,7 @@ def main():
         # TCP
         tcp = TCP(ipv4.data)
         print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
-        if len(tcp.data) == 0 or tcp.dest_port != IOT_SERVER_PORT:
+        if len(tcp.data) == 0 or tcp.dest_port != config["device_port"]:
             continue
 
         # Avoid duplicate packets.
@@ -164,7 +162,7 @@ def main():
                             credentials = b64decode(match.group(1)).decode("ascii")
                             print("Credentials: " + credentials, flush=True)
                             username, password = credentials.split(":")
-                            if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
+                            if username == config["default_username"] and password == config["default_password"]:
                                 log_default_creds(ipv4.src)
                             track_login(ipv4.src, username)
                     except Exception as ex:
