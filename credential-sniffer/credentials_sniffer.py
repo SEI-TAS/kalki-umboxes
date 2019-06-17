@@ -105,7 +105,7 @@ def main():
     config = load_config()
 
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    conn.bind((NIC_NAME, 0))
+    conn.bind((config["nic"], 0))
     print("Listening on raw socket on interface {}...".format(config["nic"]), flush=True)
 
     nic_mac = netifaces.ifaddresses(config["nic"])[netifaces.AF_LINK][0]['addr']
