@@ -138,7 +138,7 @@ def main():
         # TCP
         tcp = TCP(ipv4.data)
         print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
-        if len(tcp.data) == 0 or tcp.dest_port != config["device_port"]:
+        if len(tcp.data) == 0 or tcp.dest_port != config["port"]:
             continue
 
         # Avoid duplicate packets.
