@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 cd /home/umbox/credential-sniffer
-python3 credentials_sniffer.py
+pipenv run python3 -u credentials_sniffer.py
