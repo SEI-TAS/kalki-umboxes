@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+netifaces = "==0.10.7"
 
 [dev-packages]
 
