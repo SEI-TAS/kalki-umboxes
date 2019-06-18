@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cd /home/umbox/alert-senders
+cd /home/umbox/alerter
 pipenv run python -u alerter.py

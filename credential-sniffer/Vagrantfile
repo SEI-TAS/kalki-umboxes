@@ -1,0 +1,45 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Box / OS
+VAGRANT_BOX = 'generic/ubuntu1604'
+
+VM_NAME = 'umbox-sniffer'
+VM_USER = 'umbox'
+
+PROGRAM_FOLDER = '/alerter'
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+
+  # Vagrant box from Hashicorp
+  config.vm.box = VAGRANT_BOX
+  config.vm.hostname = VM_NAME
+
+  # DHCP — comment this out if planning on using NAT instead
+  config.vm.network "private_network", type: "dhcp"
+
+  # Copy program and alerter.
+  config.vm.provision "file", source: "../credential-sniffer", destination: "$HOME/credential-sniffer"
+  config.vm.provision "file", source: "../alerter", destination: "$HOME/" + PROGRAM_FOLDER
+
+  # Setup programs
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -yqq python python-pip
+    pip install pipenv
+
+    cd /home/umbox/alerter
+    pipenv install
+    cp alerter.service /etc/systemd/system/
+
+    cd /home/umbox/credential-sniffer
+    pipenv install
+    cp sniffer.service /etc/systemd/system/
+  SHELL
+
+end
