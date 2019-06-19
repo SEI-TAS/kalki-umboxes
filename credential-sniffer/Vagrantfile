@@ -27,19 +27,12 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "../credential-sniffer", destination: "$HOME/credential-sniffer"
   config.vm.provision "file", source: "../alerter", destination: "$HOME/" + PROGRAM_FOLDER
 
-  # Setup programs
+  # Setup DNS resolution. This is needed to avoid issues with proxies when resolving names.
   config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -yqq python python-pip
-    pip install pipenv
-
-    cd /home/umbox/alerter
-    pipenv install
-    cp alerter.service /etc/systemd/system/
-
-    cd /home/umbox/credential-sniffer
-    pipenv install
-    cp sniffer.service /etc/systemd/system/
+    echo "nameserver 192.168.121.1" > /etc/resolv.conf
   SHELL
+
+  # Setup dependencies and services.
+  config.vm.provision "shell", path: "umbox_setup.sh"
 
 end
