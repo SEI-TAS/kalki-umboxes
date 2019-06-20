@@ -16,6 +16,7 @@ export PIPENV_VENV_IN_PROJECT="enabled"
 
 # Setup Alerter
 cd /home/vagrant/alerter
+chmod ugo+x alerter.sh
 pipenv install
 cp alerter.service /etc/systemd/system/
 systemctl enable alerter
@@ -23,6 +24,7 @@ systemctl start alerter
 
 # Setup Credential-Sniffer
 cd /home/vagrant/credential-sniffer
+chmod ugo+x alerter.sh
 pipenv install
 cp sniffer.service /etc/systemd/system/
 systemctl enable sniffer
