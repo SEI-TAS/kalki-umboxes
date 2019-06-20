@@ -2,8 +2,8 @@
 Description=Alerter service
 
 [Service]
-ExecStart=/home/umbox/alerter/alerter.sh
-WorkingDirectory=/home/umbox/alerter/
+ExecStart=/home/vagrant/alerter/alerter.sh
+WorkingDirectory=/home/vagrant/alerter/
 
 [Install]
 WantedBy=multi-user.target
