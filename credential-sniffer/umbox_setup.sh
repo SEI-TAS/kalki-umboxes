@@ -24,7 +24,7 @@ systemctl start alerter
 
 # Setup Credential-Sniffer
 cd /home/vagrant/credential-sniffer
-chmod ugo+x alerter.sh
+chmod ugo+x sniffer.sh
 pipenv install
 cp sniffer.service /etc/systemd/system/
 systemctl enable sniffer
