@@ -4,11 +4,7 @@
 
 # Box / OS
 VAGRANT_BOX = 'generic/ubuntu1604'
-
 VM_NAME = 'umbox-sniffer'
-VM_USER = 'umbox'
-
-PROGRAM_FOLDER = '/alerter'
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -20,18 +16,18 @@ Vagrant.configure(2) do |config|
   config.vm.box = VAGRANT_BOX
   config.vm.hostname = VM_NAME
 
-  # DHCP — comment this out if planning on using NAT instead
+  # Use libvirt's default DHCP private network.
   config.vm.network "private_network", type: "dhcp"
-
-  # Copy program and alerter.
-  config.vm.provision "file", source: "../credential-sniffer", destination: "$HOME/"
-  config.vm.provision "file", source: "../alerter", destination: "$HOME/"
 
   # Setup DNS resolution. This is needed to avoid issues with proxies when resolving names.
   # This IP is the gateway/DNS of the default libvirt network we are using.
   config.vm.provision "shell", inline: <<-SHELL
     echo "nameserver 192.168.121.1" > /etc/resolv.conf
   SHELL
+
+  # Copy program and alerter.
+  config.vm.provision "file", source: "../credential-sniffer", destination: "$HOME/"
+  config.vm.provision "file", source: "../alerter", destination: "$HOME/"
 
   # Setup dependencies and services.
   config.vm.provision "shell", path: "umbox_setup.sh"
