@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Restart Alerter to use the new configuration.
+systemctl restart alerter
+
 # Setup Sniffer
 cd /home/vagrant/credential-sniffer
 chmod ugo+x sniffer.sh
