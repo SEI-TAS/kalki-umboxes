@@ -19,7 +19,7 @@ Vagrant.configure(2) do |config|
   # Use libvirt's default DHCP private network.
   config.vm.network "private_network", type: "dhcp"
 
-  # Copy program and alerter.
+  # Copy program and proper Alerter config.
   config.vm.provision "file", source: "../credential-sniffer", destination: "$HOME/"
   config.vm.provision "file", source: "config_alerter.json", destination: "$HOME/alerter/config.json"
 
