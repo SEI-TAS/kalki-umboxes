@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-sudo vagrant package baseline.box
-sudo vagrant box add baseline.box --name kalki/umbox-baseline
+sudo vagrant halt
+sudo vagrant package
+sudo vagrant box add package.box --name kalki/umbox-baseline
