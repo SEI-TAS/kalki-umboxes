@@ -3,14 +3,13 @@
 # vi: set ft=ruby :
 
 BASELINE_BOX = 'generic/ubuntu1604'
-VM_NAME = 'umbox-baseline'
 VM_USER = 'vagrant'
 
 Vagrant.configure(2) do |config|
 
   # Base and name setup.
   config.vm.box = BASELINE_BOX
-  config.vm.hostname = VM_NAME
+  config.vm.hostname = 'umbox-baseline'
 
   # Keep default keys to simplify repackaging.
   config.ssh.insert_key = false
