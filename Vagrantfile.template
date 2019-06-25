@@ -6,5 +6,4 @@
 VM_NAME = 'umbox-name'
 
 # Loads common_Vagrantfile
-common_vagrantfile = File.expand_path('../Vagrantfile.common', __FILE__)
-load common_vagrantfile if File.exists?(common_vagrantfile)
+load File.expand_path('../Vagrantfile.common', __FILE__)

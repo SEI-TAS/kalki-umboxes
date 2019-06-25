@@ -3,8 +3,7 @@
 # vi: set ft=ruby :
 
 # Loads baseline Vagrantfile first.
-base_vagrantfile = File.expand_path('../baseline/Vagrantfile', __FILE__)
-load base_vagrantfile if File.exists?(base_vagrantfile)
+load File.expand_path('../baseline/Vagrantfile', __FILE__)
 
 UMBOX_FOLDER = File.basename(Dir.getwd)
 
