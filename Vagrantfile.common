@@ -1,0 +1,25 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Loads baseline Vagrantfile first.
+base_vagrantfile = File.expand_path('../baseline/Vagrantfile', __FILE__)
+load base_vagrantfile if File.exists?(base_vagrantfile)
+
+UMBOX_FOLDER = File.basename(Dir.getwd)
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+
+  config.vm.hostname = VM_NAME
+
+  # Copy all program files to the VM.
+  config.vm.provision "file", source: "../" + UMBOX_FOLDER, destination: "$HOME/"
+
+  # Copy a properly configured alerter config file for this software to the VM.
+  config.vm.provision "file", source: "config_alerter.json", destination: "$HOME/alerter/config.json"
+
+  # Setup dependencies and services.
+  config.vm.provision "shell", path: "umbox_setup.sh"
+
+end
