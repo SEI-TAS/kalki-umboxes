@@ -17,6 +17,9 @@ Vagrant.configure(2) do |config|
   config.vm.box = VAGRANT_BOX
   config.vm.hostname = VM_NAME
 
+  # Keep default keys to simplify repackaging.
+  config.ssh.insert_key = false
+
   # Use libvirt's default DHCP private network.
   config.vm.network "private_network", type: "dhcp"
 

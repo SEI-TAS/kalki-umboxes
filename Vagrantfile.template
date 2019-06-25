@@ -1,0 +1,31 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Change this name to be better suited for the umbox.
+VM_NAME = 'umbox-sniffer'
+
+# Change this to the actual name of the umbox folder in this repo.
+UMBOX_FOLDER = "program_folder"
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+
+  # Configure base image and hostname.
+  config.vm.box = 'kalki/umbox-baseline'
+  config.vm.hostname = VM_NAME
+
+  # Use libvirt's default DHCP private network while working to create this umbox.
+  # (NOTE: this will have no effect on the actual umboxes used later by the system).
+  config.vm.network "private_network", type: "dhcp"
+
+  # Copy all program files to the VM.
+  config.vm.provision "file", source: "../" + UMBOX_FOLDER, destination: "$HOME/"
+
+  # Copy a properly configured alerter config file for this software to the VM.
+  config.vm.provision "file", source: "config_alerter.json", destination: "$HOME/alerter/config.json"
+
+  # Setup dependencies and services.
+  config.vm.provision "shell", path: "umbox_setup.sh"
+
+end
