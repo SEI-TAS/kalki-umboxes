@@ -1,0 +1,33 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+BASELINE_BOX = 'generic/ubuntu1604'
+VM_USER = 'vagrant'
+
+Vagrant.configure(2) do |config|
+
+  # Base and name setup.
+  config.vm.box = BASELINE_BOX
+  config.vm.hostname = 'umbox-baseline'
+
+  # Keep default keys to simplify repackaging.
+  config.ssh.insert_key = false
+
+  # Use libvirt's default DHCP private network.
+  config.vm.network "private_network", type: "dhcp"
+
+  # NOTE: this is only needed if behind a proxy.
+  config.vm.provision "shell", path: "../baseline/proxy_setup.sh"
+
+  # Setup general baseline things.
+  config.vm.provision "shell", path: "../baseline/umbox_setup.sh"
+
+  # Copy and setup Alerter.
+  config.vm.provision "file", source: "../alerter", destination: "$HOME/"
+  config.vm.provision "shell" do |s|
+    s.path = "../alerter/alerter_setup.sh"
+    s.args = ["/home/" + VM_USER + "/alerter"]
+  end
+
+end

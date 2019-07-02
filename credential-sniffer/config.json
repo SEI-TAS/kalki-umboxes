@@ -1,6 +1,6 @@
 {
   "port": "9010",
-  "nic": "ens3",
+  "nic": "eth1",
 
   "default_username": "Username",
   "default_password": "Password",
