@@ -4,7 +4,7 @@
 systemctl restart alerter
 
 # Setup Sniffer
-cd /home/vagrant/credential-sniffer
+cd /home/vagrant/sniffer
 chmod ugo+x sniffer.sh
 pipenv install
 cp sniffer.service /etc/systemd/system/
