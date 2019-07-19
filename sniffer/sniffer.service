@@ -4,8 +4,8 @@ Wants=network-online.target
 After=network.target network-online.target
 
 [Service]
-ExecStart=/home/vagrant/credential-sniffer/sniffer.sh
-WorkingDirectory=/home/vagrant/credential-sniffer/
+ExecStart=/home/vagrant/sniffer/sniffer.sh
+WorkingDirectory=/home/vagrant/sniffer/
 
 [Install]
 WantedBy=multi-user.target
