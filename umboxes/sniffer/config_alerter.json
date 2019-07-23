@@ -1,5 +1,5 @@
 {
-  "control_node_ip": "192.168.58.101",
+  "control_node_ip": "10.27.150.49",
   "log_file": "../sniffer/sniffer.log",
   "patterns": [{"search_text": "DEFAULT_CRED", "alert_text": "default-login"},
                {"search_text": "MULTIPLE_LOGIN", "alert_text": "max-login-attempts"}]
