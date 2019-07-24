@@ -7,17 +7,17 @@ basic_authorization_pattern = None
 
 class HttpAuthHandler:
 
-	def __init__(self, config, logger):
-		self.config = config
-		self.logger = logger
-		self.login_requests = {}
+    def __init__(self, config, logger):
+        self.config = config
+        self.logger = logger
+        self.login_requests = {}
 
-		global basic_authorization_pattern
-		basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
+        global basic_authorization_pattern
+        basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
 
-	def handlePacket(tcp_packet):
-		try:
+    def handlePacket(self, tcp_packet):
+        try:
             http = HTTP(tcp_packet.data)
             http_info = str(http.data).split('\n')
             print("Received HTTP data: " + str(http.data), flush=True)
@@ -41,38 +41,38 @@ class HttpAuthHandler:
             traceback.print_exc()
 
 
-    def track_login(ip, user_name):
-    	# print("in tracking " + ip + " " + user_name)
-    	key = hash(ip + user_name)
-    	if key not in login_requests.keys():
-        	login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
-        	self.login_requests[key] = login_request
-    	else:
-        	login_request = login_requests[key]
-        	login_request.count += 1
+    def track_login(self, ip, user_name):
+        # print("in tracking " + ip + " " + user_name)
+        key = hash(ip + user_name)
+        if key not in login_requests.keys():
+            login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
+            self.login_requests[key] = login_request
+        else:
+            login_request = login_requests[key]
+            login_request.count += 1
 
-        	current_attempt_time = time.time()
-        	if login_request.count > self.config["max_attempts"]: # There is duplication of packets
-            	minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
-            	print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
-            	if minutes_from_first_attempt < self.config["max_attempts_interval_mins"]:
-                	msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
-                	self.logger.error(msg)
-                	print(msg)
+            current_attempt_time = time.time()
+            if login_request.count > self.config["max_attempts"]: # There is duplication of packets
+                minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
+                print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
+                if minutes_from_first_attempt < self.config["max_attempts_interval_mins"]:
+                    msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
+                    self.logger.error(msg)
+                    print(msg)
 
-            	# If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
-            	login_request.attempt_times.pop(0)
-            	login_request.attempt_times.append(0)
-            	login_request.count -= 1
+                # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
+                login_request.attempt_times.pop(0)
+                login_request.attempt_times.append(0)
+                login_request.count -= 1
 
-        	# Store this last attempt.
-        	login_request.attempt_times[login_request.count - 1] = current_attempt_time
+            # Store this last attempt.
+            login_request.attempt_times[login_request.count - 1] = current_attempt_time
 
-    def log_default_creds(ip):
-    	msg = "DEFAULT_CRED: Login attempt with default credentials from " + ip
-    	self.logger.warning(msg)
-    	print(msg)
-    	return
+    def log_default_creds(self, ip):
+        msg = "DEFAULT_CRED: Login attempt with default credentials from " + ip
+        self.logger.warning(msg)
+        print(msg)
+        return
 
 
 class LoginRequest:
