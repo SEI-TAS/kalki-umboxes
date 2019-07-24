@@ -1,5 +1,3 @@
-
-
 class HTTP:
 
     def __init__(self, raw_data):
