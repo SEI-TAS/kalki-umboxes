@@ -2,6 +2,9 @@ import re
 import time
 import traceback
 
+from networking.http import HTTP
+from base64 import b64decode
+
 # Global Authorization pattern
 basic_authorization_pattern = None
 
@@ -31,8 +34,8 @@ class HttpAuthHandler:
                             print("Credentials: " + credentials, flush=True)
                             username, password = credentials.split(":")
                             if username == self.config["default_username"] and password == self.config["default_password"]:
-                                log_default_creds(tcp_packet.src_port)
-                            track_login(tcp_packet.src_port, username)
+                                self.log_default_creds(tcp_packet.src_port)
+                            self.track_login(tcp_packet.src_port, username)
                     except Exception as ex:
                         print("Exception processing credentials: " + str(ex), flush=True)
                         traceback.print_exc()
@@ -43,12 +46,12 @@ class HttpAuthHandler:
 
     def track_login(self, ip, user_name):
         # print("in tracking " + ip + " " + user_name)
-        key = hash(ip + user_name)
-        if key not in login_requests.keys():
+        key = hash(str(ip) + user_name)
+        if key not in self.login_requests.keys():
             login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
             self.login_requests[key] = login_request
         else:
-            login_request = login_requests[key]
+            login_request = self.login_requests[key]
             login_request.count += 1
 
             current_attempt_time = time.time()
@@ -69,7 +72,7 @@ class HttpAuthHandler:
             login_request.attempt_times[login_request.count - 1] = current_attempt_time
 
     def log_default_creds(self, ip):
-        msg = "DEFAULT_CRED: Login attempt with default credentials from " + ip
+        msg = "DEFAULT_CRED: Login attempt with default credentials from " + str(ip)
         self.logger.warning(msg)
         print(msg)
         return

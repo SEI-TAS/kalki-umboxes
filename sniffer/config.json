@@ -1,10 +1,10 @@
 {
-  "port": "9010",
-  "nic": "eth1",
+  "port": 9010,
+  "nic": "lo",
 
   "default_username": "Username",
   "default_password": "Password",
 
-  "max_attempts": "4",
-  "max_attempts_interval_mins": "30"
+  "max_attempts": 4,
+  "max_attempts_interval_mins": 30
 }

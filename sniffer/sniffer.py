@@ -5,14 +5,12 @@ import socket
 import logging
 import sys
 import json
-from base64 import b64decode
 
 import netifaces
 
 from networking.ethernet import Ethernet
 from networking.ipv4 import IPv4
 from networking.tcp import TCP
-from networking.http import HTTP
 
 from packetHandlers.httpAuthHandler import HttpAuthHandler
 
@@ -80,7 +78,7 @@ def main():
 
         # Ethernet
         eth = Ethernet(raw_data)
-        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
+        #print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
         if eth.proto != 8:  # IPv4
             # Ignore non-IPv4 packets
             continue
@@ -94,12 +92,12 @@ def main():
 
         # TCP
         tcp = TCP(ipv4.data)
-        print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
+        #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
         if len(tcp.data) == 0 or tcp.dest_port != config["port"]:
             continue
 
         # Avoid duplicate packets.
-        print("\nTCP sequence: " + str(tcp.sequence), flush=True)
+        #print("\nTCP sequence: " + str(tcp.sequence), flush=True)
         if tcp.sequence == last_tcp_sequence:
             print("Ignoring duplicate TCP packet", flush=True)
             continue
