@@ -22,30 +22,35 @@ class HttpAuthHandler:
     def handlePacket(self, tcp_packet):
         try:
             http = HTTP(tcp_packet.data)
-            http_info = str(http.data).split('\n')
-            print("Received HTTP data: " + str(http.data), flush=True)
-            for line in http_info:
-                if 'Authorization' in line:
-                    try:
-                        match = basic_authorization_pattern.match(line)
-                        if match:
-                            print("Found line with authorization info: " + line, flush=True)
-                            credentials = b64decode(match.group(1)).decode("ascii")
-                            print("Credentials: " + credentials, flush=True)
-                            username, password = credentials.split(":")
-                            if username == self.config["default_username"] and password == self.config["default_password"]:
-                                self.log_default_creds(tcp_packet.src_port)
-                            self.track_login(tcp_packet.src_port, username)
-                    except Exception as ex:
-                        print("Exception processing credentials: " + str(ex), flush=True)
-                        traceback.print_exc()
+            print(http.data)
+            print("Received HTTP request: \n" +
+                "Method: " +http.method+ "\n" +
+                "URI: " +http.uri+ "\n" +
+                "Version: " +http.version+ "\n" +
+                "Host: " +str(http.host)+ "\n" +
+                "Authorization: " +str(http.authorization)+ "\n")
+
+            if http.authorization != None:
+                try:
+                    auth_line = "Authorization: " + http.authorization
+                    match = basic_authorization_pattern.match(auth_line)
+                    if match:
+                        print("Found authorization info in http request: ", flush=True)
+                        credentials = b64decode(match.group(1)).decode("ascii")
+                        print("Credentials: " + credentials, flush=True)
+                        username, password = credentials.split(":")
+                        if username == self.config["default_username"] and password == self.config["default_password"]:
+                            self.log_default_creds(tcp_packet.src_port)
+                        self.track_login(tcp_packet.src_port, username)
+                except Exception as ex:
+                    print("Exception processing credentials: " + str(ex), flush=True)
+                    traceback.print_exc()
         except Exception as ex:
             print("HTTP exception: " + str(ex), flush=True)
             traceback.print_exc()
 
 
     def track_login(self, ip, user_name):
-        # print("in tracking " + ip + " " + user_name)
         key = hash(str(ip) + user_name)
         if key not in self.login_requests.keys():
             login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
