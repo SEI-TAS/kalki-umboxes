@@ -19,10 +19,9 @@ class HttpAuthHandler:
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
 
-    def handlePacket(self, tcp_packet):
+    def handlePacket(self, tcp_packet, ip_packet):
         try:
             http = HTTP(tcp_packet.data)
-            print(http.data)
             print("Received HTTP request: \n" +
                 "Method: " +http.method+ "\n" +
                 "URI: " +http.uri+ "\n" +
@@ -40,8 +39,8 @@ class HttpAuthHandler:
                         print("Credentials: " + credentials, flush=True)
                         username, password = credentials.split(":")
                         if username == self.config["default_username"] and password == self.config["default_password"]:
-                            self.log_default_creds(tcp_packet.src_port)
-                        self.track_login(tcp_packet.src_port, username)
+                            self.log_default_creds(ip_packet.src)
+                        self.track_login(ip_packet.src, username)
                 except Exception as ex:
                     print("Exception processing credentials: " + str(ex), flush=True)
                     traceback.print_exc()

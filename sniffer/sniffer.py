@@ -97,14 +97,14 @@ def main():
             continue
 
         # Avoid duplicate packets.
-        #print("\nTCP sequence: " + str(tcp.sequence), flush=True)
+        print("\nTCP sequence: " + str(tcp.sequence), flush=True)
         if tcp.sequence == last_tcp_sequence:
             print("Ignoring duplicate TCP packet", flush=True)
             continue
         else:
             last_tcp_sequence = tcp.sequence
 
-        handler.handlePacket(tcp);
+        handler.handlePacket(tcp, ipv4);
 
 
 if __name__ == '__main__':
