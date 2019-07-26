@@ -48,6 +48,5 @@ class HTTP():
             end_idx = data.index(CRLF, start_idx)
             return data[start_idx:end_idx]
         except:
-            print("request had no " +target+ " in header")
             return None
 

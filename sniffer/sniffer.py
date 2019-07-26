@@ -112,9 +112,9 @@ def main():
             continue
 
         # Avoid duplicate packets.
-        print("\nTCP sequence: " + str(tcp.sequence), flush=True)
+        #print("\nTCP sequence: " + str(tcp.sequence), flush=True)
         if tcp.sequence == last_tcp_sequence:
-            print("Ignoring duplicate TCP packet", flush=True)
+            #print("Ignoring duplicate TCP packet", flush=True)
             continue
         else:
             last_tcp_sequence = tcp.sequence
