@@ -1,6 +1,8 @@
 class PhillipsHueHandler:
 
-	def __init__(self):
+    def __init__(self, config, logger):
+        self.config = config
+        self.logger = logger
 
-
-	def handlePacket(tcp_packet):
+    def handlePacket(self, tcp_packet, ip_packet):
+        print("handling phillips packet")

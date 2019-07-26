@@ -13,6 +13,8 @@ from networking.ipv4 import IPv4
 from networking.tcp import TCP
 
 from packetHandlers.httpAuthHandler import HttpAuthHandler
+from packetHandlers.phillipsHueHandler import PhillipsHueHandler
+
 
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
@@ -26,6 +28,7 @@ logger = None
 
 # Global handler.
 handler = None
+
 
 
 def setup_custom_logger(name, file_path):
@@ -49,6 +52,11 @@ def load_config():
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("incorrect number of command line arguments")
+        exit(0)
+
+    command_line_handler = sys.argv[1]
 
     global logger
     logger = setup_custom_logger("main", LOG_FILE_PATH)
@@ -57,8 +65,15 @@ def main():
 
     #use the passed in command line arguments to create and set the correct handler
     global handler
-    handler = HttpAuthHandler(config, logger);
+    if command_line_handler == "httpAuth":
+        handler = HttpAuthHandler(config, logger)
+    elif command_line_handler == "phillipsHue":
+        handler = PhillipsHueHandler(config, logger)
+    else:
+        print("invalid handler argument")
+        exit(0)
 
+        
     conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     conn.bind((config["nic"], 0))
     print("Listening on raw socket on interface {}...".format(config["nic"]), flush=True)
