@@ -11,7 +11,7 @@ basic_authorization_pattern = None
 class HttpAuthHandler:
 
     def __init__(self, config, logger):
-        self.config = config
+        self.config = config["httpAuth"]
         self.logger = logger
         self.login_requests = {}
 

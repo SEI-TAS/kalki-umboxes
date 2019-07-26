@@ -1,12 +1,15 @@
 {
   "port": 9010,
   "nic": "lo",
+ 
+  "handler": "httpAuth",
 
-  "default_username": "Username",
-  "default_password": "Password",
-
-  "max_attempts": 4,
-  "max_attempts_interval_mins": 30,
+  "httpAuth": {
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "default_username": "Username",
+    "default_password": "Password"
+  },
 
   "phillipsHue": {
   	"max_attempts": 10,
