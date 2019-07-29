@@ -2,6 +2,7 @@ import re
 import time
 import traceback
 
+from urllib.parse import urlparse
 from networking.http import HTTP
 
 # Global api uri pattern
@@ -13,6 +14,7 @@ class PhillipsHueHandler:
         self.config = config["phillipsHue"]
         self.logger = logger
         self.api_requests = {}
+        self.token_requests = {}
         self.last_log_time = 0
 
         global api_uri_pattern
@@ -23,14 +25,20 @@ class PhillipsHueHandler:
         try:
             http = HTTP(tcp_packet.data)
 
+            request_path = urlparse(http.uri).path
+
             #strip out token
             match = api_uri_pattern.match(http.uri)
-            if not match:
-                print("http uri does not match api pattern")
-                return
-            else:
+
+            #check if the uri is just a request for username ("/api")
+            if request_path == "/api":
+                self.trackTokenRequest(ip_packet.src)
+            elif match:
                 token = match.group(1)
                 self.trackAPIRequest(token, ip_packet.src)
+            else:
+                print("http uri does not match api pattern")
+                return
     
         except Exception as ex:
             print("EXCEPTION: " +str(ex))
@@ -47,24 +55,49 @@ class PhillipsHueHandler:
         
         #determine if token has been used before    
         if token not in requests.token_set:
-            print("new request from: " +str(ip)+ " with token: " +str(token))
             current_attempt_time = time.time()
             requests.addRequest(token, current_attempt_time)
             if len(requests.attempt_times) >= self.config["max_attempts"]:
                 seconds_from_first_attempt = (current_attempt_time - requests.attempt_times[0]["time"])
                 if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                    self.logBruteForce(ip)
+                    self.logBruteForceAPI(ip)
                 
                 # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
                 removed_request = requests.attempt_times.pop(0)
                 requests.token_set.remove(removed_request["token"])
 
+    def trackTokenRequest(self, ip):
+        if ip not in self.token_requests.keys():
+            attempt_times = []
+            self.token_requests[ip] = attempt_times
+        else:
+            attempt_times = self.token_requests[ip]
+        
+        current_attempt_time = time.time()
+        attempt_times.append(current_attempt_time)
+        if len(attempt_times) >= self.config["max_attempts"]:
+            seconds_from_first_attempt = (current_attempt_time - attempt_times[0])
+            if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                self.logBruteForceToken(ip)
+                
+            # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
+            attempt_times.pop(0)
 
-    def logBruteForce(self, ip):
+
+    def logBruteForceAPI(self, ip):
         current_time = time.time()
         if(current_time - self.last_log_time > self.config["logging_timeout"]):
             msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has attempted device api calls with " +str(self.config["max_attempts"])+ 
                 " different tokens within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
+            self.logger.warning(msg)
+            self.last_log_time = current_time
+
+
+    def logBruteForceToken(self, ip):
+        current_time = time.time()
+        if(current_time - self.last_log_time > self.config["logging_timeout"]):
+            msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has attempted to get a token " +str(self.config["max_attempts"])+ 
+                " times within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
             self.last_log_time = current_time
 

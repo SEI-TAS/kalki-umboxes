@@ -11,6 +11,16 @@ done
 echo "finished 20 identical api calls.  Should not have triggered brute force"
 sleep 5
 
+#20 calls to get a token
+for i in {1..20}
+do
+    curl -s -o /dev/null http://localhost:9010/api
+    sleep 0.5
+done
+
+echo "finished 20 token requests.  Should have triggered brute force"
+sleep 5
+
 #20 api calls with random tokens should trigger a brute force
 for i in {1..20}
 do
