@@ -13,6 +13,7 @@ class PhillipsHueHandler:
         self.config = config["phillipsHue"]
         self.logger = logger
         self.api_requests = {}
+        self.last_log_time = 0
 
         global api_uri_pattern
         api_uri_pattern = re.compile("/api/(.*)/")
@@ -60,9 +61,12 @@ class PhillipsHueHandler:
 
 
     def logBruteForce(self, ip):
-        msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has attempted device api calls with " +str(self.config["max_attempts"])+ 
+        current_time = time.time()
+        if(current_time - self.last_log_time > self.config["logging_timeout"]):
+            msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has attempted device api calls with " +str(self.config["max_attempts"])+ 
                 " different tokens within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
-        self.logger.warning(msg)
+            self.logger.warning(msg)
+            self.last_log_time = current_time
 
 
 class Requests():
