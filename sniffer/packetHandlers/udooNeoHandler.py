@@ -7,6 +7,7 @@ class UdooNeoHandler:
         self.config = config["udooNeo"]
         self.logger = logger
         self.connections = {}
+        self.last_log_time = 0
 
 
     def handlePacket(self, tcp_packet, ip_packet):
@@ -23,13 +24,11 @@ class UdooNeoHandler:
         else:
             connection_times = self.connections[ip]
         
-        print("new TCP connection for IP: " +str(ip))
         current_attempt_time = time.time()
         connection_times.append(current_attempt_time)
     
         if len(connection_times) >= self.config["max_attempts"]:
             seconds_from_first_attempt = (current_attempt_time - connection_times[0])
-            print("seconds from first attempt: " +str(seconds_from_first_attempt))
             if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
                 self.logBruteForce(ip)
                 
@@ -38,6 +37,9 @@ class UdooNeoHandler:
 
 
     def logBruteForce(self, ip):
-        msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has started " +str(self.config["max_attempts"])+ 
+        current_time = time.time()
+        if current_time - self.last_log_time > self.config["log_timeout"]:
+            msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has started " +str(self.config["max_attempts"])+ 
                 " TCP connections within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
-        self.logger.warning(msg)
+            self.logger.warning(msg)
+            self.last_log_time = current_time

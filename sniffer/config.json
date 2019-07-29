@@ -21,6 +21,7 @@
 
   "udooNeo": {
   	"max_attempts": 10,
-  	"max_attempts_interval_secs": 60
+  	"max_attempts_interval_secs": 60,
+    "log_timeout": 60
   }
 }
