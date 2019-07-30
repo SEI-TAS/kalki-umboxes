@@ -6,6 +6,7 @@
   "httpServer": {
     "port": 9010
   },
+  "handler": "phillipsHue",
 
   "httpAuth": {
     "max_attempts": 4,
@@ -16,12 +17,13 @@
 
   "phillipsHue": {
   	"max_attempts": 10,
-  	"max_attempts_interval_secs": 60
+  	"max_attempts_interval_secs": 60, 
+    "logging_timeout": 60
   },
 
   "udooNeo": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
-    "log_timeout": 60
+    "logging_timeout": 60
   }
 }

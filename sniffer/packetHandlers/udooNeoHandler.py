@@ -38,7 +38,7 @@ class UdooNeoHandler:
 
     def logBruteForce(self, ip):
         current_time = time.time()
-        if current_time - self.last_log_time > self.config["log_timeout"]:
+        if current_time - self.last_log_time > self.config["logging_timeout"]:
             msg = ("BRUTE_FORCE: IP address " +str(ip)+ " has started " +str(self.config["max_attempts"])+ 
                 " TCP connections within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
