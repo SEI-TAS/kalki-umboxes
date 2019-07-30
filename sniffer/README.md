@@ -1,11 +1,11 @@
 # Sniffer
-* [Overview] (#overview)
-* [Setup] (#setup)
-* [Packet Handlers] (#packet-handlers)
-	* [HTTP Basic Authentication] (#httpauthhandler.py)
-	* [Phillips Hue] (#phillipsHueHandler.py)
-* [Configuration] (#configuration)
-* [Test Scripts] (#test-scripts)
+* [Overview](#overview)
+* [Setup](#setup)
+* [Packet Handlers](#packet-handlers)
+	* [HTTP Basic Authentication](#http-basic-authentication)
+	* [Phillips Hue Brute Force](#phillips-hue-brute-force)
+* [Configuration](#configuration)
+* [Test Scripts](#test-scripts)
 
 
 ## Overview
@@ -26,10 +26,10 @@ Since the sniffer utilizes Python raw sockets, it must be run as a root user and
 
 ## Packet Handlers
 
-### httpAuthHandler.py
+### HTTP Basic Authentication
 This handler checks if the given TCP packet has HTTP data and if so, parses it into an HTTP packet.  It checks to see if the HTTP request is using Basic HTTP Authentication.  If so, it looks for two things.  First, it checks if the request is using the default username and password for authentication.  If it is, it will write an alert message to the log file to be read by the alerter.  No matter the username or password, this handler will keep track of consecutive  authentication attempts and if enough attempts are made within a time interval configured in the configuration file, it will also write an alert to the log file to be read by the alerter.
 
-### phillipsHueHandler.py
+### Phillips Hue Brute Force
 This handler checks if the given TCP packet has HTTP data and if so, parses it into an HTTP packet.  Its purpose is to detect brute force attacks on the phillips hue API.  It does this by checking the path of the HTTP request.  It looks for two types of paths.  The first is any request to the path __/api__.  Any user sending this request is attempting to retrieve an API token for the device.  If they obtained this, they would have full control over the device.  If the handler detects a number of these requests within a configured time interval, it will write an alert to the log to be read by the alerter.  Secondly, this handler is observing requests with the path __/api/[token]/*__ where [token] could be any sequence of numbers and letters and * could be any remainder to the path.  The handler will look for requests with this path pattern from the same IP that use different tokens.  Once a configured amount of these requests occur within a configured amount of time, an alert will be appended to the log.  This represents a malicious user attempting to find a valid token so that they may communicate with the device. 
 
 ## Configuration
