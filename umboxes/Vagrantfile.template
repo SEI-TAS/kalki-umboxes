@@ -1,0 +1,17 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# MODIFY THIS: Change this name to be better suited for the umbox.
+VM_NAME = 'umbox-name'
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+
+  # Copy all program files to the VM.
+  config.vm.provision "file", source: "../<folder>", destination: "$HOME/"
+
+end
+
+# Loads common_Vagrantfile
+load File.expand_path('../../Vagrantfile.common', __FILE__)
