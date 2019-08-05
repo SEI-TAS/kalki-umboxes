@@ -1,12 +1,11 @@
 {
   "nic": "enp0s3",
- 
   "handler": "udooNeo",
+  "echo": "on",
 
-  "httpServer": {
-    "port": 9010
-  },
-  "handler": "phillipsHue",
+  "restrictedIPs": [
+    "128.237.175.111"
+  ],
 
   "httpAuth": {
     "max_attempts": 4,
