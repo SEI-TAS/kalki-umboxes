@@ -1,10 +1,19 @@
 {
-  "port": "9010",
-  "nic": "eth1",
+  "port": 9010,
+  "nic": "lo",
+ 
+  "handler": "phillipsHue",
 
-  "default_username": "Username",
-  "default_password": "Password",
+  "httpAuth": {
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "default_username": "Username",
+    "default_password": "Password"
+  },
 
-  "max_attempts": "4",
-  "max_attempts_interval_mins": "30"
+  "phillipsHue": {
+  	"max_attempts": 10,
+  	"max_attempts_interval_secs": 60,
+  	"logging_timeout": 60
+  }
 }
