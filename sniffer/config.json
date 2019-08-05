@@ -1,7 +1,11 @@
 {
-  "port": 9010,
-  "nic": "lo",
+  "nic": "enp0s3",
  
+  "handler": "udooNeo",
+
+  "httpServer": {
+    "port": 9010
+  },
   "handler": "phillipsHue",
 
   "httpAuth": {
@@ -13,7 +17,13 @@
 
   "phillipsHue": {
   	"max_attempts": 10,
+  	"max_attempts_interval_secs": 60, 
+    "logging_timeout": 60
+  },
+
+  "udooNeo": {
+  	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
-  	"logging_timeout": 60
+    "logging_timeout": 60
   }
 }

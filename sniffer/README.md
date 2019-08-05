@@ -4,6 +4,7 @@
 * [Packet Handlers](#packet-handlers)
 	* [HTTP Basic Authentication](#http-basic-authentication)
 	* [Phillips Hue Brute Force](#phillips-hue-brute-force)
+	* [Udoo Neo Brute Force](#udoo-neo-brute-force)
 * [Configuration](#configuration)
 * [Test Scripts](#test-scripts)
 
@@ -32,12 +33,16 @@ This handler checks if the given TCP packet has HTTP data and if so, parses it i
 ### Phillips Hue Brute Force
 This handler checks if the given TCP packet has HTTP data and if so, parses it into an HTTP packet.  Its purpose is to detect brute force attacks on the phillips hue API.  It does this by checking the path of the HTTP request.  It looks for two types of paths.  The first is any request to the path __/api__.  Any user sending this request is attempting to retrieve an API token for the device.  If they obtained this, they would have full control over the device.  If the handler detects a number of these requests within a configured time interval, it will write an alert to the log to be read by the alerter.  Secondly, this handler is observing requests with the path __/api/[token]/*__ where [token] could be any sequence of numbers and letters and * could be any remainder to the path.  The handler will look for requests with this path pattern from the same IP that use different tokens.  Once a configured amount of these requests occur within a configured amount of time, an alert will be appended to the log.  This represents a malicious user attempting to find a valid token so that they may communicate with the device. 
 
+### Udoo Neo Brute Force
+This handler checks all TCP packets to search for the start of the TCP handshake.  Its purpose is to identify an SSH brute force attempt by observing many new TCP connections from the same IP address.  A new TCP connection is qualified as any TCP packet sent with just the SYN flag set.  If the handler sees a configured number of new connections from the same source IP within a configured time interval, it will write an alert to the log file.  
+
 ## Configuration
 The sniffer is configured through the configuration file *config.json*.  
 * specify network interface to retrieve traffic from as a string in property "nic"
-* specify which handler should be used in property "handler" 3out of options:
+* specify which handler should be used in property "handler" out of options:
 	* "httpAuth"
 	* "phillipsHue"
+	* "udooNeo"
 * specific configurations for each handler
 
 ## Test Scripts
@@ -46,3 +51,4 @@ In the testScripts folder can be found scripts to:
 * send an HTTP request to the server with Basic HTTP Authentication using a default username and password
 * Send an HTTP request using to `/api/[token]/lights` where token is a random 16 character UUID
 * Simulate a phillips hue brute force API attack by sending multiple successive requests with different tokens
+* Simulate an SSH brute force attack by trying to ssh a specified number of times with random passwords of length 16

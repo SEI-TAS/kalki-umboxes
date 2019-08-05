@@ -14,7 +14,7 @@ from networking.tcp import TCP
 
 from packetHandlers.httpAuthHandler import HttpAuthHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
-
+from packetHandlers.udooNeoHandler import UdooNeoHandler
 
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
@@ -63,6 +63,8 @@ def main():
         handler = HttpAuthHandler(config, logger)
     elif handler_name == "phillipsHue":
         handler = PhillipsHueHandler(config, logger)
+    elif handler_name == "udooNeo":
+        handler = UdooNeoHandler(config, logger)
     else:
         print("invalid handler name in config file")
         exit(1)
@@ -101,8 +103,6 @@ def main():
         # TCP
         tcp = TCP(ipv4.data)
         #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
-        if len(tcp.data) == 0 or tcp.dest_port != config["port"]:
-            continue
 
         # Avoid duplicate packets.
         #print("\nTCP sequence: " + str(tcp.sequence), flush=True)
