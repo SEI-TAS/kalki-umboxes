@@ -22,16 +22,17 @@ class HTTP():
 
     def parseRequest(self):
         data = self.data
+   
+        print("START")
+        print(data)
+        print("END")
 
         #parse the HTTP request line
-        try: 
-            request_line = data.split(CRLF, 1)[0]
-            split_request_line = request_line.split(" ")
-            self.method = split_request_line[0]
-            self.uri = split_request_line[1]
-            self.version = split_request_line[2]
-        except:
-            print("error parsing http request line")
+        request_line = data.split(CRLF, 1)[0]
+        split_request_line = request_line.split(" ")
+        self.method = split_request_line[0]
+        self.uri = split_request_line[1]
+        self.version = split_request_line[2]
 
         #parse HTTP header
         self.host = self.getHeaderData("Host")

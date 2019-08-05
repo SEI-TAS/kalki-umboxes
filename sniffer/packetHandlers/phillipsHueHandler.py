@@ -24,7 +24,10 @@ class PhillipsHueHandler:
     def handlePacket(self, tcp_packet, ip_packet):
         try:
             http = HTTP(tcp_packet.data)
+        except Exception as ex:
+            return False
 
+        try:
             request_path = urlparse(http.uri).path
 
             #strip out token
@@ -38,11 +41,19 @@ class PhillipsHueHandler:
                 self.trackAPIRequest(token, ip_packet.src)
             else:
                 print("http uri does not match api pattern")
-                return
+
+            print(http.method)
+
+            if self.config["restrictAPI"] == "on" and http.method != "GET":
+                print("restricted API request")
+                return False
+
+            return True
     
         except Exception as ex:
             print("EXCEPTION: " +str(ex))
             traceback.print_exc()
+            return False
 
 
     def trackAPIRequest(self, token, ip):

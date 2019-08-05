@@ -1,10 +1,9 @@
 {
-  "nic": "enp0s3",
-  "handler": "udooNeo",
-  "echo": "on",
+  "nic": "lo",
+  "handler": "phillipsHue",
+  "echo": "off",
 
   "restrictedIPs": [
-    "128.237.175.111"
   ],
 
   "httpAuth": {
@@ -17,7 +16,8 @@
   "phillipsHue": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60, 
-    "logging_timeout": 60
+    "logging_timeout": 60,
+    "restrictAPI": "on"
   },
 
   "udooNeo": {

@@ -13,8 +13,8 @@ class UdooNeoHandler:
     def handlePacket(self, tcp_packet, ip_packet):
         if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
             self.trackConnection(ip_packet.src)
-        else:
-            return
+        
+        return True
 
 
     def trackConnection(self, ip):
