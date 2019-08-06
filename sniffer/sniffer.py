@@ -58,7 +58,6 @@ def main():
     handler_name = config["handler"]
     echo_on = config["echo"] == "on"
     restricted_list = config["restrictedIPs"]
-    print(restricted_list)
 
     #use the passed in command line arguments to create and set the correct handler
     global handler
@@ -79,10 +78,17 @@ def main():
     nic_mac = netifaces.ifaddresses(config["nic"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on NIC is {}\n".format(nic_mac), flush=True)
 
-    last_tcp_sequence = 0
+    last_data = None
+    last_echo = None
     while True:
         # Received data from raw socket.
         raw_data, addr = conn.recvfrom(65535)
+
+        #ignore duplicate packets
+        if last_data == raw_data:
+            continue
+
+        last_data = raw_data
 
         # Ethernet
         eth = Ethernet(raw_data)
@@ -101,19 +107,13 @@ def main():
         # TCP
         tcp = TCP(ipv4.data)
         #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
-
-        # Avoid duplicate packets.
-        if tcp.sequence == last_tcp_sequence:
-            #print("Ignoring duplicate TCP packet", flush=True)
-            continue
-        else:
-            last_tcp_sequence = tcp.sequence
-
-        handler.handlePacket(tcp, ipv4);
+        
+        should_echo = handler.handlePacket(tcp, ipv4);
 
         #only echo packet if echo is on and src IP is not restricted
-        if echo_on and (ipv4.src not in restricted_list):
+        if echo_on and (ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
             conn.send(raw_data)
+            last_echo = raw_data
 
 if __name__ == '__main__':
     main()

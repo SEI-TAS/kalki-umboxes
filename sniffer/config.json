@@ -1,7 +1,7 @@
 {
   "nic": "lo",
   "handler": "phillipsHue",
-  "echo": "off",
+  "echo": "on",
 
   "restrictedIPs": [
   ],
