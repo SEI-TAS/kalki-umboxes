@@ -22,16 +22,19 @@ class HTTP():
 
     def parseRequest(self):
         data = self.data
+        
+        if len(data) == 0:
+            raise Exception("Error parsing http data: no data")
 
         #parse the HTTP request line
-        try: 
-            request_line = data.split(CRLF, 1)[0]
-            split_request_line = request_line.split(" ")
-            self.method = split_request_line[0]
-            self.uri = split_request_line[1]
-            self.version = split_request_line[2]
-        except:
-            print("error parsing http request line")
+        request_line = data.split(CRLF, 1)[0]
+        split_request_line = request_line.split(" ")
+        self.method = split_request_line[0]
+        self.uri = split_request_line[1]
+        self.version = split_request_line[2]
+        
+        if "HTTP" not in self.version:
+            raise Exception("Error parsing http: not an http packet")
 
         #parse HTTP header
         self.host = self.getHeaderData("Host")
