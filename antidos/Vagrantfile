@@ -14,14 +14,20 @@ Vagrant.configure(2) do |config|
   # Keep default keys to simplify repackaging.
   config.ssh.insert_key = false
 
-  # Use libvirt's default DHCP private network.
+  # Add additional NICs for performing middlebox operations.
   config.vm.network "private_network", type: "dhcp"
+  config.vm.network "private_network", ip: "10.1.1.10"
+  config.vm.network "private_network", ip: "10.1.2.10"
 
   # NOTE: this is only needed if behind a proxy.
   #config.vm.provision "shell", path: "../baseline/proxy_setup.sh"
 
   # Setup general baseline things.
-  config.vm.provision "shell", path: "../baseline/umbox_setup.sh"
+  config.vm.provision "file", source: "./setup_iptables.sh", destination: "$HOME/setup_iptables.sh"
+  config.vm.provision "file", source: "./antidos.service", destination: "/$HOME/antidos.service"  
+  config.vm.provision "shell" do |s|
+    s.path = "umbox_setup.sh"
+  end
 
   # Copy and setup Alerter.
   config.vm.provision "file", source: "../alerter", destination: "$HOME/"
