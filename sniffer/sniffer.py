@@ -12,9 +12,11 @@ from networking.ethernet import Ethernet
 from networking.ipv4 import IPv4
 from networking.tcp import TCP
 
-from packetHandlers.httpAuthHandler import HttpAuthHandler
+from packetHandlers.maxLoginHandler import maxLoginHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
 from packetHandlers.udooNeoHandler import UdooNeoHandler
+from packetHandlers.httpAuthHandler import HttpAuthHandler
+
 
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
@@ -61,12 +63,15 @@ def main():
 
     #use the passed in command line arguments to create and set the correct handler
     global handler
-    if handler_name == "httpAuth":
-        handler = HttpAuthHandler(config, logger)
+    
+    if handler_name = "maxLogin":
+        handler = MaxLoginHandler(config, logger)
     elif handler_name == "phillipsHue":
         handler = PhillipsHueHandler(config, logger)
     elif handler_name == "udooNeo":
         handler = UdooNeoHandler(config, logger)
+    elif handler_name == "httpAuth":
+        handler = HttpAuthHandler(config, logger)
     else:
         print("invalid handler name in config file")
         exit(1)

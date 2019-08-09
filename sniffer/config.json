@@ -6,7 +6,7 @@
   "restrictedIPs": [
   ],
 
-  "httpAuth": {
+  "maxLogin": {
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
@@ -24,5 +24,10 @@
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
     "logging_timeout": 60
+  },
+
+  "httpAuth": {
+    "password_file": "passwords",
+    "hash_method": "md5"
   }
 }
