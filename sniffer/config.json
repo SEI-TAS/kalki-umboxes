@@ -1,6 +1,7 @@
 {
-  "nic": "lo",
-  "handler": "phillipsHue",
+  "incomingNIC": "enp0s3",
+  "outgoingNIC": "enp0s8",
+  "handler": "udooNeo",
   "echo": "on",
 
   "restrictedIPs": [
