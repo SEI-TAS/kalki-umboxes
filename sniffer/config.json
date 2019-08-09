@@ -1,7 +1,7 @@
 {
   "incomingNIC": "enp0s3",
   "outgoingNIC": "enp0s8",
-  "handler": "udooNeo",
+  "handler": "httpAuth",
   "echo": "on",
 
   "restrictedIPs": [

@@ -48,7 +48,7 @@ class HttpAuthHandler:
                     credentials = b64decode(match.group(1)).decode("ascii")
                     print("Credentials: " + credentials, flush=True)
                     username, password = credentials.split(":")
-                    return authenticateUser(username, password)
+                    return self.authenticateUser(username, password)
                 else:
                     #send a 407 authenticate response
                     return False
@@ -58,12 +58,15 @@ class HttpAuthHandler:
 
 
     def authenticateUser(self, username, password):
-        for line in open(self.password_file_path, "r").readlines():
-            credentials = line.split(":")
-            stored_user = credentials[0]
-            stored_hash = credentials[1]
-            if username == stored_user:
-                return verifyPassword(stored_hash, password)
+        try:
+            for line in open(self.password_file_path, "r").readlines():
+                credentials = line.split(":")
+                stored_user = credentials[0]
+                stored_hash = credentials[1]
+                if username == stored_user:
+                    return self.verifyPassword(stored_hash, password)
+        except:
+            print("error opening password file")
 
         return False
 
@@ -75,7 +78,9 @@ class HttpAuthHandler:
         else: 
             return False
 
-        m.update(to_verify)
+        m.update(to_verify.encode('utf-8'))
         to_verify_hash = m.hexdigest()
 
+        print("stored hash: " +stored_hash)
+        print("verify_hash: " +to_verify_hash)
         return stored_hash == to_verify_hash

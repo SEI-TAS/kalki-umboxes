@@ -12,7 +12,7 @@ from networking.ethernet import Ethernet
 from networking.ipv4 import IPv4
 from networking.tcp import TCP
 
-from packetHandlers.maxLoginHandler import maxLoginHandler
+from packetHandlers.maxLoginHandler import MaxLoginHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
 from packetHandlers.udooNeoHandler import UdooNeoHandler
 from packetHandlers.httpAuthHandler import HttpAuthHandler
@@ -64,7 +64,7 @@ def main():
     #use the passed in command line arguments to create and set the correct handler
     global handler
     
-    if handler_name = "maxLogin":
+    if handler_name == "maxLogin":
         handler = MaxLoginHandler(config, logger)
     elif handler_name == "phillipsHue":
         handler = PhillipsHueHandler(config, logger)
@@ -124,6 +124,7 @@ def main():
 
         #only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
+            print("echoing...")
             outgoing.send(raw_data)
             last_echo = raw_data
 
