@@ -22,17 +22,17 @@ def main():
     script_dir = os.path.dirname(__file__)
     file_path = os.path.join(script_dir, FILENAME)
 
-    mode = 'a+' if os.path.exists(file_path) else 'r'
+    mode = 'r' if os.path.exists(file_path) else 'a+'
 
     #read current data from file
-    with open(file_path, "a+") as file:
+    with open(file_path, mode) as file:
         data = file.readlines()
 
     #look for an already existing username
     found = False
     for i in range(0, len(data)):
         stored_credentials = data[i].split(":")
-        stored_user = credentials[0]
+        stored_user = stored_credentials[0]
 
         if stored_user == username:
             data[i] = credentials
