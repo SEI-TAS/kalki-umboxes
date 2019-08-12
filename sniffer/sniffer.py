@@ -12,7 +12,7 @@ from networking.ethernet import Ethernet
 from networking.ipv4 import IPv4
 from networking.tcp import TCP
 
-from packetHandlers.maxLoginHandler import maxLoginHandler
+from packetHandlers.maxLoginHandler import MaxLoginHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
 from packetHandlers.udooNeoHandler import UdooNeoHandler
 from packetHandlers.httpAuthHandler import HttpAuthHandler
@@ -64,7 +64,7 @@ def main():
     #use the passed in command line arguments to create and set the correct handler
     global handler
     
-    if handler_name = "maxLogin":
+    if handler_name == "maxLogin":
         handler = MaxLoginHandler(config, logger)
     elif handler_name == "phillipsHue":
         handler = PhillipsHueHandler(config, logger)
@@ -76,18 +76,25 @@ def main():
         print("invalid handler name in config file")
         exit(1)
         
-    conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    conn.bind((config["nic"], 0))
-    print("Listening on raw socket on interface {}...".format(config["nic"]), flush=True)
+    incoming = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
+    incoming.bind((config["incomingNIC"], 0))
+    print("Listening on raw socket on interface {}...".format(config["incomingNIC"]), flush=True)
 
-    nic_mac = netifaces.ifaddresses(config["nic"])[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on NIC is {}\n".format(nic_mac), flush=True)
+    incoming_nic_mac = netifaces.ifaddresses(config["incomingNIC"])[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on incoming NIC is {}\n".format(incoming_nic_mac), flush=True)
+
+    outgoing = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
+    outgoing.bind((config["outgoingNIC"], 0))
+    print("Echoing back on raw socket on interface {}...".format(config["outgoingNIC"]), flush=True)
+
+    outgoing_nic_mac = netifaces.ifaddresses(config["outgoingNIC"])[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on outgoing NIC is {}\n".format(outgoing_nic_mac), flush=True)
 
     last_data = None
     last_echo = None
     while True:
         # Received data from raw socket.
-        raw_data, addr = conn.recvfrom(65535)
+        raw_data, addr = incoming.recvfrom(65535)
 
         #ignore duplicate packets
         if last_data == raw_data:
@@ -117,7 +124,8 @@ def main():
 
         #only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
-            conn.send(raw_data)
+            print("echoing...")
+            outgoing.send(raw_data)
             last_echo = raw_data
 
 if __name__ == '__main__':
