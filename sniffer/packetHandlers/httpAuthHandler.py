@@ -20,10 +20,8 @@ class HttpAuthHandler:
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
         script_dir = os.path.dirname(__file__)
-        rel_path = self.config["password_file"]
+        rel_path = "../" +self.config["password_file"]
         self.password_file_path = os.path.join(script_dir, rel_path)
-
-        print("password file path: " +str(self.password_file_path))
 
 
     def handlePacket(self, tcp_packet, ip_packet):
@@ -32,21 +30,12 @@ class HttpAuthHandler:
         except:
             return False
 
-        print("Received HTTP request: \n" +
-            "Method: " +http.method+ "\n" +
-            "URI: " +http.uri+ "\n" +
-            "Version: " +http.version+ "\n" +
-            "Host: " +str(http.host)+ "\n" +
-            "Authorization: " +str(http.authorization)+ "\n")
-
         if http.authorization != None:
             try:
                 auth_line = "Authorization: " + http.authorization
                 match = basic_authorization_pattern.match(auth_line)
                 if match:
-                    print("Found authorization info in http request: ", flush=True)
                     credentials = b64decode(match.group(1)).decode("ascii")
-                    print("Credentials: " + credentials, flush=True)
                     username, password = credentials.split(":")
                     return self.authenticateUser(username, password)
                 else:
@@ -62,7 +51,7 @@ class HttpAuthHandler:
             for line in open(self.password_file_path, "r").readlines():
                 credentials = line.split(":")
                 stored_user = credentials[0]
-                stored_hash = credentials[1]
+                stored_hash = credentials[1].rstrip()
                 if username == stored_user:
                     return self.verifyPassword(stored_hash, password)
         except:
@@ -80,7 +69,5 @@ class HttpAuthHandler:
 
         m.update(to_verify.encode('utf-8'))
         to_verify_hash = m.hexdigest()
-
-        print("stored hash: " +stored_hash)
-        print("verify_hash: " +to_verify_hash)
+        
         return stored_hash == to_verify_hash

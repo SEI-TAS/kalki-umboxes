@@ -1,6 +1,6 @@
 {
   "incomingNIC": "enp0s3",
-  "outgoingNIC": "enp0s8",
+  "outgoingNIC": "enp0s3",
   "handler": "httpAuth",
   "echo": "on",
 
