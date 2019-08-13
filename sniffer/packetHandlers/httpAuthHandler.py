@@ -1,6 +1,7 @@
 import re
 import os
 import socket
+import struct
 import time
 import traceback
 import hashlib
@@ -87,14 +88,14 @@ def send401(ip_packet, tcp_packet):
 
     ipsock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_RAW)
 
-    response = "HTTP/1.1 401 Unauthorized \r\n" +
-               "WWW-Authenticate: Basic \r\n" +
-               "Connection: close \r\n\r\n"
+    response = ("HTTP/1.1 401 Unauthorized \r\n" +
+                "WWW-Authenticate: Basic \r\n" +
+                "Connection: close \r\n\r\n").encode("utf-8")
 
     ip_header = createIPHeader(srcIP, destIP)
 
-    seq_num = tcp_packet.sequence
-    ack_num = seq_num + ip_packet.header_length
+    seq_num = tcp_packet.acknowledgment
+    ack_num = tcp_packet.sequence + len(tcp_packet.data)
     tcp_header = createTCPHeader(response, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
     packet = ip_header + tcp_header + response
@@ -156,8 +157,9 @@ def createTCPHeader(data, seq_num, ack_seq_num, src_port, dest_port, source_ip, 
     tcp_check = checksum(psh)
 
     # make the tcp header again and fill the correct checksum - remember checksum is NOT in network byte order
-    tcp_header = struct.pack('!HHLLBBH' , src_port, dest_port, seq_num, ack_seq_num, 
-        tcp_offset_res, tcp_flags, tcp_window) + struct.pack('H' , tcp_check) + struct.pack('!H' , tcp_urg_ptr)
+    tcp_header = (struct.pack('!HHLLBBH' , src_port, dest_port, seq_num, ack_seq_num, tcp_offset_res, tcp_flags, tcp_window) + 
+            struct.pack('H' , tcp_check) + 
+            struct.pack('!H' , tcp_urg_ptr))
 
     return tcp_header
 
@@ -168,11 +170,11 @@ def checksum(msg):
     # loop taking 2 characters at a time
     for i in range(0, len(msg), 2):
         if (i+1) < len(msg):
-            a = ord(msg[i]) 
-            b = ord(msg[i+1])
+            a = msg[i] 
+            b = msg[i+1]
             s = s + (a+(b << 8))
         elif (i+1)==len(msg):
-            s += ord(msg[i])
+            s += msg[i]
         else:
             raise "Error calculating checksum"
 
