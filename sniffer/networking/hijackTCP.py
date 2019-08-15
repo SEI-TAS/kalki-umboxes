@@ -1,9 +1,9 @@
-#!/
-
 import socket
 import struct
 
 def sendResponse(response, ip_packet, tcp_packet):
+    is_fin = False
+
     #flip src and dest to send back to origin of request
     srcIP = ip_packet.target
     destIP = ip_packet.src
@@ -19,18 +19,93 @@ def sendResponse(response, ip_packet, tcp_packet):
 
     seq_num = tcp_packet.acknowledgment
     ack_num = tcp_packet.sequence + len(tcp_packet.data)
-    ack_tcp_header = createTCPHeader("".encode("utf-8"), seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-    tcp_header = createTCPHeader(response, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+    ack_tcp_header = createTCPHeader("".encode("utf-8"), is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+    tcp_header = createTCPHeader(response, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
     ackPacket = ip_header + ack_tcp_header
     packet = ip_header + tcp_header + response
 
-    #send an acknowledgement to the request
+    #send an acknowledgment to the request
     ipsock.sendto(ackPacket, (destIP, destPort))
 
     #send the response to the request
     ipsock.sendto(packet, (destIP, destPort))
 
+
+#to avoid the device having an open connection with the client, the handler must initiate teardown of that connection
+#by sending a FIN, ACK to the device
+def sendDeviceTeardown(ip_packet, tcp_packet):
+    is_fin = True
+
+    #keep src and dest the same to act as the client sending a teardown
+    srcIP = ip_packet.src
+    destIP = ip_packet.target
+    srcPort = tcp_packet.src_port
+    destPort = tcp_packet.dest_port
+
+    ipsock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_RAW)
+
+    ip_header = createIPHeader(srcIP, destIP)
+
+    #identical sequence numbers to the client request
+    seq_num = tcp_packet.sequence
+    ack_num = tcp_packet.acknowledgment
+    tcp_header = createTCPHeader("".encode("utf-8"), is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+
+    packet = ip_header + tcp_header
+
+    #send the response to the request
+    ipsock.sendto(packet, (destIP, destPort))
+
+#After the handler has iniated teardown with the device, it must acknowledge the device's teardown acknowledgment
+def respondDeviceTeardown(ip_packet, tcp_packet):
+    is_fin = False
+
+    #flip src and dest to send back to the device
+    srcIP = ip_packet.target
+    destIP = ip_packet.src
+    srcPort = tcp_packet.dest_port
+    destPort = tcp_packet.src_port
+
+    ipsock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_RAW)
+
+    ip_header = createIPHeader(srcIP, destIP)
+
+    #identical sequence numbers to the client request
+    seq_num = tcp_packet.acknowledgment
+    ack_num = tcp_packet.sequence + len(tcp_packet.data) + 1
+    tcp_header = createTCPHeader("".encode("utf-8"), is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+
+    packet = ip_header + tcp_header
+
+    #send the response to the request
+    ipsock.sendto(packet, (destIP, destPort))
+
+
+#once a response has been sent from the handler to the client that sent the HTTP request, the client will initiate
+#tear down and this function must acknowledge their teardown
+def respondClientTeardown(ip_packet, tcp_packet):
+    is_fin = True
+
+    #flip src and dest to send back to the client
+    srcIP = ip_packet.target
+    destIP = ip_packet.src
+    srcPort = tcp_packet.dest_port
+    destPort = tcp_packet.src_port
+
+    ipsock = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_RAW)
+
+    ip_header = createIPHeader(srcIP, destIP)
+
+    #identical sequence numbers to the client request
+    seq_num = tcp_packet.acknowledgment
+    ack_num = tcp_packet.sequence + len(tcp_packet.data) + 1
+    tcp_header = createTCPHeader("".encode("utf-8"), is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+
+    packet = ip_header + tcp_header
+
+    #send the response to the request
+    ipsock.sendto(packet, (destIP, destPort))
 
 #creates an IP header as a string of packed information
 def createIPHeader(source_ip, destination_ip) :    
@@ -54,9 +129,9 @@ def createIPHeader(source_ip, destination_ip) :
     return ipheader
 
 #creates a packed TCP header given the data, flags, sequence and ack numbers
-def createTCPHeader(data, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip) :
+def createTCPHeader(data, is_fin, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip) :
     doff = 5
-    tcp_fin = 0
+    tcp_fin = 1 if is_fin else 0 
     tcp_syn = 0
     tcp_rst = 0
     tcp_psh = 0
