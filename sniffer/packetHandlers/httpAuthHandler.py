@@ -44,10 +44,13 @@ class HttpAuthHandler:
             if check_for_client_fin and self.isClientFin(ip_packet, tcp_packet):
                 respondClientTeardown(ip_packet, tcp_packet)
                 check_for_client_fin = False
+                return False        #do not echo the fin from the client
             elif check_for_device_fin and self.isDeviceFin(ip_packet, tcp_packet):
                 respondDeviceTeardown(ip_packet, tcp_packet)
                 check_for_device_fin = False
-            return False
+                return False        #do not echo the fin from the device
+            else :
+                return True         #echo all other non HTTP packets
 
         if http.authorization != None:
             try:
