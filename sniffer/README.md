@@ -2,9 +2,12 @@
 * [Overview](#overview)
 * [Setup](#setup)
 * [Packet Handlers](#packet-handlers)
-	* [HTTP Basic Authentication](#http-basic-authentication)
+	* [Max Login and Default Login](#max-login-and-default-login)
 	* [Phillips Hue Brute Force](#phillips-hue-brute-force)
 	* [Udoo Neo Brute Force](#udoo-neo-brute-force)
+	* [HTTP Authentication "Firewall"](#http-basic-authentication-"firewall")
+* [Networking](#networking)
+	* [TCP Connection Hijacking](#tcp-connection-hijacking)
 * [Configuration](#configuration)
 * [Test Scripts](#test-scripts)
 
@@ -27,7 +30,7 @@ Since the sniffer utilizes Python raw sockets, it must be run as a root user and
 
 ## Packet Handlers
 
-###Max login and default login
+### Max login and default login
 This handler checks if the given TCP packet has HTTP data and if so, parses it into an HTTP packet.  It checks to see if the HTTP request is using Basic HTTP Authentication.  If so, it looks for two things.  First, it checks if the request is using the default username and password for authentication.  If it is, it will write an alert message to the log file to be read by the alerter.  No matter the username or password, this handler will keep track of consecutive  authentication attempts and if enough attempts are made within a time interval configured in the configuration file, it will also write an alert to the log file to be read by the alerter.
 
 ### Phillips Hue Brute Force
