@@ -7,6 +7,7 @@ echo "Creating standalone image for file ${UMBOX_DEPENDENT_IMAGE}"
 
 # Name for the standalone image.
 UMBOX_STANDALONE_IMAGE=${UMBOX_DEPENDENT_IMAGE}_standalone.qcow2
+echo "Standalone file will be at: ${UMBOX_STANDALONE_IMAGE}"
 
 # Name for tmp image to avoid rebasing original.
 UMBOX_DEPENDENT_IMAGE_TMP_COPY=${UMBOX_STANDALONE_IMAGE}.tmp
