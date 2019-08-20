@@ -1,12 +1,27 @@
 #!/usr/bin/env bash
 # Use absolute paths or execute script at folder where umbox image is.
 
-BASE_IMAGE=$1
-UMBOX_CHILD_IMAGE=$2
-UMBOX_FULL_IMAGE=$3
+UMBOX_DEPENDENT_IMAGE=$1
+UMBOX_STANDALONE_IMAGE=$2
 
-cp ${BASE_IMAGE} ${UMBOX_FULL_IMAGE}
-qemu-img rebase -b ${UMBOX_FULL_IMAGE} ${UMBOX_CHILD_IMAGE}
-qemu-img commit ${UMBOX_CHILD_IMAGE}
-chmod ugo+r ${UMBOX_FULL_IMAGE}
-chmod ugo-w ${UMBOX_FULL_IMAGE}
+UMBOX_DEPENDENT_IMAGE_TMP_COPY=${UMBOX_STANDALONE_IMAGE}.tmp
+
+# Get base image path.
+BASE_IMAGE=qemu-img info ${UMBOX_DEPENDENT_IMAGE} | grep "backing file: " | sed 's/^.*: //'
+
+# Copy base and dependent images to avoid messing up with originals.
+cp ${BASE_IMAGE} ${UMBOX_STANDALONE_IMAGE}
+cp ${UMBOX_DEPENDENT_IMAGE} ${UMBOX_DEPENDENT_IMAGE_TMP_COPY}
+
+# Modify dependent image to point to new copy of backing file.
+qemu-img rebase -b ${UMBOX_STANDALONE_IMAGE} ${UMBOX_DEPENDENT_IMAGE_TMP_COPY}
+
+# Merge dependent image into copy of backing file.
+qemu-img commit ${UMBOX_DEPENDENT_IMAGE_TMP_COPY}
+
+# Make the new image readable but not writable.
+chmod ugo+r ${UMBOX_STANDALONE_IMAGE}
+chmod ugo-w ${UMBOX_STANDALONE_IMAGE}
+
+# Remov temporary dependent image.
+rm ${UMBOX_DEPENDENT_IMAGE_TMP_COPY}
