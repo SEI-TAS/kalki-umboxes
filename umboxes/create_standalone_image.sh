@@ -12,7 +12,7 @@ UMBOX_STANDALONE_IMAGE=${UMBOX_DEPENDENT_IMAGE}_standalone.qcow2
 UMBOX_DEPENDENT_IMAGE_TMP_COPY=${UMBOX_STANDALONE_IMAGE}.tmp
 
 # Get base image path.
-BASE_IMAGE=qemu-img info ${UMBOX_DEPENDENT_IMAGE} | grep "backing file: " | sed 's/^.*: //'
+BASE_IMAGE=$(qemu-img info ${UMBOX_DEPENDENT_IMAGE} | grep "backing file: " | sed 's/^.*: //')
 echo "Backing file found: ${BASE_IMAGE}"
 
 # Copy base and dependent images to avoid messing up with originals.
