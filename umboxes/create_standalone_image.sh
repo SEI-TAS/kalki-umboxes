@@ -33,6 +33,7 @@ qemu-img commit ${UMBOX_DEPENDENT_IMAGE_TMP_COPY}
 echo "Copying final file to current folder".
 chmod ugo+r ${UMBOX_STANDALONE_IMAGE}
 chmod ugo-w ${UMBOX_STANDALONE_IMAGE}
+chmod ugo-x ${UMBOX_STANDALONE_IMAGE}
 cp ${UMBOX_STANDALONE_IMAGE} .
 
 # Remov temporary dependent image.
