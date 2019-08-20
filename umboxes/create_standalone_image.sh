@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Use absolute paths or execute script at folder where umbox image is.
+# NOTE: execute script with sudo and at folder where Vagrant folder is.
 
 UMBOX_DEPENDENT_IMAGE=$1
-UMBOX_STANDALONE_IMAGE=$2
 
+# Name for the standalone image.
+UMBOX_STANDALONE_IMAGE=${UMBOX_DEPENDENT_IMAGE}_standalone.qcow2
+
+# Name for tmp image to avoid rebasing original.
 UMBOX_DEPENDENT_IMAGE_TMP_COPY=${UMBOX_STANDALONE_IMAGE}.tmp
 
 # Get base image path.
