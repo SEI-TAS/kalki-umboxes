@@ -3,7 +3,7 @@
 # vi: set ft=ruby :
 
 # Loads common_Vagrantfile
-load File.expand_path('../common/Vagrantfile', __FILE__)
+load File.expand_path('../../common/Vagrantfile', __FILE__)
 
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
