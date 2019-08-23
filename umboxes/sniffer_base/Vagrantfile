@@ -15,7 +15,11 @@ Vagrant.configure(2) do |config|
   # Copy all sniffer files to the VM, and set up depdencies and service.
   config.vm.provision "file", source: "../../sniffer", destination: "$HOME/"
   config.vm.provision "file", source: "../sniffer_base/sniffer.service", destination: "$HOME/sniffer/sniffer.service"
-  config.vm.provision "shell", path: "../sniffer_base/sniffer_setup.sh"
+  config.vm.provision "shell" do |s|
+    s.path = "../sniffer_base/sniffer_setup.sh"
+    s.args = ["/home/" + VM_USER + "/sniffer"]
+  end
+
 
 end
 
