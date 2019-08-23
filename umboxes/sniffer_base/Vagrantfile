@@ -5,6 +5,9 @@
 # MODIFY THIS: Change this name to be better suited for the umbox.
 VM_NAME = 'umbox-sniffer'
 
+# Loads common_Vagrantfile
+load File.expand_path('../../Vagrantfile.common', __FILE__)
+
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
 
@@ -23,5 +26,3 @@ Vagrant.configure(2) do |config|
 
 end
 
-# Loads common_Vagrantfile
-load File.expand_path('../../Vagrantfile.common', __FILE__)

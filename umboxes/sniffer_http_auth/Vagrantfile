@@ -5,13 +5,15 @@
 # MODIFY THIS: Change this name to be better suited for the umbox.
 VM_NAME = 'umbox-sniffer-http'
 
+# Loads parent Vagrantfile
+load File.expand_path('../sniffer_base/Vagrantfile', __FILE__)
+
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
 
-  # Copy all program files to the VM.
+  # Copy specific config file, and restart sniffer to use it.
   config.vm.provision "file", source: "../sniffer_http_auth/config.json", destination: "$HOME/sniffer/config.json"
+  config.vm.provision "shell", inline: "systemctl restart sniffer"
 
 end
 
-# Loads parent Vagrantfile
-load File.expand_path('../../sniffer/Vagrantfile', __FILE__)
