@@ -12,6 +12,9 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "../../sniffer", destination: "$HOME/"
   config.vm.provision "file", source: "../sniffer/sniffer.service", destination: "$HOME/sniffer/sniffer.service"
 
+  # Setup Sniffer deps.
+  config.vm.provision "shell", path: "../sniffer/sniffer_setup.sh"
+
 end
 
 # Loads common_Vagrantfile
