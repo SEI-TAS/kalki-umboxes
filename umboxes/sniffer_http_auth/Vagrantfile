@@ -9,7 +9,7 @@ VM_NAME = 'umbox-sniffer-http'
 Vagrant.configure(2) do |config|
 
   # Copy all program files to the VM.
-  config.vm.provision "file", source: "../../sniffer_http_auth/config.json", destination: "$HOME/sniffer/config.json"
+  config.vm.provision "file", source: "../sniffer_http_auth/config.json", destination: "$HOME/sniffer/config.json"
 
 end
 
