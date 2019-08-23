@@ -6,7 +6,7 @@
 VM_NAME = 'umbox-sniffer-http'
 
 # Loads parent Vagrantfile
-load File.expand_path('../sniffer_base/Vagrantfile', __FILE__)
+load File.expand_path('../../sniffer_base/Vagrantfile', __FILE__)
 
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
