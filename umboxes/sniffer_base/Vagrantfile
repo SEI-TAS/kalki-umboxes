@@ -2,27 +2,20 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# MODIFY THIS: Change this name to be better suited for the umbox.
-VM_NAME = 'umbox-sniffer'
-
 # Loads common_Vagrantfile
-load File.expand_path('../../Vagrantfile.common', __FILE__)
+load File.expand_path('../common/Vagrantfile', __FILE__)
 
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
 
-  # Copy a properly configured alerter config file for this software to the VM.
-  config.vm.provision "file", source: "../sniffer/config_alerter.json", destination: "$HOME/alerter/config.json"
+  # Copy a properly configured alerter config file for this software to the VM, and restart alerter.
+  config.vm.provision "file", source: "../sniffer_base/config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "shell", path: "systemctl restart alerter"
 
-  # Setup dependencies and services.
-  config.vm.provision "shell", path: "../sniffer/umbox_setup.sh"
-
-  # Copy all program files to the VM.
+  # Copy all sniffer files to the VM, and set up depdencies and service.
   config.vm.provision "file", source: "../../sniffer", destination: "$HOME/"
-  config.vm.provision "file", source: "../sniffer/sniffer.service", destination: "$HOME/sniffer/sniffer.service"
-
-  # Setup Sniffer deps.
-  config.vm.provision "shell", path: "../sniffer/sniffer_setup.sh"
+  config.vm.provision "file", source: "../sniffer_base/sniffer.service", destination: "$HOME/sniffer/sniffer.service"
+  config.vm.provision "shell", path: "../sniffer_base/sniffer_setup.sh"
 
 end
 
