@@ -5,6 +5,7 @@ import socket
 import logging
 import sys
 import json
+import traceback
 
 import netifaces
 
@@ -91,36 +92,38 @@ def main():
         # Received data from raw socket.
         raw_data, addr = incoming.recvfrom(65535)
 
-        #ignore duplicate packets
+        # Ignore duplicate packets
         if last_data == raw_data:
             continue
 
         last_data = raw_data
 
+        # Echo by default.
+        should_echo = True
+
         # Ethernet
         eth = Ethernet(raw_data)
         #print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
-        if eth.proto != 8:  # IPv4
-            # Ignore non-IPv4 packets
-            continue
+        # Ignore non-IPv4 packets
+        if eth.proto == 8:  # IPv4
+            ipv4 = IPv4(eth.data)
+            #print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
+            # Ignore non-TCP packets.
+            if ipv4.proto != 6:  # TCP
+                tcp = TCP(ipv4.data)
+                #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
 
-        # IPv4
-        ipv4 = IPv4(eth.data)
-        #print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
-        if ipv4.proto != 6:  # TCP
-            # Ignore non-TCP IPv4 packets.
-            continue
+                try:
+                    should_echo = handler.handlePacket(tcp, ipv4)
+                except Exception as ex:
+                    print("Handler exception: " + str(ex), flush=True)
+                    traceback.print_exc()
 
-        # TCP
-        tcp = TCP(ipv4.data)
-        #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
-        
-        should_echo = handler.handlePacket(tcp, ipv4);
-
-        #only echo packet if echo is on and src IP is not restricted
+        # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
             outgoing.send(raw_data)
             last_echo = raw_data
+
 
 if __name__ == '__main__':
     main()

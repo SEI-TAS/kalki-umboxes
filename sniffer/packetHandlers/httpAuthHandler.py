@@ -8,6 +8,7 @@ from base64 import b64decode
 # Global Authorization pattern
 basic_authorization_pattern = None
 
+
 class HttpAuthHandler:
 
     def __init__(self, config, logger):
@@ -18,18 +19,21 @@ class HttpAuthHandler:
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
-
     def handlePacket(self, tcp_packet, ip_packet):
         try:
+            if len(tcp_packet.data) == 0:
+                print("HTTP Auth Handler: Ignoring TCP packet with no data.")
+                return True
+
             http = HTTP(tcp_packet.data)
             print("Received HTTP request: \n" +
-                "Method: " +http.method+ "\n" +
-                "URI: " +http.uri+ "\n" +
-                "Version: " +http.version+ "\n" +
-                "Host: " +str(http.host)+ "\n" +
-                "Authorization: " +str(http.authorization)+ "\n")
+                "Method: " + http.method + "\n" +
+                "URI: " + http.uri + "\n" +
+                "Version: " + http.version + "\n" +
+                "Host: " + str(http.host) + "\n" +
+                "Authorization: " + str(http.authorization) + "\n")
 
-            if http.authorization != None:
+            if http.authorization is not None:
                 try:
                     auth_line = "Authorization: " + http.authorization
                     match = basic_authorization_pattern.match(auth_line)
@@ -46,8 +50,9 @@ class HttpAuthHandler:
                     traceback.print_exc()
         except Exception as ex:
             print("HTTP exception: " + str(ex), flush=True)
-            traceback.print_exc()
+            #traceback.print_exc()
 
+        return True
 
     def track_login(self, ip, user_name):
         key = hash(str(ip) + user_name)

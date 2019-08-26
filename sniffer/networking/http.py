@@ -3,6 +3,7 @@ CRLF = "\r\n"
 # Global Authorization pattern
 basic_authorization_pattern = None
 
+
 class HTTP():
 
     def __init__(self, raw_data):
@@ -19,29 +20,30 @@ class HTTP():
 
         self.parseRequest()
 
-
     def parseRequest(self):
         data = self.data
         
         if len(data) == 0:
             raise Exception("Error parsing http data: no data")
 
-        #parse the HTTP request line
-        request_line = data.split(CRLF, 1)[0]
-        split_request_line = request_line.split(" ")
-        self.method = split_request_line[0]
-        self.uri = split_request_line[1]
-        self.version = split_request_line[2]
+        # Parse the HTTP request line
+        try:
+            request_line = data.split(CRLF, 1)[0]
+            split_request_line = request_line.split(" ")
+            self.method = split_request_line[0]
+            self.uri = split_request_line[1]
+            self.version = split_request_line[2]
+        except Exception as ex:
+            raise Exception("Error parsing http: not able to parse, maybe not HTTP packet. Error: " + str(ex))
         
         if "HTTP" not in self.version:
             raise Exception("Error parsing http: not an http packet")
 
-        #parse HTTP header
+        # Parse HTTP header
         self.host = self.getHeaderData("Host")
 
-        #gather authorization
+        # Gather authorization
         self.authorization = self.getHeaderData("Authorization")
-
 
     def getHeaderData(self, target):
         data = self.data
