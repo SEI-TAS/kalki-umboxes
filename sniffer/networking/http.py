@@ -9,8 +9,8 @@ class HTTP():
     def __init__(self, raw_data):
         try:
             self.data = raw_data.decode('utf-8')
-        except:
-            self.data = raw_data
+        except Exception as ex:
+            raise Exception("HTTP data could not be decoded using UTF-8, maybe not HTTP packet. Error: " + str(ex))
 
         self.method = None
         self.uri = None

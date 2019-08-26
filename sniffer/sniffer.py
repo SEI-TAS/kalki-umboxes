@@ -109,7 +109,7 @@ def main():
             ipv4 = IPv4(eth.data)
             #print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
             # Ignore non-TCP packets.
-            if ipv4.proto != 6:  # TCP
+            if ipv4.proto == 6:  # TCP
                 tcp = TCP(ipv4.data)
                 #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
 
