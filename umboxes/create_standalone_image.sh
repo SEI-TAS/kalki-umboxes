@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # NOTE: execute script with sudo and at folder where Vagrant folder is.
 
+# To stop VM if running.
+sudo vagrant halt
+
 UMBOX_FOLDER=${PWD##*/}
 UMBOX_DEPENDENT_IMAGE=/var/lib/libvirt/images/${UMBOX_FOLDER}_default.img
 echo "Creating standalone image for file ${UMBOX_DEPENDENT_IMAGE}"
