@@ -100,6 +100,7 @@ def main():
 
         # Echo by default.
         should_echo = True
+        ipv4 = None
 
         # Ethernet
         eth = Ethernet(raw_data)
@@ -120,7 +121,7 @@ def main():
                     traceback.print_exc()
 
         # Only echo packet if echo is on and src IP is not restricted
-        if echo_on and (ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
+        if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
             outgoing.send(raw_data)
             last_echo = raw_data
 
