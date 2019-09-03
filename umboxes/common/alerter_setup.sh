@@ -4,7 +4,7 @@ ALERTER_HOME=$1
 
 # Install Python, PIP and Pipenv
 apt-get update
-apt-get install -yqq python python-pip
+apt-get install -yqq python3.6 python-pip
 pip install pipenv
 
 # Make virtualenvs appear in current directory.
