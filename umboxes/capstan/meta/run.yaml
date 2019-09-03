@@ -1,0 +1,6 @@
+runtime: python
+
+config_set:
+  interpreter:
+    shell: true
+    
