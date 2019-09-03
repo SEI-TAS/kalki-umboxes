@@ -27,7 +27,7 @@ def send_umbox_alert(server_ip, alert_text):
     while curr_retry < max_retries:
         try:
             return send_alert(server_ip, alerter_id=umbox_id, alert_text=alert_text)
-        except requests.exceptions.ConnectionError, e:
+        except requests.exceptions.ConnectionError as e:
             curr_retry += 1
             print("Error sending alert: " + str(e))
             if curr_retry < max_retries:
@@ -42,7 +42,7 @@ def send_alert(server_ip, alerter_id, alert_text):
     """A generic API request to Alert Handler."""
 
     url = "http://" + str(server_ip) + ":" + str(ALERT_HANDLER_PORT) + ALERT_HANDLER_URL
-    print url
+    print(url)
     headers = {}
     headers["Content-Type"] = "application/json"
 
@@ -56,8 +56,8 @@ def send_alert(server_ip, alerter_id, alert_text):
 
     reply = requests.post(url, json=payload, headers=headers)
 
-    print reply
-    print reply.content
+    print(reply)
+    print(reply.content)
     return reply.content
 
 
