@@ -2,10 +2,7 @@
 
 SNIFFER_HOME=$1
 
-# Install Python 3.6.
-sudo -E add-apt-repository ppa:deadsnakes/ppa
-sudo apt-get update
-sudo apt-get install -yqq python3.6
+# Python 3 and pipenv are assumed installed by Alerter setup (common).
 
 # Setup Sniffer
 cd ${SNIFFER_HOME}
