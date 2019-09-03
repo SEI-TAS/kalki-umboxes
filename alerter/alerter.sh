@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-pipenv run python -u alerter.py
+pipenv run python3 -u alerter.py
