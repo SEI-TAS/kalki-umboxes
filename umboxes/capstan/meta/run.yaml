@@ -1,6 +1,5 @@
-runtime: python
+runtime: python3.6
 
 config_set:
   interpreter:
     shell: true
-    
