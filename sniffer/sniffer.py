@@ -7,6 +7,10 @@ import sys
 import json
 import traceback
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import netifaces
 
 from networking.ethernet import Ethernet
@@ -49,6 +53,44 @@ def load_config():
         config = json.load(json_config)
     return config
 
+def setup_email(host, port):
+    # Try to connect 3 times
+    retry_count = 3
+    while retry_count > 0:
+        try:
+            # Establish Connection
+            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+
+            # Successful connection; return the server object
+            return email_server
+        except socket.timeout:
+            print("Failed to connect to " + host + ":" + port + ", trying again", flush=True)
+            retry_count = retry_count - 1
+
+    print ("Failed to connect to " + host + ":" + port + ".  Email unavailable.", flush=True)
+    return None
+
+def send_email(email_server, source_address, destination_address, email_subject, email_body):
+    # Make sure the email server is connected
+    if email_server == None:
+        print ("No valid email server connection.  Email not sent.", flush=True)
+        return
+
+        # Email server connection confirmed; Create the message to send
+    msg = MIMEMultipart()
+    msg['From'] = source_address
+    msg['To'] = destination_address
+    msg['Subject'] = email_subject
+    msg.attach(MIMEText(email_body, 'plain'))
+
+    # Send the message via the provided server
+    try:
+        email_server.send_message(msg)
+    except smtplib.SMTPException:
+        print("Failed to send email to " + destination_address, flush=True)
+
+    # Clean up the message
+    del msg
 
 def main():
     global logger
@@ -56,22 +98,37 @@ def main():
 
     config = load_config()
 
-    handler_name = config["handler"]
+    handler_names = config["handlers"]
     echo_on = config["echo"] == "on"
     restricted_list = config["restrictedIPs"]
 
+    # Set up email
+    email_server_address = config["email_server_address"]
+    email_server_port = config["email_server_port"]
+    email_source_address = config["email_source_address"]
+    #email_source_password = config["email_source_password"]
+    email_server = setup_email(email_server_address, email_server_port)
+
+    # Set up combined result object
+    combined_results = HandlerResults()
+
     #use the passed in command line arguments to create and set the correct handler
-    global handler
-    if handler_name == "httpAuth":
-        handler = HttpAuthHandler(config, logger)
-    elif handler_name == "phillipsHue":
-        handler = PhillipsHueHandler(config, logger)
-    elif handler_name == "udooNeo":
-        handler = UdooNeoHandler(config, logger)
-    else:
-        print("invalid handler name in config file")
+    global handlers
+    for handler_name in handler_names:
+        if handler_name ==  "httpAuth":
+            handlers.append(HttpAuthHandler(config, logger, combined_results))
+        elif handler_name == "phillipsHue":
+            handlers.append(PhillipsHueHandler(config, logger, combined_results))
+        elif handler_name == "udooNeo":
+            handlers.append(UdooNeoHandler(config, logger, combined_results))
+        else:
+            print("Invalid handler name {} in config file".format(handler_name), flush=True)
+    if len(handlers) == 0:
+        print ('No valid handler names found', flush=True)
         exit(1)
-        
+    else:
+        print ("Initializing handlers {}".format(handlers), flush=True)
+
     incoming = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     incoming.bind((config["incomingNIC"], 0))
     print("Listening on raw socket on interface {}...".format(config["incomingNIC"]), flush=True)
@@ -97,10 +154,11 @@ def main():
             continue
 
         last_data = raw_data
-
-        # Echo by default.
-        should_echo = True
         ipv4 = None
+
+        # Reset results for this iteration of results; assume no issues and the packet should be echoed
+        combined_results.echo_decision = True
+        combined_results.issues_found = []
 
         # Ethernet
         eth = Ethernet(raw_data)
@@ -114,17 +172,31 @@ def main():
                 tcp = TCP(ipv4.data)
                 #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
 
-                try:
-                    should_echo = handler.handlePacket(tcp, ipv4)
-                except Exception as ex:
-                    print("Handler exception: " + str(ex), flush=True)
-                    traceback.print_exc()
+
+
+                for handler in handlers:
+                    try:
+                        handler.handlePacket(tcp, ipv4)
+                    except Exception as ex:
+                        print("Handler exception: " + str(ex), flush=True)
+                        traceback.print_exc()
+
+                # Process the output of the handlers
+                if "BRUTE_FORCE" in combined_results.issues_found:
+                    restricted_list.append(ipv4.src)
 
         # Only echo packet if echo is on and src IP is not restricted
-        if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and should_echo and last_echo != raw_data:
+        if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             outgoing.send(raw_data)
             last_echo = raw_data
 
 
 if __name__ == '__main__':
     main()
+
+
+class HandlerResults:
+
+    def __init__(self):
+        self.echo_decision = True
+        self.issues_found = []

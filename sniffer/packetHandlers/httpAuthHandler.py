@@ -1,6 +1,7 @@
 import re
 import time
 import traceback
+import sniffer
 
 from networking.http import HTTP
 from base64 import b64decode
@@ -11,19 +12,21 @@ basic_authorization_pattern = None
 
 class HttpAuthHandler:
 
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, result):
         self.config = config["httpAuth"]
         self.logger = logger
         self.login_requests = {}
+        self.result = result
 
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
     def handlePacket(self, tcp_packet, ip_packet):
+
         try:
             if len(tcp_packet.data) == 0:
                 print("HTTP Auth Handler: Ignoring TCP packet with no data.")
-                return True
+                return
 
             http = HTTP(tcp_packet.data)
             print("Received HTTP request: \n" +
@@ -52,7 +55,7 @@ class HttpAuthHandler:
             print("HTTP exception: " + str(ex), flush=True)
             #traceback.print_exc()
 
-        return True
+        return
 
     def track_login(self, ip, user_name):
         key = hash(str(ip) + user_name)
@@ -84,6 +87,7 @@ class HttpAuthHandler:
         msg = "DEFAULT_CRED: Login attempt with default credentials from " + str(ip)
         self.logger.warning(msg)
         print(msg)
+        self.result.issues_found.append("DEFAULT_CRED")
         return
 
 

@@ -14,7 +14,7 @@ class UdooNeoHandler:
         if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
             self.trackConnection(ip_packet.src)
         
-        return True
+        return
 
 
     def trackConnection(self, ip):
@@ -43,3 +43,4 @@ class UdooNeoHandler:
                 " TCP connections within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
             self.last_log_time = current_time
+            self.result.issues_found.append("BRUTE_FORCE")

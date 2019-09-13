@@ -1,8 +1,13 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handler": "httpAuth",
+  "handlers": ["httpAuth", "udooNeo", "phillipsHueHandler"],
   "echo": "on",
+  "email_server_address": "10.64.22.12",
+  "email_server_port" : "25",
+  "email_source_address": "kalki@sei.cmu.edu",
+  "email_source_password": "password",
+  "email_destination_address_list": ["novakom@sei.cmu.edu"],
 
   "restrictedIPs": [
   ],

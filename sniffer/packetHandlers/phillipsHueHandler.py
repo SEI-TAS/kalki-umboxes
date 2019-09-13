@@ -25,7 +25,8 @@ class PhillipsHueHandler:
         try:
             http = HTTP(tcp_packet.data)
         except:
-            return False
+            self.result.echo_decision = False
+            return
 
         try:
             request_path = urlparse(http.uri).path
@@ -40,18 +41,21 @@ class PhillipsHueHandler:
                 token = match.group(1)
                 self.trackAPIRequest(token, ip_packet.src)
             else:
-                return False
+                self.result.echo_decision = False
+                return
 
             if self.config["restrictAPI"] == "on" and http.method != "GET":
                 print("restricted API request method: " +str(http.method))
-                return False
+                self.result.echo_decision = False
+                return
             else:
-                return True
+                return
 
         except Exception as ex:
             print("EXCEPTION: " +str(ex))
             traceback.print_exc()
-            return False
+            self.result.echo_decision = False
+            return
 
 
     def trackAPIRequest(self, token, ip):
@@ -100,6 +104,7 @@ class PhillipsHueHandler:
                 " different tokens within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
             self.last_log_time = current_time
+            self.result.issues_found.append("BRUTE_FORCE")
 
 
     def logBruteForceToken(self, ip):
@@ -109,6 +114,7 @@ class PhillipsHueHandler:
                 " times within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
             self.last_log_time = current_time
+            self.result.issues_found.append("BRUTE_FORCE")
 
 
 class Requests():
