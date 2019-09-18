@@ -118,7 +118,8 @@ def main():
     combined_results = HandlerResults()
 
     #use the passed in command line arguments to create and set the correct handler
-    global handlers
+    #global handlers
+    handlers = []
     for handler_name in handler_names:
         if handler_name ==  "httpAuth":
             handlers.append(HttpAuthHandler(config, logger, combined_results))
