@@ -3,11 +3,12 @@ import traceback
 
 class UdooNeoHandler:
 
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, result):
         self.config = config["udooNeo"]
         self.logger = logger
         self.connections = {}
         self.last_log_time = 0
+        self.result = result
 
 
     def handlePacket(self, tcp_packet, ip_packet):

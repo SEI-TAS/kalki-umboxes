@@ -10,12 +10,13 @@ api_uri_pattern = None
 
 class PhillipsHueHandler:
 
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, result):
         self.config = config["phillipsHue"]
         self.logger = logger
         self.api_requests = {}
         self.token_requests = {}
         self.last_log_time = 0
+        self.result = result
 
         global api_uri_pattern
         api_uri_pattern = re.compile("/api/(.*)/")
