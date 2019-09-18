@@ -8,6 +8,7 @@
   "email_source_address": "kalki@sei.cmu.edu",
   "email_source_password": "password",
   "email_destination_address_list": ["novakom@sei.cmu.edu"],
+  "iot_subnet": "10.27.151",
 
   "restrictedIPs": [
   ],

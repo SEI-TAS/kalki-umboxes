@@ -1,7 +1,6 @@
 import re
 import time
 import traceback
-import sniffer
 
 from networking.http import HTTP
 from base64 import b64decode
