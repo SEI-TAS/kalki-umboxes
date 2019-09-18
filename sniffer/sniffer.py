@@ -33,6 +33,11 @@ logger = None
 # Global handler.
 handler = None
 
+class HandlerResults:
+
+    def __init__(self):
+        self.echo_decision = True
+        self.issues_found = []
 
 def setup_custom_logger(name, file_path):
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
@@ -193,10 +198,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-class HandlerResults:
-
-    def __init__(self):
-        self.echo_decision = True
-        self.issues_found = []
