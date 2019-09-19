@@ -12,18 +12,5 @@
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
     "default_password": "Password"
-  },
-
-  "phillipsHue": {
-  	"max_attempts": 10,
-  	"max_attempts_interval_secs": 60, 
-    "logging_timeout": 60,
-    "restrictAPI": "on"
-  },
-
-  "udooNeo": {
-  	"max_attempts": 10,
-  	"max_attempts_interval_secs": 60,
-    "logging_timeout": 60
   }
 }
