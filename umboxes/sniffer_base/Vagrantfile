@@ -3,7 +3,7 @@
 # vi: set ft=ruby :
 
 # Sets the VM name to the same name as the folder we started from.
-VM_NAME = UMBOX_FOLDER
+VM_NAME = File.basename(UMBOX_FOLDER)
 
 # Loads common_Vagrantfile
 load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
