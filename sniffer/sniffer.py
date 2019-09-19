@@ -67,6 +67,7 @@ def setup_email(host, port):
             email_server = smtplib.SMTP(host=host, port=port, timeout=3)
 
             # Successful connection; return the server object
+            print ("Email reporting set up successfully.", flush=True)
             return email_server
         except socket.timeout:
             print("Failed to connect to " + host + ":" + port + ", trying again", flush=True)
@@ -190,6 +191,8 @@ def main():
                 # Process the output of the handlers
                 if "BRUTE_FORCE" in combined_results.issues_found:
                     print("Brute Force attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
+                    for destination_address in config["email_destination_address_list"]:
+                        send_email(email_server, email_source_address, destination_address, 'Alert: Brute Force Attempt', 'Brute force attempt detected from ' + ipv4.src)
                     restricted_list.append(ipv4.src)
 
         # Only echo packet if echo is on and src IP is not restricted

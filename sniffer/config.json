@@ -1,7 +1,7 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handlers": ["httpAuth", "udooNeo", "phillipsHue"],
+  "handlers": ["udooNeo", "phillipsHue"],
   "echo": "on",
   "email_server_address": "10.64.22.12",
   "email_server_port" : "25",
