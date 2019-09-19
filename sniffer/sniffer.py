@@ -189,6 +189,7 @@ def main():
 
                 # Process the output of the handlers
                 if "BRUTE_FORCE" in combined_results.issues_found:
+                    print("Brute Force attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
                     restricted_list.append(ipv4.src)
 
         # Only echo packet if echo is on and src IP is not restricted
