@@ -3,18 +3,19 @@ import traceback
 
 class UdooNeoHandler:
 
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, result):
         self.config = config["udooNeo"]
         self.logger = logger
         self.connections = {}
         self.last_log_time = 0
+        self.result = result
 
 
     def handlePacket(self, tcp_packet, ip_packet):
         if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
             self.trackConnection(ip_packet.src)
         
-        return True
+        return
 
 
     def trackConnection(self, ip):
@@ -26,11 +27,15 @@ class UdooNeoHandler:
         
         current_attempt_time = time.time()
         connection_times.append(current_attempt_time)
-    
+
+
         if len(connection_times) >= self.config["max_attempts"]:
             seconds_from_first_attempt = (current_attempt_time - connection_times[0])
-            if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                self.logBruteForce(ip)
+
+            # Only check for Brute Force if it is in the config file
+            if "BRUTE_FORCE" in self.config["check_list"]:
+                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                    self.logBruteForce(ip)
                 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
             connection_times.pop(0)
@@ -43,3 +48,4 @@ class UdooNeoHandler:
                 " TCP connections within " +str(self.config["max_attempts_interval_secs"])+ " seconds")
             self.logger.warning(msg)
             self.last_log_time = current_time
+            self.result.issues_found.append("BRUTE_FORCE")

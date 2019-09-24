@@ -1,8 +1,19 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handler": "httpAuth",
+  "handlers": ["udooNeo", "phillipsHue"],
   "echo": "on",
+  "email_server_address": "10.64.22.12",
+  "email_server_port" : "25",
+  "email_source_address": "kalki@sei.cmu.edu",
+  "email_source_password": "password",
+  "email_destination_address_list": ["novakom@sei.cmu.edu"],
+  "iot_subnet": "10.27.151",
+  "action_list": {
+    "MULTIPLE_LOGIN": ["ALERT", "EMAIL", "BLACKLIST"],
+    "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
+    "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"]
+  },
 
   "restrictedIPs": [
   ],
@@ -11,19 +22,22 @@
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
-    "default_password": "Password"
+    "default_password": "Password",
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED"]
   },
 
   "phillipsHue": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60, 
     "logging_timeout": 60,
-    "restrictAPI": "on"
+    "restrictAPI": "on",
+    "check_list": ["BRUTE_FORCE"]
   },
 
   "udooNeo": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
-    "logging_timeout": 60
+    "logging_timeout": 60,
+    "check_list": ["BRUTE_FORCE"]
   }
 }
