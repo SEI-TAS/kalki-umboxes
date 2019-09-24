@@ -44,8 +44,12 @@ class HttpAuthHandler:
                         credentials = b64decode(match.group(1)).decode("ascii")
                         print("Credentials: " + credentials, flush=True)
                         username, password = credentials.split(":")
-                        if username == self.config["default_username"] and password == self.config["default_password"]:
-                            self.log_default_creds(ip_packet.src)
+
+                        # Only check for Default Credentials if it is in the config file
+                        if "DEFAULT_CRED" in self.config["check_list"]:
+                            if username == self.config["default_username"] and password == self.config["default_password"]:
+                                self.log_default_creds(ip_packet.src)
+
                         self.track_login(ip_packet.src, username)
                 except Exception as ex:
                     print("Exception processing credentials: " + str(ex), flush=True)
@@ -69,10 +73,13 @@ class HttpAuthHandler:
             if login_request.count > self.config["max_attempts"]: # There is duplication of packets
                 minutes_from_first_attempt = (current_attempt_time - login_request.attempt_times[0]) / 60.0
                 print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
-                if minutes_from_first_attempt < self.config["max_attempts_interval_mins"]:
-                    msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
-                    self.logger.error(msg)
-                    print(msg)
+
+                # Only check for Multiple Logins if it is in the config file
+                if "MULTIPLE_LOGIN" in self.config["check_list"]:
+                    if minutes_from_first_attempt < self.config["max_attempts_interval_mins"]:
+                        msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
+                        self.logger.error(msg)
+                        print(msg)
 
                 # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
                 login_request.attempt_times.pop(0)

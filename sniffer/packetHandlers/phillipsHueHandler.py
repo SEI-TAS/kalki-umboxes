@@ -26,7 +26,8 @@ class PhillipsHueHandler:
         try:
             http = HTTP(tcp_packet.data)
         except:
-            self.result.echo_decision = False
+            # Disable the failure decision pending further review as this exception should not cause the packet to not be echoed
+            #self.result.echo_decision = False
             return
 
         try:
@@ -42,11 +43,13 @@ class PhillipsHueHandler:
                 token = match.group(1)
                 self.trackAPIRequest(token, ip_packet.src)
             else:
-                self.result.echo_decision = False
+                # Disable the failure decision pending further review as this exception should not cause the packet to not be echoed
+                #self.result.echo_decision = False
                 return
 
             if self.config["restrictAPI"] == "on" and http.method != "GET":
                 print("restricted API request method: " +str(http.method))
+                # This failure SHOULD result in not echoing the packet
                 self.result.echo_decision = False
                 return
             else:
@@ -55,7 +58,8 @@ class PhillipsHueHandler:
         except Exception as ex:
             print("EXCEPTION: " +str(ex))
             traceback.print_exc()
-            self.result.echo_decision = False
+            # Disable the failure decision pending further review as this exception should not cause the packet to not be echoed
+            #self.result.echo_decision = False
             return
 
 
@@ -73,8 +77,11 @@ class PhillipsHueHandler:
             requests.addRequest(token, current_attempt_time)
             if len(requests.attempt_times) >= self.config["max_attempts"]:
                 seconds_from_first_attempt = (current_attempt_time - requests.attempt_times[0]["time"])
-                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                    self.logBruteForceAPI(ip)
+
+                # Only check for Brute Force if it is in the config file
+                if "BRUTE_FORCE" in self.config["check_list"]:
+                    if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                        self.logBruteForceAPI(ip)
                 
                 # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
                 removed_request = requests.attempt_times.pop(0)
@@ -91,8 +98,11 @@ class PhillipsHueHandler:
         attempt_times.append(current_attempt_time)
         if len(attempt_times) >= self.config["max_attempts"]:
             seconds_from_first_attempt = (current_attempt_time - attempt_times[0])
-            if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                self.logBruteForceToken(ip)
+
+            # Only check for Brute Force if it is in the config file
+            if "BRUTE_FORCE" in self.config["check_list"]:
+                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                    self.logBruteForceToken(ip)
                 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
             attempt_times.pop(0)

@@ -189,11 +189,16 @@ def main():
                         traceback.print_exc()
 
                 # Process the output of the handlers
-                if "BRUTE_FORCE" in combined_results.issues_found:
-                    print("Brute Force attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
-                    for destination_address in config["email_destination_address_list"]:
-                        send_email(email_server, email_source_address, destination_address, 'Alert: Brute Force Attempt', 'Brute force attempt detected from ' + ipv4.src)
-                    restricted_list.append(ipv4.src)
+                for result in combined_results.issues_found:
+                    for action in config["action_list"][result]:
+                        if action == "ALERT":
+                            print("ALERT: " + result + " detected!", flush=True)
+                        elif action == "EMAIL":
+                            for destination_address in config["email_destination_address_list"]:
+                                send_email(email_server, email_source_address, destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
+                        elif action == "BLACKLIST":
+                            print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
+                            restricted_list.append(ipv4.src)
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:

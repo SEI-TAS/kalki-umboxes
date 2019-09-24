@@ -27,11 +27,15 @@ class UdooNeoHandler:
         
         current_attempt_time = time.time()
         connection_times.append(current_attempt_time)
-    
+
+
         if len(connection_times) >= self.config["max_attempts"]:
             seconds_from_first_attempt = (current_attempt_time - connection_times[0])
-            if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                self.logBruteForce(ip)
+
+            # Only check for Brute Force if it is in the config file
+            if "BRUTE_FORCE" in self.config["check_list"]:
+                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                    self.logBruteForce(ip)
                 
             # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
             connection_times.pop(0)
