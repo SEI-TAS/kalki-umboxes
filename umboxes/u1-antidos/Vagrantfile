@@ -4,5 +4,16 @@
 
 # Sets current start folder, and loads parent Vagrantfile
 UMBOX_FOLDER = File.dirname(__FILE__)
-load File.expand_path(UMBOX_FOLDER + '/../sniffer_base/Vagrantfile', __FILE__)
-load File.expand_path(UMBOX_FOLDER + '/../antidos_base/Vagrantfile', __FILE__)
+VM_NAME = File.basename(UMBOX_FOLDER)
+load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+  # Copy all files to the VM, and set up depdencies and service.
+  config.vm.provision "file", source: "../antidos_base/setup_iptables.sh", destination: "$HOME/antidos/setup_iptables.sh"
+  config.vm.provision "file", source: "../antidos_base/antidos.service", destination: "$HOME/antidos/antidos.service"
+  config.vm.provision "shell" do |s|
+    s.path = "../antidos_base/umbox_setup.sh"
+  end
+
+end
