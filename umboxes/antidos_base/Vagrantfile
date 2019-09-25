@@ -1,0 +1,30 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Sets the VM name to the same name as the folder we started from.
+VM_NAME = File.basename(UMBOX_FOLDER)
+
+# Loads common_Vagrantfile -- already done
+#load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+
+  # Add interfaces
+#  config.vm.network :public_network, :dhcp_enabled => false, :network_name => "net1", :ip => "10.1.1.2", :auto_config => false
+  #  config.vm.network :public_network, :dhcp_enabled => false, :auto_config => false
+#  config.vm.network :public_network, :dev => "br0", :ovs => true
+  #  config.vm.network :public_network, :dev => "br0", :ovs => true
+  config.vm.network :private_network, :ip => "10.2.2.2"
+  config.vm.network :private_network, :ip => "10.1.2.2"
+
+  # Copy all sniffer files to the VM, and set up depdencies and service.
+  config.vm.provision "file", source: "../antidos_base/setup_iptables.sh", destination: "$HOME/antidos/setup_iptables.sh"
+  config.vm.provision "file", source: "../antidos_base/antidos.service", destination: "$HOME/antidos/antidos.service"
+  config.vm.provision "shell" do |s|
+    s.path = "../antidos_base/umbox_setup.sh"
+  end
+
+end
+

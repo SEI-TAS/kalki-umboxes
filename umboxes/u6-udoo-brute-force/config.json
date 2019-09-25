@@ -1,0 +1,15 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handler": "udooNeo",
+  "echo": "on",
+
+  "restrictedIPs": [
+  ],
+
+  "udooNeo": {
+    "max_attempts": 10,
+    "max_attempts_interval_secs": 60,
+    "logging_timeout": 60
+  }
+}

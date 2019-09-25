@@ -1,3 +1,5 @@
+# Ignore internal vagrant folders
+.vagrant/
 
 # Created by https://www.gitignore.io/api/macos,gradle,intellij
 
@@ -45,6 +47,7 @@ fabric.properties
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
 *.iml
+*.log
 # modules.xml
 # .idea/misc.xml
 # *.ipr

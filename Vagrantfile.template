@@ -1,9 +1,0 @@
-# encoding: utf-8
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-# MODIFY THIS: Change this name to be better suited for the umbox.
-VM_NAME = 'umbox-name'
-
-# Loads common_Vagrantfile
-load File.expand_path('../../Vagrantfile.common', __FILE__)

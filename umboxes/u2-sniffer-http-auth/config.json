@@ -1,0 +1,16 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handler": "httpAuth",
+  "echo": "on",
+
+  "restrictedIPs": [
+  ],
+
+  "httpAuth": {
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "default_username": "Username",
+    "default_password": "Password"
+  }
+}
