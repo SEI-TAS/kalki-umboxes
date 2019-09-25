@@ -2,16 +2,16 @@
 
 
 sudo brctl addbr bridge0
-sudo ifconfig eth3 down
+sudo ifconfig eth1 down
 sudo ifconfig eth2 down
-sudo brctl addif bridge0 eth3 eth2
-sudo ifconfig eth3 up
+sudo brctl addif bridge0 eth1 eth2
+sudo ifconfig eth1 up
 sudo ifconfig eth2 up
 sudo ifconfig bridge0 up
 
 # Maximum number of connections
 if [ -z "$MAX_CONN" ]; then
-    MAX_CONN="10"
+    MAX_CONN="5"
 fi
 
 # Grouping for determining maximum number of connections

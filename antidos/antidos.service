@@ -1,9 +1,0 @@
-[Unit]
-Description=AntiDoS service
-
-[Service]
-ExecStart=/home/vagrant/setup_iptables.sh
-WorkingDirectory=/home/vagrant/
-
-[Install]
-WantedBy=multi-user.target

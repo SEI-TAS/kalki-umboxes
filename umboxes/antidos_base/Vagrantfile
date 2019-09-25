@@ -12,10 +12,6 @@ VM_NAME = File.basename(UMBOX_FOLDER)
 Vagrant.configure(2) do |config|
 
   # Add interfaces
-#  config.vm.network :public_network, :dhcp_enabled => false, :network_name => "net1", :ip => "10.1.1.2", :auto_config => false
-  #  config.vm.network :public_network, :dhcp_enabled => false, :auto_config => false
-#  config.vm.network :public_network, :dev => "br0", :ovs => true
-  #  config.vm.network :public_network, :dev => "br0", :ovs => true
   config.vm.network :private_network, :ip => "10.2.2.2"
   config.vm.network :private_network, :ip => "10.1.2.2"
 
