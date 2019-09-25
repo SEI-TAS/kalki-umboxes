@@ -10,10 +10,10 @@ load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
   # Copy all files to the VM, and set up depdencies and service.
-  config.vm.provision "file", source: "../antidos_base/setup_iptables.sh", destination: "$HOME/antidos/setup_iptables.sh"
-  config.vm.provision "file", source: "../antidos_base/antidos.service", destination: "$HOME/antidos/antidos.service"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/setup_iptables.sh", destination: "$HOME/antidos/setup_iptables.sh"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/antidos.service", destination: "$HOME/antidos/antidos.service"
   config.vm.provision "shell" do |s|
-    s.path = "../antidos_base/umbox_setup.sh"
+    s.path = UMBOX_FOLDER + "/umbox_setup.sh"
   end
 
 end
