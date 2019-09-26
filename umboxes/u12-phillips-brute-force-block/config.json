@@ -1,8 +1,11 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handler": "phillipsHue",
+  "handlers": "[phillipsHue]",
   "echo": "on",
+  "action_list": {
+    "BRUTE_FORCE": ["ALERT"]
+  },
 
   "restrictedIPs": [
   ],
@@ -11,6 +14,7 @@
     "max_attempts": 10,
     "max_attempts_interval_secs": 60,
     "logging_timeout": 60,
-    "restrictAPI": "on"
+    "restrictAPI": "on",
+    "check_list": ["BRUTE_FORCE"]
   }
 }
