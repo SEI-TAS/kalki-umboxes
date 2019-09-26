@@ -4,7 +4,7 @@
   "handlers": "[udooNeo]",
   "echo": "on",
   "action_list": {
-    "BRUTE_FORCE": ["ALERT"]
+    "BRUTE_FORCE": ["ALERT", "BLACKLIST"]
   },
 
   "restrictedIPs": [

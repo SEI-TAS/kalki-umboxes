@@ -4,8 +4,8 @@
   "handlers": ["httpAuth"],
   "echo": "on",
   "action_list": {
-    "MULTIPLE_LOGIN": ["ALERT"],
-    "DEFAULT_CRED": ["ALERT"]
+    "MULTIPLE_LOGIN": ["ALERT", "BLACKLIST"],
+    "DEFAULT_CRED": ["ALERT", "BLACKLIST"]
   },
 
   "restrictedIPs": [
