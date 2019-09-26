@@ -174,31 +174,39 @@ def main():
         if eth.proto == 8:  # IPv4
             ipv4 = IPv4(eth.data)
             #print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
-            # Ignore non-TCP packets.
+
+            # Process TCP packets
             if ipv4.proto == 6:  # TCP
                 tcp = TCP(ipv4.data)
                 #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
 
-
-
                 for handler in handlers:
                     try:
-                        handler.handlePacket(tcp, ipv4)
+                        handler.handleTCPPacket(tcp, ipv4)
                     except Exception as ex:
                         print("Handler exception: " + str(ex), flush=True)
                         traceback.print_exc()
 
-                # Process the output of the handlers
-                for result in combined_results.issues_found:
-                    for action in config["action_list"][result]:
-                        if action == "ALERT":
-                            print("ALERT: " + result + " detected!", flush=True)
-                        elif action == "EMAIL":
-                            for destination_address in config["email_destination_address_list"]:
-                                send_email(email_server, email_source_address, destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
-                        elif action == "BLACKLIST":
-                            print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
-                            restricted_list.append(ipv4.src)
+            # Process UDP packets
+            elif ipv4.proto == 17: # UDP
+                for handler in handlers:
+                    try:
+                        handler.handleUDPPacket(ipv4)
+                    except Exception as ex:
+                        print("Handler exception: " + str(ex), flush=True)
+                        traceback.print_exc()
+
+            # Process the output of the handlers
+            for result in combined_results.issues_found:
+                for action in config["action_list"][result]:
+                    if action == "ALERT":
+                        print("ALERT: " + result + " detected!", flush=True)
+                    elif action == "EMAIL":
+                        for destination_address in config["email_destination_address_list"]:
+                            send_email(email_server, email_source_address, destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
+                    elif action == "BLACKLIST":
+                        print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
+                        restricted_list.append(ipv4.src)
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
