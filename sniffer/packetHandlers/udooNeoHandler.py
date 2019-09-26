@@ -20,7 +20,7 @@ class UdooNeoHandler:
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"]:
             # Only consider packets coming from the IoT device, which means the source is the IoT subnet
-            if (self.config["iot_subnet"].find(ip_packet.src) > -1):
+            if (ip_packet.src.find(self.config["iot_subnet"]) > -1):
                 # TCP traffic originating from the IoT device.  Only TCP traffic from port 22 is SSH traffic (thus valid)
                 if tcp_packet.src_port != 22:
                     # TCP traffic that is definitely not coming from a SSH server port on the IoT device.  Count as compromise evidence
@@ -36,7 +36,7 @@ class UdooNeoHandler:
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"]:
             # Any UDP Packet originating from the UN IoT device is questionable; flagged for compromise
-            if (self.config["iot_subnet"].find(ip_packet.src) > -1):
+            if (ip_packet.src.find(self.config["iot_subnet"]) > -1):
                 self.udp_compromise_count += 1
 
                 # Check compromise threshold
