@@ -19,21 +19,16 @@ class UdooNeoHandler:
 
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"]:
-            # If the TCP packet is being sent TO port 22, TO the IoT device, it is part of an ssh connection; ignore
-            if tcp_packet.dest_port == 22 and (self.config["iot_subnet"].find(ip_packet.target) > -1):
-                # Part of an client to server SSH connection communication; ignore
-                pass
-            # If the TCP packet is being sent FROM port 22, FROM the IoT device, it is part of an ssh connection; ignore
-            elif tcp_packet.src_port == 22 and (self.config["iot_subnet"].find(ip_packet.src) > -1):
-                # Part of a server to client SSH connection communication; ignore
-                pass
-            else:
-                # In all other cases, this TCP traffic is not part of a TCP SSH session where the IoT device is the server; therefore log as compromise
-                self.tcp_compromise_count += 1
+            # Only consider packets coming from the IoT device, which means the source is the IoT subnet
+            if (self.config["iot_subnet"].find(ip_packet.src) > -1):
+                # TCP traffic originating from the IoT device.  Only TCP traffic from port 22 is SSH traffic (thus valid)
+                if tcp_packet.src_port != 22:
+                    # TCP traffic that is definitely not coming from a SSH server port on the IoT device.  Count as compromise evidence
+                    self.tcp_compromise_count += 1
 
-                # Check compromise threshold
-                if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
-                    self.logCompromise(ip_packet.src)
+                    # Check compromise threshold
+                    if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
+                        self.logCompromise(ip_packet.src)
 
         return
 
@@ -82,6 +77,6 @@ class UdooNeoHandler:
             self.result.issues_found.append("BRUTE_FORCE")
 
     def logCompromise(self, ip):
-        msg = ("COMPROMISE: Detected " + self.udp_compromise_count + " invalid UDP packets and + " + self.tcp_compromise_count + " invalid TCP packets from UN device at " + str(ip) + ", exceeding limit of " + self.config["compromise_threshold"])
+        msg = ("COMPROMISE: Detected " + str(self.udp_compromise_count) + " invalid UDP packets and + " + str(self.tcp_compromise_count) + " invalid TCP packets from UN device at " + str(ip) + ", exceeding limit of " + str(self.config["compromise_threshold"]))
         self.logger.warning(msg)
         self.result.issues_found.append("COMPROMISE")
