@@ -6,9 +6,15 @@ import json
 from filetail import FileTail
 import alert_api
 
+# Special alert used to notify that the umbox is ready to work.
+UMBOX_READY_ALERT = "umbox-ready"
+
 
 def send_alerts_from_tail(patterns, file_path, server_ip):
     """Sends an alert by tailing a file and looking for the given patterns in it."""
+
+    # Send initial alert to indicate that umbox has started properly.
+    alert_api.send_umbox_alert(server_ip, alert_text=UMBOX_READY_ALERT)
 
     # Note that this loops continues forever, as tail is constantly blocking and fetching more lines.
     tail = FileTail(file_path, max_wait=3)
