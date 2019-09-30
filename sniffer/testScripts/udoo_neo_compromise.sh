@@ -69,7 +69,7 @@ echo "Executing script with source IP $sourceIP, dest IP $destIP, UDP Packets $u
 # Check the UDP packet count
 if [ $udpPackets -gt 0 ]; then
     # Perform UDP Packet sends for as many as configured
-    for i in {1..$udpPackets}
+    for i in $(seq 1 $udpPackets);
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
         let offset=$i*5
@@ -84,7 +84,7 @@ fi
 # Check the TCP packet count
 if [ $tcpPackets -gt 0 ]; then
     # Perform TCP Packet sends for as many as configured
-    for i in {1..$tcpPackets}
+    for i in $(seq 1 $tcpPackets);
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
         $offset='expr $i * 5'
