@@ -1,7 +1,7 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handlers": "[]",
+  "handlers": [],
   "echo": "off",
 
   "email_server_address": "",
