@@ -8,6 +8,12 @@
     "DEFAULT_CRED": ["ALERT", "BLACKLIST"]
   },
 
+  "email_server_address": "",
+  "email_server_port" : "25",
+  "email_source_address": "",
+  "email_source_password": "",
+  "email_destination_address_list": [""],
+
   "restrictedIPs": [
   ],
 
