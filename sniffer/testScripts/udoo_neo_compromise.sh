@@ -72,8 +72,10 @@ if [ $udpPackets -gt 0 ]; then
     for i in {1..$udpPackets}
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        $offset='expr i * 5'
-        $udpDestport='expr $udpDestport + offset'
+        let offset=$i*5
+        #$offset='expr $i * 5'
+        #$udpDestport='expr $udpDestport + $offset'
+        let udpDestport=$udpDestport+$offset
         sudo nping --udp --source-ip $sourceIP $destIP -p $udpDestport -c 1
         sleep 1
     done
@@ -85,8 +87,8 @@ if [ $tcpPackets -gt 0 ]; then
     for i in {1..$tcpPackets}
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        $offset='expr i * 5'
-        $tcpDestport='expr $tcpDestport + offset'
+        $offset='expr $i * 5'
+        $tcpDestport='expr $tcpDestport + $offset'
         sudo nping --tcp --source-ip $sourceIP $destIP -p $tcpDestport -g $tcpPort -c 1
         sleep 1
     done
