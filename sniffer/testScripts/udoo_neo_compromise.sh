@@ -37,11 +37,16 @@ while [ "$1" != "" ]; do
     case "$1" in
         -h ) usage
               exit ;;
-        -s ) $sourceIP=$1 ;;
-        -d ) $destIP=$1 ;;
-        -u ) $udpPackets=$1 ;;
-        -t ) $tcpPackets=$1 ;;
-        -p ) $tcpPort=$1 ;;
+        -s ) shift
+              $sourceIP=$1 ;;
+        -d ) shift
+              $destIP=$1 ;;
+        -u ) shift
+              $udpPackets=$1 ;;
+        -t ) shift
+              $tcpPackets=$1 ;;
+        -p ) shift
+              $tcpPort=$1 ;;
     esac
     shift
 done

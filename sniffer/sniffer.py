@@ -234,7 +234,7 @@ def main():
                     if action == "ALERT":
                         print("ALERT: " + result + " detected!", flush=True)
                     elif action == "EMAIL" and email_on == True:
-                        for destination_address in config["email_destination_address_list"]:
+                        for destination_address in config["emailConfig"]["email_destination_address_list"]:
                             send_email(email_server, email_source_address, destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
                     elif action == "BLACKLIST":
                         print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
