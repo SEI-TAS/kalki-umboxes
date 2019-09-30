@@ -16,6 +16,10 @@ def send_umbox_alert(server_ip, alert_text):
     # Get the mac of the card we will use for the control plane. Then extract the umbox id.
     local_mac = _local_mac_for_remote_ip(server_ip)
     print("Server IP: " + server_ip + "; local mac: " + str(local_mac))
+    if local_mac == "":
+        print("Not sending alert. Local MAC not found, server IP not associated to any of the local NICs.")
+        return
+
     umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
     print("Umbox id: " + str(umbox_id))
 
