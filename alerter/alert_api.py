@@ -14,8 +14,8 @@ def send_umbox_alert(server_ip, alert_text):
     """An API request to the Alert Handler to send alerts about the current mbox, using MAC to identify it."""
 
     # Get the mac of the card we will use for the control plane. Then extract the umbox id.
-    local_mac = _local_mac_for_remote_ip(server_ip.decode('utf-8'))
-    print("Server IP: " + server_ip.decode('utf-8') + "; local mac: " + str(local_mac))
+    local_mac = _local_mac_for_remote_ip(server_ip)
+    print("Server IP: " + server_ip + "; local mac: " + str(local_mac))
     umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
     print("Umbox id: " + str(umbox_id))
 
