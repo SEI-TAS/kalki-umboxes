@@ -23,11 +23,11 @@ usage()
   echo "-h is help, which prints this message."
 }
 
-sourceIP = 10.27.151.5
-destIP = 127.0.0.1
-udpPackets = 5
-tcpPackets = 0
-tcpPort = 31
+sourceIP=10.27.151.5
+destIP=127.0.0.1
+udpPackets=5
+tcpPackets=0
+tcpPort=31
 
 # Read Parameters
 while ["$1" != ""]; do
@@ -44,19 +44,19 @@ while ["$1" != ""]; do
 done
 
 # Check sourceIP validity; must not be empty
-if [sourceIP == ""];
+if [sourceIP = ""]; then
     echo "Invalid sourceIP; exiting"
     exit
 fi
 
 # Check packet count validity; at least one must be greater than zero
-if [udpPackets <= 0 && tcpPackets <= 0];
+if [udpPackets -lt 1 && tcpPackets -lt 1]; then
     echo "Zero packets to be sent; exiting"
     exit
 fi
 
 # Check port validity; 22 is allowed for ssh traffic (though will not result in compromise), but must be 0-65535
-if [tcpPort < 0 || tcpPort > 65535];
+if [tcpPort -lt 0 || tcpPort -gt 65535]; then
     echo "TCP Port out of range; exiting"
     exit
 fi
@@ -64,7 +64,7 @@ fi
 echo "Executing script with source IP $sourceIP, dest IP $destIP, UDP Packets $udpPackets, TCP Packets $tcpPackets, TCP Port $tcpPort"
 
 # Check the UDP packet count
-if [udpPackets > 0];
+if [udpPackets -gt 0]; then
     # Perform UDP Packet sends for as many as configured
     for i in {1..udpPackets}
     do
@@ -76,7 +76,7 @@ if [udpPackets > 0];
 fi
 
 # Check the TCP packet count
-if [tcpPackets > 0];
+if [tcpPackets -gt 0]; then
     # Perform TCP Packet sends for as many as configured
     for i in {1..tcpPackets}
     do
