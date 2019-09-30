@@ -1,0 +1,11 @@
+[Unit]
+Description=Squid service
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/home/vagrant/squid/setup_squid.sh
+WorkingDirectory=/home/vagrant/squid/
+
+[Install]
+WantedBy=multi-user.target
