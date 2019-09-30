@@ -30,7 +30,6 @@ tcpPackets=0
 tcpPort=31
 udpDestport=20
 tcpDestport=30
-#offset=0
 
 # Read Parameters
 while [ "$1" != "" ]; do
@@ -38,15 +37,15 @@ while [ "$1" != "" ]; do
         -h ) usage
               exit ;;
         -s ) shift
-              $sourceIP=$1 ;;
+              sourceIP=$1 ;;
         -d ) shift
-              $destIP=$1 ;;
+              destIP=$1 ;;
         -u ) shift
-              $udpPackets=$1 ;;
+              udpPackets=$1 ;;
         -t ) shift
-              $tcpPackets=$1 ;;
+              tcpPackets=$1 ;;
         -p ) shift
-              $tcpPort=$1 ;;
+              tcpPort=$1 ;;
     esac
     shift
 done
@@ -77,9 +76,6 @@ if [ $udpPackets -gt 0 ]; then
     for i in $(seq 1 $udpPackets);
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        #let offset=$i*5
-        #$offset='expr $i * 5'
-        #$udpDestport='expr $udpDestport + $offset'
         let udpDestport=$udpDestport+5
         sudo nping --udp --source-ip $sourceIP $destIP -p $udpDestport -c 1
         sleep 1
@@ -92,8 +88,6 @@ if [ $tcpPackets -gt 0 ]; then
     for i in $(seq 1 $tcpPackets);
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        #$offset='expr $i * 5'
-        #$tcpDestport='expr $tcpDestport + $offset'
         let tcpDestport=$tcpDestport+5
         sudo nping --tcp --source-ip $sourceIP $destIP -p $tcpDestport -g $tcpPort -c 1
         sleep 1
