@@ -28,6 +28,9 @@ destIP=127.0.0.1
 udpPackets=5
 tcpPackets=0
 tcpPort=31
+udpDestport=20
+tcpDestport=30
+offset=0
 
 # Read Parameters
 while [ "$1" != "" ]; do
@@ -50,13 +53,13 @@ if [ $sourceIP = "" ]; then
 fi
 
 # Check packet count validity; at least one must be greater than zero
-if [ $udpPackets -lt 1 && $tcpPackets -lt 1 ]; then
+if [ $udpPackets -lt 1 ] && [ $tcpPackets -lt 1 ]; then
     echo "Zero packets to be sent; exiting"
     exit
 fi
 
 # Check port validity; 22 is allowed for ssh traffic (though will not result in compromise), but must be 0-65535
-if [ $tcpPort -lt 0 || $tcpPort -gt 65535 ]; then
+if [ $tcpPort -lt 0 ] || [ $tcpPort -gt 65535 ]; then
     echo "TCP Port out of range; exiting"
     exit
 fi
@@ -69,8 +72,9 @@ if [ $udpPackets -gt 0 ]; then
     for i in {1..$udpPackets}
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        $destPort=i*5+20
-        sudo nping --udp --source-ip $sourceIP $destIP -p $destPort -c 1
+        $offset='expr i * 5'
+        $udpDestport='expr $udpDestport + offset'
+        sudo nping --udp --source-ip $sourceIP $destIP -p $udpDestport -c 1
         sleep 1
     done
 fi
@@ -81,8 +85,9 @@ if [ $tcpPackets -gt 0 ]; then
     for i in {1..$tcpPackets}
     do
         # Vary destination port to ensure that it does not trigger the duplicate packet check
-        $destPort=i*5+30
-        sudo nping --tcp --source-ip $sourceIP $destIP -p $destPort -g $tcpPort -c 1
+        $offset='expr i * 5'
+        $tcpDestport='expr $tcpDestport + offset'
+        sudo nping --tcp --source-ip $sourceIP $destIP -p $tcpDestport -g $tcpPort -c 1
         sleep 1
     done
 fi
