@@ -58,7 +58,29 @@ def load_config():
         config = json.load(json_config)
     return config
 
-def setup_email(host, port):
+def setup_email_login(host, port, username, password):
+    # Try to connect 3 times
+    retry_count = 3
+    while retry_count > 0:
+        try:
+            # Establish Connection
+            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+
+            # Start TLS
+            email_server.starttls()
+            email_server.login(username, password)
+
+            # Successful connection; return the server object
+            print ("Email reporting set up successfully.", flush=True)
+            return email_server
+        except: #socket.timeout:
+            print("Failed to connect to " + host + ":" + port + "; Exception: " + sys.exc_info()[0] + "; trying again", flush=True)
+            retry_count = retry_count - 1
+
+    print ("Failed to connect to " + host + ":" + port + ".  Email unavailable.", flush=True)
+    return None
+
+def setup_email_no_login(host, port):
     # Try to connect 3 times
     retry_count = 3
     while retry_count > 0:
@@ -106,14 +128,25 @@ def main():
 
     handler_names = config["handlers"]
     echo_on = config["echo"] == "on"
+    email_on = config["email"] == "on"
     restricted_list = config["restrictedIPs"]
 
-    # Set up email
-    email_server_address = config["email_server_address"]
-    email_server_port = config["email_server_port"]
-    email_source_address = config["email_source_address"]
-    #email_source_password = config["email_source_password"]
-    email_server = setup_email(email_server_address, email_server_port)
+    # Set up email if enabled in the configuration
+    if email_on == True:
+        # Get the basic email attributes
+        email_server_address = config["emailConfig"]["email_server_address"]
+        email_server_port = config["emailConfig"]["email_server_port"]
+        email_source_address = config["emailConfig"]["email_source_address"]
+
+        # Check to see if the server needs to be logged into
+        if config["emailConfig"]["email_server_login"] == "on":
+            # Get the username/password for logging in, and execute log in process
+            email_username = config["emailConfig"]["email_account_username"]
+            email_password = config["emailConfig"]["email_account_password"]
+            email_server = setup_email_login(email_server_address, email_server_port, email_username, email_password)
+        else:
+            # Set up email server without logging in
+            email_server = setup_email_no_login(email_server_address, email_server_port)
 
     # Set up combined result object
     combined_results = HandlerResults()
@@ -131,8 +164,7 @@ def main():
         else:
             print("Invalid handler name {} in config file".format(handler_name), flush=True)
     if len(handlers) == 0:
-        print ('No valid handler names found', flush=True)
-        exit(1)
+        print ('No valid handler names found, proceeding with zero configured handlers.', flush=True)
     else:
         print ("Initializing handlers {}".format(handlers), flush=True)
 
@@ -201,7 +233,7 @@ def main():
                 for action in config["action_list"][result]:
                     if action == "ALERT":
                         print("ALERT: " + result + " detected!", flush=True)
-                    elif action == "EMAIL":
+                    elif action == "EMAIL" and email_on == True:
                         for destination_address in config["email_destination_address_list"]:
                             send_email(email_server, email_source_address, destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
                     elif action == "BLACKLIST":

@@ -3,11 +3,9 @@
   "outgoingNIC": "eth2",
   "handlers": ["udooNeo", "phillipsHue"],
   "echo": "on",
-  "email_server_address": "10.64.22.12",
-  "email_server_port" : "25",
-  "email_source_address": "kalki@sei.cmu.edu",
-  "email_source_password": "password",
-  "email_destination_address_list": ["novakom@sei.cmu.edu"],
+  "email": "on",
+  "restrictedIPs": [],
+
   "action_list": {
     "MULTIPLE_LOGIN": ["ALERT", "EMAIL", "BLACKLIST"],
     "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
@@ -15,8 +13,15 @@
     "COMPROMISE": ["ALERT", "EMAIL"]
   },
 
-  "restrictedIPs": [
-  ],
+  "emailConfig": {
+    "email_server_address": "10.64.22.12",
+    "email_server_port": "25",
+    "email_source_address": "kalki@sei.cmu.edu",
+    "email_server_login": "off",
+    "email_account_username": "kalki",
+    "email_account_password": "password",
+    "email_destination_address_list": ["novakom@sei.cmu.edu"]
+  },
 
   "httpAuth": {
     "max_attempts": 4,
