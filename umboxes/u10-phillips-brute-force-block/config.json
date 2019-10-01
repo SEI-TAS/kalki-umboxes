@@ -1,20 +1,14 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handlers": "[phillipsHue]",
+  "handlers": ["phillipsHue"],
   "echo": "on",
+  "email": "off",
+  "restrictedIPs": [],
+
   "action_list": {
     "BRUTE_FORCE": ["ALERT"]
   },
-
-  "email_server_address": "",
-  "email_server_port" : "25",
-  "email_source_address": "",
-  "email_source_password": "",
-  "email_destination_address_list": [""],
-
-  "restrictedIPs": [
-  ],
 
   "phillipsHue": {
     "max_attempts": 10,

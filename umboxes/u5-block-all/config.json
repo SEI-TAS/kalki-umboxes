@@ -3,14 +3,6 @@
   "outgoingNIC": "eth2",
   "handlers": [],
   "echo": "off",
-
-  "email_server_address": "",
-  "email_server_port" : "25",
-  "email_source_address": "",
-  "email_source_password": "",
-  "email_destination_address_list": [""],
-
-
-  "restrictedIPs": [
-  ]
+  "email": "off",
+  "restrictedIPs": []
 }

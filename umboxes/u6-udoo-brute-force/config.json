@@ -1,25 +1,22 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
-  "handlers": "[udooNeo]",
+  "handlers": ["udooNeo"],
   "echo": "on",
+  "email": "off",
+  "restrictedIPs": [],
+
   "action_list": {
-    "BRUTE_FORCE": ["ALERT"]
+    "BRUTE_FORCE": ["ALERT"],
+    "COMPROMISE": ["ALERT"]
   },
-
-  "email_server_address": "",
-  "email_server_port" : "25",
-  "email_source_address": "",
-  "email_source_password": "",
-  "email_destination_address_list": [""],
-
-  "restrictedIPs": [
-  ],
 
   "udooNeo": {
     "max_attempts": 10,
     "max_attempts_interval_secs": 60,
     "logging_timeout": 60,
-    "check_list": ["BRUTE_FORCE"]
+    "check_list": ["BRUTE_FORCE", "COMPROMISE"],
+    "compromise_threshold": 5,
+    "iot_subnet": "10.27.151"
   }
 }
