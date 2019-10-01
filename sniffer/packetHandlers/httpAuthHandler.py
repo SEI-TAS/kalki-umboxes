@@ -20,7 +20,7 @@ class HttpAuthHandler:
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
 
-    def handlePacket(self, tcp_packet, ip_packet):
+    def handleTCPPacket(self, tcp_packet, ip_packet):
 
         try:
             if len(tcp_packet.data) == 0:
@@ -58,6 +58,10 @@ class HttpAuthHandler:
             print("HTTP exception: " + str(ex), flush=True)
             #traceback.print_exc()
 
+        return
+
+    def handleUDPPacket(self, ip_packet):
+        # This handler does not process UDP packets; simply return
         return
 
     def track_login(self, ip, user_name):

@@ -22,7 +22,7 @@ class PhillipsHueHandler:
         api_uri_pattern = re.compile("/api/(.*)/")
 
 
-    def handlePacket(self, tcp_packet, ip_packet):
+    def handleTCPPacket(self, tcp_packet, ip_packet):
         try:
             http = HTTP(tcp_packet.data)
         except:
@@ -62,6 +62,9 @@ class PhillipsHueHandler:
             #self.result.echo_decision = False
             return
 
+    def handleUDPPacket(self, ip_packet):
+        # This handler does not process UDP packets; simply return
+        return
 
     def trackAPIRequest(self, token, ip):
         #get all unique token requests for the IP address
