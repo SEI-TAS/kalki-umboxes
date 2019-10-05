@@ -38,6 +38,7 @@ class HandlerResults:
     def __init__(self):
         self.echo_decision = True
         self.issues_found = []
+        self.direct_messages_to_send = []
 
 def setup_custom_logger(name, file_path):
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
@@ -182,6 +183,14 @@ def main():
     outgoing_nic_mac = netifaces.ifaddresses(config["outgoingNIC"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on outgoing NIC is {}\n".format(outgoing_nic_mac), flush=True)
 
+    direct = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
+    direct.bind((config["directNIC"], 0))
+    print("Echoing back on raw socket on interface {}...".format(config["directNIC"]), flush=True)
+
+    direct_nic_mac = netifaces.ifaddresses(config["directNIC"])[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on direct NIC is {}\n".format(direct_nic_mac), flush=True)
+
+
     last_data = None
     last_echo = None
     while True:
@@ -195,9 +204,10 @@ def main():
         last_data = raw_data
         ipv4 = None
 
-        # Reset results for this iteration of results; assume no issues and the packet should be echoed
+        # Reset results for this iteration of results; assume no issues or messages to forward, and the packet should be echoed
         combined_results.echo_decision = True
         combined_results.issues_found = []
+        combined_results.direct_messages_to_send = []
 
         # Ethernet
         eth = Ethernet(raw_data)
@@ -239,6 +249,10 @@ def main():
                     elif action == "BLACKLIST":
                         print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
                         restricted_list.append(ipv4.src)
+
+            # Send any generated messages to their targets via the Direct NIC
+            for message in combined_results.direct_messages_to_send:
+                direct.send(message)
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
