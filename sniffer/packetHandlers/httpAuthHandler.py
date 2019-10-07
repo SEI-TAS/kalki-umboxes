@@ -37,7 +37,7 @@ class HttpAuthHandler:
             return
 
         # Empty TCP packets are only relevant to establishing connections; ignore for processing
-        packet_has_data = (len(tcp_packet.data) == 0)
+        packet_has_data = (len(tcp_packet.data) > 0)
 
         # For non-empty packets, check to see if they are valid HTTP requests
         http = None
@@ -53,7 +53,7 @@ class HttpAuthHandler:
             except Exception as ex:
                 print("HTTP exception: " + str(ex), flush=True)
 
-        # If proxy auth is enabled, process active logins and determine echoing
+        # If proxy auth is enabled and there is data, process active logins and determine echoing
         if self.config["proxy_auth_enabled"] == "on":
             # See if there's an active proxy login for this IP
             if ip_packet.src in self.proxy_logins:
@@ -81,17 +81,26 @@ class HttpAuthHandler:
                 else:
                     # TBD: Add logs/printouts as necessary
                     pass
-            # No active proxy login; if this is a non-HTTP packet and the NON_HTTP check is enabled, flag it and disable echoing
-            elif http is None and "NON_HTTP" in self.config["check_list"]:
+            # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
+            elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
                 msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
                 self.logger.warning(msg)
                 print(msg)
                 self.result.issues_found.append("NON_HTTP")
                 self.result.echo_decision = False
                 print("Non-HTTP traffic sent from " + str(ip_packet.src) + " without proxy login", flush=True)
-            # All other cases where a non-confirmed IP address sends a TCP packet; disable echoing
-            else:
+            # All other cases where a non-confirmed IP address sends a TCP packet with data; disable echoing
+            elif packet_has_data:
                 self.result.echo_decision = False
+                print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
+            # Now process tcp connection requests on the configured port; requires a TCP packet with SYN set and ACK cleared
+            elif tcp_packet.flag_syn == True and tcp_packet.flag_ack == False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+                # TCP connection request received on the configured port.  Build a SYN-ACK response.
+                # NOTE: ignore SYN/ACK messages and ACK messages with no data, they are assumed to be part of connection establishment
+                self.result.direct_messages_to_send.append(self.build_tcp_syn_ack(ip_packet, tcp_packet))
+                print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
+            else:
+                print("TCP packet received with no data, syn:" + str(tcp_packet.flag_syn) + " ack:" + str(tcp_packet.flag_ack) + "; ports src:" + str(tcp_packet.src_port) + " dest:" + str(tcp_packet.dest_port), flush=True)
 
         # Now process HTTP traffic
         if http is not None:
@@ -214,7 +223,25 @@ class HttpAuthHandler:
         self.result.issues_found.append("DEFAULT_CRED")
         return
 
+    def build_tcp_syn_ack(self, ip_packet, tcp_packet):
+        # Get source/dest from sending packet
+        srcIP = ip_packet.target
+        destIP = ip_packet.src
+        srcPort = tcp_packet.dest_port
+        destPort = tcp_packet.src_port
+
+        # Create & populate the IP header
+        ip_header = self.createIPHeader(srcIP, destIP)
+        seq_num = tcp_packet.acknowledgment
+        ack_num = tcp_packet.sequence + 1
+        ack_tcp_header = self.createTCPHeader(self, "".encode("utf-8"), True, False, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+
+        # Put the ack and response packets together
+        ackPacket = ip_header + ack_tcp_header
+        return ackPacket
+
     def build_response(self, response, ip_packet, tcp_packet, responseList):
+        is_syn = False
         is_fin = False
 
         # Get source/dest from sending packet
@@ -231,8 +258,8 @@ class HttpAuthHandler:
         ip_header = self.createIPHeader(srcIP, destIP)
         seq_num = tcp_packet.acknowledgment
         ack_num = tcp_packet.sequence + len(tcp_packet.data)
-        ack_tcp_header = self.createTCPHeader(self, "".encode("utf-8"), is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-        tcp_header = self.createTCPHeader(self, response, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+        ack_tcp_header = self.createTCPHeader(self, "".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+        tcp_header = self.createTCPHeader(self, response, is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
         # Put the ack and response packets together
         ackPacket = ip_header + ack_tcp_header
@@ -282,10 +309,10 @@ class HttpAuthHandler:
 
         return s
 
-    def createTCPHeader(self, data, is_fin, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip):
+    def createTCPHeader(self, data, is_syn, is_fin, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip):
         doff = 5
+        tcp_syn = 1 if is_syn else 0
         tcp_fin = 1 if is_fin else 0
-        tcp_syn = 0
         tcp_rst = 0
         tcp_psh = 0
         tcp_ack = 1

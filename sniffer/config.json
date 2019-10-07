@@ -31,6 +31,7 @@
     "proxy_auth_enabled" : "off",
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
+    "proxy_auth_port" : 2010,
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
