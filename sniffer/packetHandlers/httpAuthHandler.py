@@ -140,7 +140,7 @@ class HttpAuthHandler:
                                                 "WWW-Authenticate: Basic \r\n" +
                                                 "Connection: close \r\n\r\n")
 
-                                    self.build_response(self, response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                                    self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                                 else:
                                     # Failed login; respond with HTTP error and log if enabled
@@ -155,11 +155,11 @@ class HttpAuthHandler:
                                                 "WWW-Authenticate: Basic \r\n" +
                                                 "Connection: close \r\n\r\n")
 
-                                    self.build_response(self, response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                                    self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
-                            self.track_logins(ip_packet.src, username, password)
+                            self.track_logins(ip_packet.src, username)
 
                 except Exception as ex:
                     print("Exception processing credentials: " + str(ex), flush=True)
@@ -180,7 +180,7 @@ class HttpAuthHandler:
                             "WWW-Authenticate: Basic \r\n" +
                             "Connection: close \r\n\r\n")
 
-                self.build_response(self, response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
         return
 
@@ -234,7 +234,7 @@ class HttpAuthHandler:
         ip_header = self.createIPHeader(srcIP, destIP)
         seq_num = tcp_packet.acknowledgment
         ack_num = tcp_packet.sequence + 1
-        ack_tcp_header = self.createTCPHeader(self, "".encode("utf-8"), True, False, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+        ack_tcp_header = self.createTCPHeader("".encode("utf-8"), True, False, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
         # Put the ack and response packets together
         ackPacket = ip_header + ack_tcp_header
@@ -258,8 +258,8 @@ class HttpAuthHandler:
         ip_header = self.createIPHeader(srcIP, destIP)
         seq_num = tcp_packet.acknowledgment
         ack_num = tcp_packet.sequence + len(tcp_packet.data)
-        ack_tcp_header = self.createTCPHeader(self, "".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-        tcp_header = self.createTCPHeader(self, response, is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+        ack_tcp_header = self.createTCPHeader("".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
+        tcp_header = self.createTCPHeader(response, is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
         # Put the ack and response packets together
         ackPacket = ip_header + ack_tcp_header
@@ -269,7 +269,7 @@ class HttpAuthHandler:
         responseList.append(ackPacket)
         responseList.append(responsePacket)
 
-    def createIPHeader(source_ip, destination_ip):
+    def createIPHeader(self, source_ip, destination_ip):
         version = 4
         ihl = 5
         tos = 0
@@ -288,7 +288,7 @@ class HttpAuthHandler:
         return ipheader
 
     # checksum function needed to calculate TCP checksums
-    def checksum(msg):
+    def checksum(self, msg):
         s = 0       # Binary Sum
 
         # loop taking 2 characters at a time
@@ -335,8 +335,8 @@ class HttpAuthHandler:
         protocol = socket.IPPROTO_TCP
         tcp_length = len(tcp_header) + len(data)
 
-        psh = struct.pack('!4s4sBBH' , source_address , dest_address , placeholder , protocol , tcp_length);
-        psh = psh + tcp_header + data;
+        psh = struct.pack('!4s4sBBH' , source_address , dest_address , placeholder , protocol , tcp_length)
+        psh = psh + tcp_header + data
 
         tcp_check = self.checksum(psh)
 
