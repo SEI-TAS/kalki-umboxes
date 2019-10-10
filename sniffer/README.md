@@ -17,13 +17,14 @@ entering and leaving the Ubuntu network stack using a raw socket in Python.  The
 ## Setup
 The sniffer is implemented in Python 3.5 and run using pipenv as a virtual environment.
 Since the sniffer utilizes Python raw sockets, it must be run as a root user and is only runnable on a linux based machine.
+1. Update apt-get: `sudo apt-get update`
 1. Install Python 3.5 by running `sudo apt-get install python3` 
 1. Install `pip` by running `sudo apt-get install python3-pip` 
 1. Install `pipenv` as the root user by running `sudo -H pip3 install pipenv`
 1. Configure `pipenv` to create env folders locally by running:
     1. `echo "export PIPENV_VENV_IN_PROJECT=\"enabled\"" >> $HOME/.profile`
     1. `export PIPENV_VENV_IN_PROJECT="enabled"`
-1. Install all environment dependencies specified in the pipfile by running `pipenv install` 
+1. Install all environment dependencies specified in the pipfile by running `pipenv install` inside the /sniffer folder
 1. Configure the sniffer by changing `config.json` as needed.
 1. Run the sniffer by running `sudo ./sniffer.sh`
 
