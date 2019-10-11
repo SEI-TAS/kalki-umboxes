@@ -6,6 +6,7 @@ import logging
 import sys
 import json
 import traceback
+import time
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -33,12 +34,27 @@ logger = None
 # Global handler.
 handler = None
 
+# Global stats map
+packet_stats_total = None
+packet_stats_senders = None
+packet_stats_targets = None
+packet_stats_last_log_time = None
+
 class HandlerResults:
 
     def __init__(self):
         self.echo_decision = True
         self.issues_found = []
         self.direct_messages_to_send = []
+
+class PacketStats:
+
+    def __init__(self):
+        self.packet_count = 0
+        self.tcp_count = 0
+        self.udp_count = 0
+        self.other_count  = 0
+
 
 def setup_custom_logger(name, file_path):
     formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
@@ -121,11 +137,74 @@ def send_email(email_server, source_address, destination_address, email_subject,
     # Clean up the message
     del msg
 
+
+
+def logPacketStatistics(ip_packet, log_interval, logger):
+    # Log the current packet to the total stats
+    packet_stats_total.packet_count += 1
+
+    if ip_packet.proto == 6:
+        packet_stats_total.tcp_count += 1
+    elif ip_packet.proto == 17:
+        packet_stats_total.udp_count += 1
+    else:
+        packet_stats_total.other_count += 1
+
+    # Now log based on Senders
+    if ip_packet.src not in packet_stats_senders:
+        new_sender = PacketStats()
+        packet_stats_senders[ip_packet.src] = new_sender
+
+    packet_stats_senders[ip_packet.src].packet_count += 1
+    if ip_packet.proto == 6:
+        packet_stats_senders[ip_packet.src].tcp_count += 1
+    elif ip_packet.proto == 17:
+        packet_stats_senders[ip_packet.src].udp_count += 1
+    else:
+        packet_stats_senders[ip_packet.src].other_count += 1
+
+    # Now log based on Receivers
+    if ip_packet.target not in packet_stats_targets:
+        new_target = PacketStats()
+        packet_stats_targets[ip_packet.target] = new_target
+
+    packet_stats_targets[ip_packet.target].packet_count += 1
+    if ip_packet.proto == 6:
+        packet_stats_targets[ip_packet.target].tcp_count += 1
+    elif ip_packet.proto == 17:
+        packet_stats_targets[ip_packet.target].udp_count += 1
+    else:
+        packet_stats_targets[ip_packet.target].other_count += 1
+
+    # Now log based on timer
+    global packet_stats_last_log_time
+    if  time.time() - packet_stats_last_log_time > log_interval:
+        msg = "LOG_INFO: Packet stats total: {} tcp: {} udp: {} other: {}".format(packet_stats_total.packet_count, packet_stats_total.tcp_count, packet_stats_total.udp_count, packet_stats_total.other_count)
+        logger.warning(msg)
+        for sender_ip in packet_stats_senders:
+            msg = "LOG_INFO: Packets sent from {} stats total: {} tcp: {} udp: {} other: {}".format(sender_ip, packet_stats_total.packet_count, packet_stats_total.tcp_count, packet_stats_total.udp_count, packet_stats_total.other_count)
+            logger.warning(msg)
+        for target_ip in packet_stats_targets:
+            msg = "LOG_INFO: Packets sent to {} stats total: {} tcp: {} udp: {} other: {}".format(target_ip, packet_stats_total.packet_count, packet_stats_total.tcp_count, packet_stats_total.udp_count, packet_stats_total.other_count)
+            logger.warning(msg)
+
+        packet_stats_last_log_time = time.time()
+
 def main():
     global logger
     logger = setup_custom_logger("main", LOG_FILE_PATH)
 
     config = load_config()
+
+    global packet_stats_total
+    global packet_stats_last_log_time
+    global packet_stats_senders
+    global packet_stats_targets
+    if config["stat_logging"] == "on":
+        packet_stats_total = PacketStats()
+        packet_stats_last_log_time = time.time()
+        packet_stats_senders = {}
+        packet_stats_targets = {}
 
     handler_names = config["handlers"]
     echo_on = config["echo"] == "on"
@@ -264,11 +343,14 @@ def main():
             if "httpAuth" in handler_names and config["httpAuth"]["proxy_auth_enabled"] == "on" and tcp.src_port == config["httpAuth"]["proxy_auth_port"]:
                 direct.send(raw_data)
 
+            # Do stat logging if enabled
+            if config["stat_logging"] == "on":
+                logPacketStatistics(ipv4, config["stat_interval"], logger)
+
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             outgoing.send(raw_data)
             last_echo = raw_data
-
 
 if __name__ == '__main__':
     main()
