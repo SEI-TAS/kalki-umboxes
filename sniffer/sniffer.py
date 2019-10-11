@@ -219,8 +219,12 @@ def main():
 
             # Process TCP packets
             if ipv4.proto == 6:  # TCP
-                tcp = TCP(ipv4.data)
-                #print("TCP packet found with src port {}, dest port {} ... data: [{}]".format(tcp.src_port, tcp.dest_port, tcp.data), flush=True)
+                tcp = TCP(ipv4.data, eth)
+
+                if tcp.src_port == 22 or tcp.dest_port == 22:
+                    continue
+
+                #print("INCOMING: TCP packet found with macs {}|{}, src {}:{}, dest {}:{}, syn {}, ack {}, seq # {}, ack # {} ... data: [{}]".format(eth.src_mac, eth.dest_mac, ipv4.src, tcp.src_port, ipv4.target, tcp.dest_port, tcp.flag_syn, tcp.flag_ack, tcp.sequence, tcp.acknowledgment, tcp.data), flush=True)
 
                 for handler in handlers:
                     try:
@@ -252,7 +256,23 @@ def main():
 
             # Send any generated messages to their targets via the Direct NIC
             for message in combined_results.direct_messages_to_send:
+                print("Sending response message!")
+       #         try:
+      #              responseEth = Ethernet(message)
+                    #print("RESPONDING: Parsed Eth frame: src {}, dest {}, proto {} received...".format(responseEth.src_mac, responseEth.dest_mac, responseEth.proto))
+        #            ipresponse = IPv4(responseEth.data)
+                    #print("RESPONDING: Parsed IPv4 packet: src {}, target {}, proto {} received...".format(ipresponse.src, ipresponse.target, ipresponse.proto))
+               #     tcpresponse = TCP (ipresponse.data,responseEth)
+       #             print("RESPONDING: Parsed TCP message: src {}:{}, dest {}:{}, syn {}, ack {}, seq # {}, ack # {} ... data: [{}]".format(ipresponse.src, tcpresponse.src_port, ipresponse.target, tcpresponse.dest_port, tcpresponse.flag_syn, tcpresponse.flag_ack, tcpresponse.sequence, tcpresponse.acknowledgment, tcpresponse.data), flush=True)
+         #       except Exception as ex:
+          #          print("IP/TCP parsing exception: " + str(ex), flush=True)
+           #         pass
+
                 direct.send(message)
+
+            # Send any messages from the proxy server location on the configured port through the direct NIC
+            if "httpAuth" in handler_names and config["httpAuth"]["proxy_auth_enabled"] == "on" and tcp.src_port == config["httpAuth"]["proxy_auth_port"]:
+                direct.send(raw_data)
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:

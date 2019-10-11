@@ -3,6 +3,9 @@ import time
 import traceback
 import socket
 import struct
+import binascii
+import random
+import array
 
 from networking.http import HTTP
 from base64 import b64decode
@@ -51,7 +54,8 @@ class HttpAuthHandler:
                       "Host: " + str(http.host) + "\n" +
                       "Authorization: " + str(http.authorization) + "\n")
             except Exception as ex:
-                print("HTTP exception: " + str(ex), flush=True)
+                #print("HTTP exception: " + str(ex), flush=True)
+                pass
 
         # If proxy auth is enabled and there is data, process active logins and determine echoing
         if self.config["proxy_auth_enabled"] == "on":
@@ -81,6 +85,9 @@ class HttpAuthHandler:
                 else:
                     # TBD: Add logs/printouts as necessary
                     pass
+            # Ignore all traffic coming from the proxy authentication server
+            elif tcp_packet.src_port == self.config["proxy_auth_port"]:
+                pass
             # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
             elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
                 msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
@@ -97,10 +104,10 @@ class HttpAuthHandler:
             elif tcp_packet.flag_syn == True and tcp_packet.flag_ack == False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
                 # TCP connection request received on the configured port.  Build a SYN-ACK response.
                 # NOTE: ignore SYN/ACK messages and ACK messages with no data, they are assumed to be part of connection establishment
-                self.result.direct_messages_to_send.append(self.build_tcp_syn_ack(ip_packet, tcp_packet))
+                #self.result.direct_messages_to_send.append(self.build_tcp_syn_ack(ip_packet, tcp_packet))
                 print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
-            else:
-                print("TCP packet received with no data, syn:" + str(tcp_packet.flag_syn) + " ack:" + str(tcp_packet.flag_ack) + "; ports src:" + str(tcp_packet.src_port) + " dest:" + str(tcp_packet.dest_port), flush=True)
+            #else:
+                #print("TCP packet received with no data, syn:" + str(tcp_packet.flag_syn) + " ack:" + str(tcp_packet.flag_ack) + "; ports src:" + str(tcp_packet.src_port) + " dest:" + str(tcp_packet.dest_port), flush=True)
 
         # Now process HTTP traffic
         if http is not None:
@@ -126,8 +133,8 @@ class HttpAuthHandler:
 
                         # Only process proxy auth if it is in the config file
                         if self.config["proxy_auth_enabled"] == "on":
-                            # Process a new auth request from the current IP
-                            if ip_packet.src not in self.proxy_logins:
+                            # Process a new auth request from the current IP, as long as it isn't the proxy auth server, and at the configured port
+                            if ip_packet.src not in self.proxy_logins and tcp_packet.dest_port == self.config["proxy_auth_port"]:
                                 # Check against the proper credentials
                                 if username == self.config["proxy_auth_username"] and password == self.config["proxy_auth_password"]:
                                     # Successful login; mark the time and IP
@@ -136,11 +143,11 @@ class HttpAuthHandler:
                                     self.proxy_logins[ip_packet.src] = new_login
 
                                     # Respond with a HTTP 200 OK message
-                                    response = ("HTTP/1.1 200 OK \r\n" +
-                                                "WWW-Authenticate: Basic \r\n" +
-                                                "Connection: close \r\n\r\n")
+                              #      response = ("HTTP/1.1 200 OK \r\n" +
+                                #                "WWW-Authenticate: Basic \r\n" +
+                                 #               "Connection: close \r\n\r\n")
 
-                                    self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                               #     self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                                 else:
                                     # Failed login; respond with HTTP error and log if enabled
@@ -151,11 +158,11 @@ class HttpAuthHandler:
                                         self.result.issues_found.append("FAILED_AUTH")
 
                                     # Respond to sender with a HTTP 403 Forbidden error
-                                    response = ("HTTP/1.1 403 Forbidden \r\n" +
-                                                "WWW-Authenticate: Basic \r\n" +
-                                                "Connection: close \r\n\r\n")
+                        #            response = ("HTTP/1.1 403 Forbidden \r\n" +
+                         #                       "WWW-Authenticate: Basic \r\n" +
+                          #                      "Connection: close \r\n\r\n")
 
-                                    self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                           #         self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
@@ -176,11 +183,11 @@ class HttpAuthHandler:
                     self.result.issues_found.append("NO_AUTH")
 
                 # Respond to sender with 401 error
-                response = ("HTTP/1.1 401 Unauthorized \r\n" +
-                            "WWW-Authenticate: Basic \r\n" +
-                            "Connection: close \r\n\r\n")
+                #response = ("HTTP/1.1 401 Unauthorized \r\n" +
+                        #    "WWW-Authenticate: Basic \r\n" +
+                         #   "Connection: close \r\n\r\n")
 
-                self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                #self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
         return
 
@@ -233,11 +240,15 @@ class HttpAuthHandler:
         # Create & populate the IP header
         ip_header = self.createIPHeader(srcIP, destIP)
         seq_num = tcp_packet.acknowledgment
+        #seq_num = random.randrange(1000000000)
         ack_num = tcp_packet.sequence + 1
         ack_tcp_header = self.createTCPHeader("".encode("utf-8"), True, False, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
+        # Create the Ethernet Frame header; swap dest & src macs to send back to sender
+        eth_frame = self.createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
+
         # Put the ack and response packets together
-        ackPacket = ip_header + ack_tcp_header
+        ackPacket = eth_frame + ip_header + ack_tcp_header
         return ackPacket
 
     def build_response(self, response, ip_packet, tcp_packet, responseList):
@@ -256,14 +267,18 @@ class HttpAuthHandler:
 
         # Create & populate the IP header
         ip_header = self.createIPHeader(srcIP, destIP)
-        seq_num = tcp_packet.acknowledgment
+        #seq_num = tcp_packet.acknowledgment
+        seq_num = "5555"
         ack_num = tcp_packet.sequence + len(tcp_packet.data)
         ack_tcp_header = self.createTCPHeader("".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
         tcp_header = self.createTCPHeader(response, is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
 
+        # Create the Ethernet Frame header; swap dest & src macs to send back to sender
+        eth_frame = self.createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
+
         # Put the ack and response packets together
-        ackPacket = ip_header + ack_tcp_header
-        responsePacket = ip_header + tcp_header + response
+        ackPacket = eth_frame + ip_header + ack_tcp_header
+        responsePacket = eth_frame + ip_header + tcp_header + response
 
         # Add the packets to the response list
         responseList.append(ackPacket)
@@ -273,18 +288,27 @@ class HttpAuthHandler:
         version = 4
         ihl = 5
         tos = 0
-        total_length = 0
+        total_length = 40 #???
         ident = 54321
         frag_offset = 0
-        ttl = 255
+        ttl = 64
         prot = socket.IPPROTO_TCP
-        chksum = 0
         src_ip = socket.inet_aton (source_ip)
         dest_ip = socket.inet_aton (destination_ip)
 
         ip_ihl_ver = (version << 4) + ihl
 
+        chksum = 0
+
+        #chksum = self.checksum(struct.pack("!BBHHHBB4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, src_ip, dest_ip))
+
+        initial_ipheader = struct.pack("!BBHHHBBH4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, chksum, src_ip, dest_ip)
+
+        chksum = self.checksum3(initial_ipheader)
+        print ("Calculated IP header checksum " + str(chksum), flush=True)
+
         ipheader = struct.pack("!BBHHHBBH4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, chksum, src_ip, dest_ip)
+
         return ipheader
 
     # checksum function needed to calculate TCP checksums
@@ -297,8 +321,10 @@ class HttpAuthHandler:
                 a = msg[i]
                 b = msg[i+1]
                 s = s + (a+(b << 8))
+                #print("adding " + str((a+(b <<8))) + ", sum = " + str(s),flush=True)
             elif (i+1)==len(msg):
                 s += msg[i]
+                #print("adding " + msg[i] + ", sum = " + str(s),flush=True)
             else:
                 print("Error calculating checksum", flush=True)
 
@@ -308,6 +334,35 @@ class HttpAuthHandler:
         s = ~s & 0xffff
 
         return s
+
+    def carry_around_add(self, a, b):
+        c = a + b
+        return (c & 0xffff) + (c >> 16)
+
+    def ipchecksum(self, msg):
+        s = 0
+        for i in range(0, len(msg), 2):
+            w = ord(msg[i]) + (ord(msg[i+1]) << 8)
+            s = self.carry_around_add(s, w)
+        return ~s & 0xffff
+
+    def checksum3 (self, pkt):
+        if struct.pack("H",1) == "\x00\x01": # big endian
+            if len(pkt) % 2 == 1:
+                pkt += "\0"
+            s = sum(array.array("H", pkt))
+            s = (s >> 16) + (s & 0xffff)
+            s += s >> 16
+            s = ~s
+            return s & 0xffff
+        else:
+            if len(pkt) % 2 == 1:
+                pkt += "\0"
+            s = sum(array.array("H", pkt))
+            s = (s >> 16) + (s & 0xffff)
+            s += s >> 16
+            s = ~s
+            return (((s>>8)&0xff)|s<<8) & 0xffff
 
     def createTCPHeader(self, data, is_syn, is_fin, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip):
         doff = 5
@@ -347,6 +402,10 @@ class HttpAuthHandler:
 
         return tcp_header
 
+    def createEthFrame(self, dest_mac, src_mac):
+        ETH_P_IP = 0x0800
+        rawFrame = struct.pack("!6s6sH", binascii.unhexlify(dest_mac.replace(":","")), binascii.unhexlify(src_mac.replace(":","")),ETH_P_IP)
+        return rawFrame
 
 class LoginRequest:
     def __init__(self, ip, user, max_attempts):

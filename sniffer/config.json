@@ -1,10 +1,10 @@
 {
-  "incomingNIC": "eth1",
-  "outgoingNIC": "eth2",
-  "directNIC": "eth3",
-  "handlers": ["udooNeo", "phillipsHue", "httpAuth"],
+  "incomingNIC": "enp0s3",
+  "outgoingNIC": "lo",
+  "directNIC": "enp0s3",
+  "handlers": ["httpAuth"],
   "echo": "on",
-  "email": "on",
+  "email": "off",
   "restrictedIPs": [],
 
   "action_list": {
@@ -28,10 +28,10 @@
   },
 
   "httpAuth": {
-    "proxy_auth_enabled" : "off",
+    "proxy_auth_enabled" : "on",
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
-    "proxy_auth_port" : 2010,
+    "proxy_auth_port" : 9010,
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
