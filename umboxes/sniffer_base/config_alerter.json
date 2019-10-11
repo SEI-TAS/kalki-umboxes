@@ -5,5 +5,7 @@
                {"search_text": "MULTIPLE_LOGIN", "alert_text": "max-login-attempts"},
                {"search_text": "BRUTE_FORCE", "alert_text":  "brute-force"},
                {"search_text": "LOG_INFO", "alert_text": "log-info"},
-               {"search_text": "COMPROMISE", "alert_text": "abnormal-traffic"}]
+               {"search_text": "COMPROMISE", "alert_text": "abnormal-traffic"},
+               {"search_text": "NO_AUTH", "alert_text": "abnormal-traffic"},
+               {"search_text": "FAILED_AUTH", "alert_text": "abnormal-traffic"}]]
 }

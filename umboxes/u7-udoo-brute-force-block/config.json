@@ -1,9 +1,12 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
+  "directNIC": "eth3",
   "handlers": ["udooNeo"],
   "echo": "on",
   "email": "on",
+  "stat_logging": "off",
+  "stat_interval": 3600,
   "restrictedIPs": [],
 
   "action_list": {
@@ -22,11 +25,11 @@
 
   "emailConfig": {
     "email_server_address": "10.27.153.3",
-    "email_server_port": "25",
-    "email_source_address": "kalki@sei.cmu.edu",
+    "email_server_port": "2555",
+    "email_source_address": "umbox@localhost.com",
+    "email_destination_address_list": ["kalkiadmin@localhost.com"],
     "email_server_login": "off",
     "email_account_username": "kalki",
-    "email_account_password": "password",
-    "email_destination_address_list": ["novakom@sei.cmu.edu"]
+    "email_account_password": "password"
   }
 }
