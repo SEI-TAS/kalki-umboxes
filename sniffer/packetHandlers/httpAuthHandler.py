@@ -1,11 +1,6 @@
 import re
 import time
 import traceback
-import socket
-import struct
-import binascii
-import random
-import array
 
 from networking.http import HTTP
 from base64 import b64decode
@@ -99,15 +94,11 @@ class HttpAuthHandler:
             # All other cases where a non-confirmed IP address sends a TCP packet with data; disable echoing
             elif packet_has_data:
                 self.result.echo_decision = False
-                print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
+                #print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
             # Now process tcp connection requests on the configured port; requires a TCP packet with SYN set and ACK cleared
             elif tcp_packet.flag_syn == True and tcp_packet.flag_ack == False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
-                # TCP connection request received on the configured port.  Build a SYN-ACK response.
-                # NOTE: ignore SYN/ACK messages and ACK messages with no data, they are assumed to be part of connection establishment
-                #self.result.direct_messages_to_send.append(self.build_tcp_syn_ack(ip_packet, tcp_packet))
+                # TCP connection request received on the configured port. This could be a login request, allow to pass through
                 print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
-            #else:
-                #print("TCP packet received with no data, syn:" + str(tcp_packet.flag_syn) + " ack:" + str(tcp_packet.flag_ack) + "; ports src:" + str(tcp_packet.src_port) + " dest:" + str(tcp_packet.dest_port), flush=True)
 
         # Now process HTTP traffic
         if http is not None:
@@ -141,14 +132,6 @@ class HttpAuthHandler:
                                     print("Successful proxy login from " + str(ip_packet.src), flush=True)
                                     new_login = ProxyLogin()
                                     self.proxy_logins[ip_packet.src] = new_login
-
-                                    # Respond with a HTTP 200 OK message
-                              #      response = ("HTTP/1.1 200 OK \r\n" +
-                                #                "WWW-Authenticate: Basic \r\n" +
-                                 #               "Connection: close \r\n\r\n")
-
-                               #     self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
-
                                 else:
                                     # Failed login; respond with HTTP error and log if enabled
                                     if "FAILED_AUTH" in self.config["check_list"]:
@@ -156,13 +139,6 @@ class HttpAuthHandler:
                                         self.logger.warning(msg)
                                         print(msg)
                                         self.result.issues_found.append("FAILED_AUTH")
-
-                                    # Respond to sender with a HTTP 403 Forbidden error
-                        #            response = ("HTTP/1.1 403 Forbidden \r\n" +
-                         #                       "WWW-Authenticate: Basic \r\n" +
-                          #                      "Connection: close \r\n\r\n")
-
-                           #         self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
@@ -181,13 +157,6 @@ class HttpAuthHandler:
                     self.logger.warning(msg)
                     print(msg)
                     self.result.issues_found.append("NO_AUTH")
-
-                # Respond to sender with 401 error
-                #response = ("HTTP/1.1 401 Unauthorized \r\n" +
-                        #    "WWW-Authenticate: Basic \r\n" +
-                         #   "Connection: close \r\n\r\n")
-
-                #self.build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
         return
 
@@ -229,183 +198,6 @@ class HttpAuthHandler:
         print(msg)
         self.result.issues_found.append("DEFAULT_CRED")
         return
-
-    def build_tcp_syn_ack(self, ip_packet, tcp_packet):
-        # Get source/dest from sending packet
-        srcIP = ip_packet.target
-        destIP = ip_packet.src
-        srcPort = tcp_packet.dest_port
-        destPort = tcp_packet.src_port
-
-        # Create & populate the IP header
-        ip_header = self.createIPHeader(srcIP, destIP)
-        seq_num = tcp_packet.acknowledgment
-        #seq_num = random.randrange(1000000000)
-        ack_num = tcp_packet.sequence + 1
-        ack_tcp_header = self.createTCPHeader("".encode("utf-8"), True, False, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-
-        # Create the Ethernet Frame header; swap dest & src macs to send back to sender
-        eth_frame = self.createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
-
-        # Put the ack and response packets together
-        ackPacket = eth_frame + ip_header + ack_tcp_header
-        return ackPacket
-
-    def build_response(self, response, ip_packet, tcp_packet, responseList):
-        is_syn = False
-        is_fin = False
-
-        # Get source/dest from sending packet
-        srcIP = ip_packet.target
-        destIP = ip_packet.src
-        srcPort = tcp_packet.dest_port
-        destPort = tcp_packet.src_port
-
-        # Encode
-        if isinstance(response, str):
-            response = response.encode("utf-8")
-
-        # Create & populate the IP header
-        ip_header = self.createIPHeader(srcIP, destIP)
-        #seq_num = tcp_packet.acknowledgment
-        seq_num = "5555"
-        ack_num = tcp_packet.sequence + len(tcp_packet.data)
-        ack_tcp_header = self.createTCPHeader("".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-        tcp_header = self.createTCPHeader(response, is_syn, is_fin, seq_num, ack_num, srcPort, destPort, srcIP, destIP)
-
-        # Create the Ethernet Frame header; swap dest & src macs to send back to sender
-        eth_frame = self.createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
-
-        # Put the ack and response packets together
-        ackPacket = eth_frame + ip_header + ack_tcp_header
-        responsePacket = eth_frame + ip_header + tcp_header + response
-
-        # Add the packets to the response list
-        responseList.append(ackPacket)
-        responseList.append(responsePacket)
-
-    def createIPHeader(self, source_ip, destination_ip):
-        version = 4
-        ihl = 5
-        tos = 0
-        total_length = 40 #???
-        ident = 54321
-        frag_offset = 0
-        ttl = 64
-        prot = socket.IPPROTO_TCP
-        src_ip = socket.inet_aton (source_ip)
-        dest_ip = socket.inet_aton (destination_ip)
-
-        ip_ihl_ver = (version << 4) + ihl
-
-        chksum = 0
-
-        #chksum = self.checksum(struct.pack("!BBHHHBB4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, src_ip, dest_ip))
-
-        initial_ipheader = struct.pack("!BBHHHBBH4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, chksum, src_ip, dest_ip)
-
-        chksum = self.checksum3(initial_ipheader)
-        print ("Calculated IP header checksum " + str(chksum), flush=True)
-
-        ipheader = struct.pack("!BBHHHBBH4s4s", ip_ihl_ver, tos, total_length, ident, frag_offset, ttl, prot, chksum, src_ip, dest_ip)
-
-        return ipheader
-
-    # checksum function needed to calculate TCP checksums
-    def checksum(self, msg):
-        s = 0       # Binary Sum
-
-        # loop taking 2 characters at a time
-        for i in range(0, len(msg), 2):
-            if (i+1) < len(msg):
-                a = msg[i]
-                b = msg[i+1]
-                s = s + (a+(b << 8))
-                #print("adding " + str((a+(b <<8))) + ", sum = " + str(s),flush=True)
-            elif (i+1)==len(msg):
-                s += msg[i]
-                #print("adding " + msg[i] + ", sum = " + str(s),flush=True)
-            else:
-                print("Error calculating checksum", flush=True)
-
-        # One's Complement
-
-        s = s + (s >> 16)
-        s = ~s & 0xffff
-
-        return s
-
-    def carry_around_add(self, a, b):
-        c = a + b
-        return (c & 0xffff) + (c >> 16)
-
-    def ipchecksum(self, msg):
-        s = 0
-        for i in range(0, len(msg), 2):
-            w = ord(msg[i]) + (ord(msg[i+1]) << 8)
-            s = self.carry_around_add(s, w)
-        return ~s & 0xffff
-
-    def checksum3 (self, pkt):
-        if struct.pack("H",1) == "\x00\x01": # big endian
-            if len(pkt) % 2 == 1:
-                pkt += "\0"
-            s = sum(array.array("H", pkt))
-            s = (s >> 16) + (s & 0xffff)
-            s += s >> 16
-            s = ~s
-            return s & 0xffff
-        else:
-            if len(pkt) % 2 == 1:
-                pkt += "\0"
-            s = sum(array.array("H", pkt))
-            s = (s >> 16) + (s & 0xffff)
-            s += s >> 16
-            s = ~s
-            return (((s>>8)&0xff)|s<<8) & 0xffff
-
-    def createTCPHeader(self, data, is_syn, is_fin, seq_num, ack_seq_num, src_port, dest_port, source_ip, destination_ip):
-        doff = 5
-        tcp_syn = 1 if is_syn else 0
-        tcp_fin = 1 if is_fin else 0
-        tcp_rst = 0
-        tcp_psh = 0
-        tcp_ack = 1
-        tcp_urg = 0
-        tcp_window = socket.htons (8)
-        tcp_check = 0
-        tcp_urg_ptr = 0
-
-        tcp_offset_res = (doff << 4) + 0
-        tcp_flags = tcp_fin + (tcp_syn << 1) + (tcp_rst << 2) + (tcp_psh << 3) + (tcp_ack << 4) + (tcp_urg << 5)
-
-        tcp_header = struct.pack("!HHLLBBHHH" , src_port, dest_port, seq_num,
-                                 ack_seq_num, tcp_offset_res, tcp_flags,
-                                 tcp_window, tcp_check, tcp_urg_ptr)
-
-        # pseudo header fields
-        source_address = socket.inet_aton( source_ip )
-        dest_address = socket.inet_aton(destination_ip)
-        placeholder = 0
-        protocol = socket.IPPROTO_TCP
-        tcp_length = len(tcp_header) + len(data)
-
-        psh = struct.pack('!4s4sBBH' , source_address , dest_address , placeholder , protocol , tcp_length)
-        psh = psh + tcp_header + data
-
-        tcp_check = self.checksum(psh)
-
-        # make the tcp header again and fill the correct checksum - remember checksum is NOT in network byte order
-        tcp_header = (struct.pack('!HHLLBBH' , src_port, dest_port, seq_num, ack_seq_num, tcp_offset_res, tcp_flags, tcp_window) +
-                      struct.pack('H' , tcp_check) +
-                      struct.pack('!H' , tcp_urg_ptr))
-
-        return tcp_header
-
-    def createEthFrame(self, dest_mac, src_mac):
-        ETH_P_IP = 0x0800
-        rawFrame = struct.pack("!6s6sH", binascii.unhexlify(dest_mac.replace(":","")), binascii.unhexlify(src_mac.replace(":","")),ETH_P_IP)
-        return rawFrame
 
 class LoginRequest:
     def __init__(self, ip, user, max_attempts):

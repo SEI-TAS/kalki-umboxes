@@ -38,7 +38,7 @@
     "default_password": "Password",
     "proxy_auth_username": "Kalki_User",
     "proxy_auth_password": "Kalki_Password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH", "NON_HTTP"]
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
   },
 
   "phillipsHue": {
