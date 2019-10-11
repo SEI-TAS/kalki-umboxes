@@ -1,16 +1,22 @@
 {
-  "incomingNIC": "eth1",
-  "outgoingNIC": "eth2",
-  "handlers": ["udooNeo", "phillipsHue"],
+  "incomingNIC": "enp0s3",
+  "outgoingNIC": "lo",
+  "directNIC": "enp0s3",
+  "handlers": ["httpAuth"],
   "echo": "on",
-  "email": "on",
+  "email": "off",
+  "stat_logging": "on",
+  "stat_interval": 3600,
   "restrictedIPs": [],
 
   "action_list": {
     "MULTIPLE_LOGIN": ["ALERT", "EMAIL", "BLACKLIST"],
     "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
     "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
-    "COMPROMISE": ["ALERT", "EMAIL"]
+    "COMPROMISE": ["ALERT", "EMAIL"],
+    "NO_AUTH": ["ALERT"],
+    "FAILED_AUTH": ["ALERT", "EMAIL"],
+    "NON_HTTP": ["ALERT"]
   },
 
   "emailConfig": {
@@ -24,11 +30,17 @@
   },
 
   "httpAuth": {
+    "proxy_auth_enabled" : "on",
+    "proxy_auth_login_timer" : 10,
+    "proxy_auth_timeout" : 3600,
+    "proxy_auth_port" : 9010,
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "default_username": "Username",
     "default_password": "Password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED"]
+    "proxy_auth_username": "Kalki_User",
+    "proxy_auth_password": "Kalki_Password",
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
   },
 
   "phillipsHue": {
