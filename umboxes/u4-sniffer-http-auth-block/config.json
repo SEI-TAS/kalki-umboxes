@@ -1,0 +1,21 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handlers": ["httpAuth"],
+  "echo": "on",
+  "email": "off",
+  "restrictedIPs": [],
+
+  "action_list": {
+    "MULTIPLE_LOGIN": ["ALERT", "BLACKLIST"],
+    "DEFAULT_CRED": ["ALERT", "BLACKLIST"]
+  },
+
+  "httpAuth": {
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "default_username": "Username",
+    "default_password": "Password",
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED"]
+  }
+}

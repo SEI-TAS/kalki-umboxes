@@ -15,15 +15,18 @@ The contents of this directory make up the packet sniffer.  It reads every packe
 entering and leaving the Ubuntu network stack using a raw socket in Python.  The sniffer first starts by parsing the raw data from the socket as an Ethernet packet.  It checks the ethernet protocol to ensure that it is IPv4 and ignores the packet otherwise.  It then parses the ethernet data as and IPv4 packet.  If the IP packet is not using TCP it will ignore it.  If it is using TCP, it will parse the IP data as a TCP packet.  It then passes the TCP and IPv4 packet to a packet handler that is configured using the config file.  The packet handler is the important part as it will be used to identify basic HTTP authentication and brute force attacks, and also restrict packets from specific host IP addresses.
 
 ## Setup
-The sniffer is implemented in Python 3.6 and run using pipenv as a virtual environment
+The sniffer is implemented in Python 3.5 and run using pipenv as a virtual environment.
 Since the sniffer utilizes Python raw sockets, it must be run as a root user and is only runnable on a linux based machine.
-1. Install Python 3.6 by running `sudo apt-get install python3` 
-2. Ensure `pip` is installed on your machine by running `pip --version`
-3. Install `pipenv` as the root user by running `sudo -H python3 -m pip install pipenv`
-	* this specific command gets around an issue with the pip wrapper by running the module directly with python
-4. install all environement dependencies specified in the pipfile by running `pipenv install` 
-5. Configure the sniffer by changing config.json
-6. run the sniffer by running `sudo ./sniffer.sh`
+1. Update apt-get: `sudo apt-get update`
+1. Install Python 3.5 by running `sudo apt-get install python3` 
+1. Install `pip` by running `sudo apt-get install python3-pip` 
+1. Install `pipenv` as the root user by running `sudo -H pip3 install pipenv`
+1. Configure `pipenv` to create env folders locally by running:
+    1. `echo "export PIPENV_VENV_IN_PROJECT=\"enabled\"" >> $HOME/.profile`
+    1. `export PIPENV_VENV_IN_PROJECT="enabled"`
+1. Install all environment dependencies specified in the pipfile by running `pipenv install` inside the /sniffer folder
+1. Configure the sniffer by changing `config.json` as needed.
+1. Run the sniffer by running `sudo ./sniffer.sh`
 
 ## Packet Handlers
 

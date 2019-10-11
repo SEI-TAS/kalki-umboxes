@@ -1,0 +1,8 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handlers": [],
+  "echo": "off",
+  "email": "off",
+  "restrictedIPs": []
+}

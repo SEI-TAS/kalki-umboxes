@@ -1,0 +1,22 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handlers": ["udooNeo"],
+  "echo": "on",
+  "email": "off",
+  "restrictedIPs": [],
+
+  "action_list": {
+    "BRUTE_FORCE": ["ALERT"],
+    "COMPROMISE": ["ALERT"]
+  },
+
+  "udooNeo": {
+    "max_attempts": 10,
+    "max_attempts_interval_secs": 60,
+    "logging_timeout": 60,
+    "check_list": ["BRUTE_FORCE", "COMPROMISE"],
+    "compromise_threshold": 5,
+    "iot_subnet": "10.27.151"
+  }
+}

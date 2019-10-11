@@ -1,5 +1,7 @@
 [Unit]
 Description=Alerter service
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 ExecStart=/home/vagrant/alerter/alerter.sh

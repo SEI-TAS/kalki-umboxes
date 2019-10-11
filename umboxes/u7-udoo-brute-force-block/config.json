@@ -1,0 +1,32 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "handlers": ["udooNeo"],
+  "echo": "on",
+  "email": "on",
+  "restrictedIPs": [],
+
+  "action_list": {
+    "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
+    "COMPROMISE": ["ALERT", "EMAIL", "BLACKLIST"]
+  },
+
+  "udooNeo": {
+    "max_attempts": 10,
+    "max_attempts_interval_secs": 60,
+    "logging_timeout": 60,
+    "check_list": ["BRUTE_FORCE", "COMPROMISE"],
+    "compromise_threshold": 5,
+    "iot_subnet": "10.27.151"
+  },
+
+  "emailConfig": {
+    "email_server_address": "10.27.153.3",
+    "email_server_port": "25",
+    "email_source_address": "kalki@sei.cmu.edu",
+    "email_server_login": "off",
+    "email_account_username": "kalki",
+    "email_account_password": "password",
+    "email_destination_address_list": ["novakom@sei.cmu.edu"]
+  }
+}
