@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python -m SimpleHTTPServer 9010
+python3 -m http.server 9010
