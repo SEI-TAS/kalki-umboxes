@@ -28,7 +28,7 @@ public class MyMessageHandlerFactory implements MessageHandlerFactory {
 
         public void from(String from) throws RejectException {
 //            System.out.println("FROM:"+from);
-            MailServer.notify(from);
+            MailServer.notify("FROM:" + from);
         }
 
         public void recipient(String recipient) throws RejectException {
@@ -37,11 +37,11 @@ public class MyMessageHandlerFactory implements MessageHandlerFactory {
 
         public void data(InputStream data) throws IOException
         {
-//            System.out.println("MAIL DATA");
-//            System.out.println("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
-//            System.out.println(this.convertStreamToString(data));
+            System.out.println("MAIL DATA");
+            System.out.println("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+            System.out.println(this.convertStreamToString(data));
 //            System.out.println("Image goes here");
-//            System.out.println("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+            System.out.println("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
         }
 
         public void done() {

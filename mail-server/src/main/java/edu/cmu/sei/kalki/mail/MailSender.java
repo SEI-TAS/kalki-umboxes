@@ -4,26 +4,8 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
 
-public class SendMail implements EventObserver {
-
-    public static void main(String[] args)
-    {
-        MailServer.initialize();
-        MailServer.registerObserver(new SendMail());
-        //sendMail();
-
-        System.out.println("Waiting for future emails.");
-        while(true) {
-            try
-            {
-                Thread.sleep(1000);
-            } catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
+public class MailSender
+{
     public static void sendMail() {
         // Recipient's email ID needs to be mentioned.
         String to = "test@gmail.com";
@@ -66,11 +48,5 @@ public class SendMail implements EventObserver {
         } catch (MessagingException mex) {
             mex.printStackTrace();
         }
-    }
-
-    @Override
-    public void notify(String message)
-    {
-        System.out.println("Message received!: " + message);
     }
 }
