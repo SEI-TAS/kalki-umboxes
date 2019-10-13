@@ -7,5 +7,5 @@
                {"search_text": "LOG_INFO", "alert_text": "log-info"},
                {"search_text": "COMPROMISE", "alert_text": "abnormal-traffic"},
                {"search_text": "NO_AUTH", "alert_text": "abnormal-traffic"},
-               {"search_text": "FAILED_AUTH", "alert_text": "abnormal-traffic"}]]
+               {"search_text": "FAILED_AUTH", "alert_text": "abnormal-traffic"}]
 }
