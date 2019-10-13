@@ -2,17 +2,19 @@
 
 import paramiko, secrets
 
-global host, username
+UDOOIP = "10.27.151.101"
+UDOOUSER = "udooer"
+ATTEMPTS = 10
+
 
 def ssh_connect(password):
-    global host, username
     code = 0
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
         print("trying to connect")
-        ssh.connect(host, 22, username, password)
+        ssh.connect(UDOOIP, 22, UDOOUSER, password)
     except paramiko.AuthenticationException:
         #password was incorrect
         code = 1
@@ -22,12 +24,7 @@ def ssh_connect(password):
 
 
 def main():
-    global host, username
-    host = "128.237.200.5"
-    username = "cfmullaly"
-    number_of_attempts = int(input("Please enter the number of passwords you would like to try: "))
-
-    for i in range(number_of_attempts):
+    for i in range(ATTEMPTS):
         password = secrets.token_hex(16)
 
         try:

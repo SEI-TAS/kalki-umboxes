@@ -5,7 +5,7 @@ PROXYPORT=9010
 export http_proxy='';
 
 # Try several times
-for i in {1..15}
+for i in {1..10}
 do
     # bash generate random 16 character alphanumeric string (upper and lowercase)
     NEW_PASS="pass${i}"
