@@ -11,7 +11,7 @@ udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 for i in range(PACKETS):
     curr_port = PORT+i
-    print("Sending UDP packet to port " + curr_port)
+    print("Sending UDP packet to {}, port {}".format(IP, str(curr_port)))
     udp_socket.sendto(MESSAGE, (IP, curr_port))
     time.sleep(1)
 
