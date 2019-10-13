@@ -81,7 +81,7 @@ def setup_email_login(host, port, username, password):
     while retry_count > 0:
         try:
             # Establish Connection
-            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+            email_server = smtplib.SMTP(host=host, port=port, timeout=30)
 
             # Start TLS
             email_server.starttls()

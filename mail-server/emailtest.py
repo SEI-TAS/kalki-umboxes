@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# NOTE: this needs to be run with sudo and python 3. This will only work on Linux due to the use of the AF_SOCKET type.
+# NOTE: this needs to be run with python 3.
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-email_server = smtplib.SMTP(host="10.27.153.3", port="2555", timeout=3)
+email_server = smtplib.SMTP(host="10.27.153.3", port="2555", timeout=30)
 
 msg = MIMEMultipart()
 msg['From'] = "kalki@localtest.com"
