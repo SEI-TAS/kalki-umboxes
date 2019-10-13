@@ -103,7 +103,7 @@ def setup_email_no_login(host, port):
     while retry_count > 0:
         try:
             # Establish Connection
-            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+            email_server = smtplib.SMTP(host=host, port=port, timeout=30)
 
             # Successful connection; return the server object
             print ("Email reporting set up successfully.", flush=True)
