@@ -1,6 +1,0 @@
-name: sniffer-osv
-title: Sniffer with Alerter under OSV
-author: SEI-TAS
-version: "1.0"
-require:
-  - python-3.6
