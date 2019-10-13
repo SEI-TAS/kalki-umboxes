@@ -6,6 +6,6 @@
   "echo": "on",
   "email": "off",
   "stat_logging": "on",
-  "stat_interval": 3600,
+  "stat_interval": 5,
   "restrictedIPs": []
 }
