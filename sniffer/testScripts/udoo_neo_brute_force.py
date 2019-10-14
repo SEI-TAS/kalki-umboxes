@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-import paramiko, secrets
+from os import urandom
+import paramiko
 
 UDOOIP = "10.27.151.101"
 UDOOUSER = "udooer"
@@ -25,7 +26,7 @@ def ssh_connect(password):
 
 def main():
     for i in range(ATTEMPTS):
-        password = secrets.token_hex(16)
+        password = urandom(16).encode('hex')
 
         try:
             response = ssh_connect(password)
