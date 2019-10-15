@@ -17,7 +17,7 @@
   },
 
   "httpAuth": {
-    "proxy_auth_enabled" : "on",
+    "proxy_auth_enabled" : "off",
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
     "proxy_auth_port" : 9010,
