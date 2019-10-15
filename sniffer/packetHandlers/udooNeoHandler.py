@@ -41,7 +41,7 @@ class UdooNeoHandler:
             # Any UDP Packet originating from the UN IoT device is questionable; flagged for compromise
             if (ip_packet.src.find(self.config["iot_subnet"]) > -1):
                 # Only check for traffic going to our defined external network
-                if ip_packet.target.find(self.config["10.27.152"]) > -1:
+                if ip_packet.target.find("10.27.152") > -1:
                     self.udp_compromise_count += 1
 
                 # Check compromise threshold
