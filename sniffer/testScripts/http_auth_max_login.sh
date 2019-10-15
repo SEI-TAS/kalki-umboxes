@@ -11,6 +11,6 @@ do
     # bash generate random 16 character alphanumeric string (upper and lowercase)
     NEW_PASS="pass${i}"
 
-    curl -s -o /dev/null -w "Status: %{http_code}\n" -u user1:${NEW_PASS} http://${CAMERA}:${CAMERAPORT}/Image.jpg
+    curl -s -o /dev/null -w "Status: %{http_code}\n" -u user1:${NEW_PASS} http://${CAMERA}:${CAMERAPORT}/
     sleep 0.5
 done
