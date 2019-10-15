@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CAMERA=10.27.151.117
+CAMERA=10.27.151.114
 PROXYPORT=9010
 export http_proxy='';
 
