@@ -3,6 +3,8 @@ import time
 import traceback
 
 from networking.http import HTTP
+from networking.rawPacketHandling import build_tcp_syn_ack
+from networking.rawPacketHandling import build_response
 from base64 import b64decode
 
 
@@ -100,6 +102,9 @@ class HttpAuthHandler:
                 # TCP connection request received on the configured port. This could be a login request, allow to pass through
                 print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
 
+                # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
+                self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
+
         # Now process HTTP traffic
         if http is not None:
             authorization_credentials = False
@@ -132,6 +137,12 @@ class HttpAuthHandler:
                                     print("Successful proxy login from " + str(ip_packet.src), flush=True)
                                     new_login = ProxyLogin()
                                     self.proxy_logins[ip_packet.src] = new_login
+
+                                    # Build a custom HTTP response to the successful login
+                                    response = ("HTTP/1.1 200 OK \r\n" +
+                                                "WWW-Authenticate: Basic \r\n" +
+                                                "Connection: close \r\n\r\n")
+                                    build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
                                 else:
                                     # Failed login; respond with HTTP error and log if enabled
                                     if "FAILED_AUTH" in self.config["check_list"]:
@@ -139,6 +150,12 @@ class HttpAuthHandler:
                                         self.logger.warning(msg)
                                         print(msg)
                                         self.result.issues_found.append("FAILED_AUTH")
+
+                                    # Build a custom HTTP response to the failed login
+                                    response = ("HTTP/1.1 403 Forbidden \r\n" +
+                                                "WWW-Authenticate: Basic \r\n" +
+                                                "Connection: close \r\n\r\n")
+                                    build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
@@ -157,6 +174,12 @@ class HttpAuthHandler:
                     self.logger.warning(msg)
                     print(msg)
                     self.result.issues_found.append("NO_AUTH")
+
+                # Build a custom HTTP response to the lack of login credentials
+                response = ("HTTP/1.1 401 Unauthorized \r\n" +
+                            "WWW-Authenticate: Basic \r\n" +
+                            "Connection: close \r\n\r\n")
+                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
         return
 

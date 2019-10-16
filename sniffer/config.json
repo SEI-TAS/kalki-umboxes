@@ -36,10 +36,10 @@
     "proxy_auth_port" : 9010,
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
-    "default_username": "Username",
-    "default_password": "Password",
-    "proxy_auth_username": "Kalki_User",
-    "proxy_auth_password": "Kalki_Password",
+    "default_username": "user",
+    "default_password": "pass",
+    "proxy_auth_username": "kalki_user",
+    "proxy_auth_password": "kalki_pass",
     "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
   },
 
