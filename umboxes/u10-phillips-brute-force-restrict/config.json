@@ -14,8 +14,8 @@
   },
 
   "phillipsHue": {
-    "max_attempts": 10,
-    "max_attempts_interval_secs": 60,
+    "max_attempts": 5,
+    "max_attempts_interval_secs": 10,
     "logging_timeout": 60,
     "restrictAPI": "on",
     "check_list": ["BRUTE_FORCE"]
