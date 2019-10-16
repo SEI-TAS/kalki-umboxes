@@ -33,7 +33,8 @@ do
     # bash generate random 16 character alphanumeric string (upper and lowercase) 
     NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 
-    wget http://${PHILLIPSIP}:${PHILLIPSPORT}/api/"$NEW_UUID"/lights
+    curl http://${PHILLIPSIP}:${PHILLIPSPORT}/api/"$NEW_UUID"/lights
+    echo -e "\nAttempt $i finished."
     sleep 0.5
 done
 
