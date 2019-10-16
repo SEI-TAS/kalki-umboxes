@@ -349,8 +349,11 @@ def main():
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
-            outgoing.send(raw_data)
-            last_echo = raw_data
+            try:
+                outgoing.send(raw_data)
+                last_echo = raw_data
+            except Exception as e:
+                print("Error echoing: " + str(e))
 
 if __name__ == '__main__':
     main()
