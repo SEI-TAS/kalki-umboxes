@@ -17,7 +17,7 @@ def ssh_connect(password):
         print("trying to connect")
         ssh.connect(UDOOIP, 22, UDOOUSER, password)
     except paramiko.AuthenticationException:
-        #password was incorrect
+        print("password was incorrect")
         code = 1
 
     ssh.close()
