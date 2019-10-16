@@ -15,12 +15,13 @@ def ssh_connect(password):
 
     try:
         print("trying to connect")
-        ssh.connect(UDOOIP, 22, UDOOUSER, password)
+        ssh.connect(hostname=UDOOIP, port=22, username=UDOOUSER, password=password, timeout=3)
+        print("finished connection attempt")
+        ssh.close()
     except paramiko.AuthenticationException:
         print("password was incorrect")
         code = 1
-
-    ssh.close()
+        
     return code
 
 
