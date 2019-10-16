@@ -5,7 +5,7 @@ import paramiko
 
 UDOOIP = "10.27.151.101"
 UDOOUSER = "udooer"
-ATTEMPTS = 10
+ATTEMPTS = 20
 
 
 def ssh_connect(password):
