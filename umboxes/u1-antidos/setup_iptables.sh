@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+# Link incoming and outgoing NICs by a virtual bridge.
 sudo brctl addbr bridge0
 sudo ifconfig eth1 down
 sudo ifconfig eth2 down
@@ -8,6 +8,9 @@ sudo brctl addif bridge0 eth1 eth2
 sudo ifconfig eth1 up
 sudo ifconfig eth2 up
 sudo ifconfig bridge0 up
+
+# Enable IPv4 forwarding.
+echo 1 > /proc/sys/net/ipv4/ip_forward
 
 # Maximum number of connections
 if [ -z "$MAX_CONN" ]; then
@@ -34,8 +37,7 @@ fi
 # Allow iptables to see packets on a bridged interface
 sudo modprobe br_netfilter
 
-#Limit number of simultaneous connections: drops above $MAX_CONN
+# Limit number of simultaneous connections: drops above $MAX_CONN
 sudo iptables -A FORWARD -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m connlimit --connlimit-above $MAX_CONN --connlimit-mask $CONN_MASK --connlimit-saddr -j REJECT --reject-with tcp-reset
-#Limit the throughput (in either pkts/sec or Bytes/sec, for granularity/group desired--src&dst, only dst, dst&dstport, etc; specified in --hashlimit-mode). --hashlimit-above X/time (or Xb/time for Bytes, does not allow modifiers such as K or M)
+# Limit the throughput (in either pkts/sec or Bytes/sec, for granularity/group desired--src&dst, only dst, dst&dstport, etc; specified in --hashlimit-mode). --hashlimit-above X/time (or Xb/time for Bytes, does not allow modifiers such as K or M)
 sudo iptables -A FORWARD -m hashlimit --hashlimit-above "$MAX_RATE"/sec --hashlimit-mode $MODE --hashlimit-name foo -j DROP
-
