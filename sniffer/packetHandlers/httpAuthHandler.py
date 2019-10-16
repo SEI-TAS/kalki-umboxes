@@ -56,8 +56,11 @@ class HttpAuthHandler:
 
         # If proxy auth is enabled and there is data, process active logins and determine echoing
         if self.config["proxy_auth_enabled"] == "on":
+            # Ignore all traffic coming from the proxy authentication server
+            if tcp_packet.src_port == self.config["proxy_auth_port"]:
+                pass
             # See if there's an active proxy login for this IP
-            if ip_packet.src in self.proxy_logins:
+            elif ip_packet.src in self.proxy_logins:
                 # If the current IP is not yet confirmed, check timer window
                 if self.proxy_logins[ip_packet.src].confirmed_login == False:
                     # If the timer window has not elapsed, confirm
@@ -82,9 +85,6 @@ class HttpAuthHandler:
                 else:
                     # TBD: Add logs/printouts as necessary
                     pass
-            # Ignore all traffic coming from the proxy authentication server
-            elif tcp_packet.src_port == self.config["proxy_auth_port"]:
-                pass
             # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
             elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
                 msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
@@ -166,7 +166,7 @@ class HttpAuthHandler:
                     traceback.print_exc()
 
             # If no http basic credentials provided (or exception), proxy auth is enabled, and there is no successful login, log & respond
-            if authorization_credentials == False and self.config["proxy_auth_enabled"] == "on" and ip_packet.src not in self.proxy_logins:
+            if self.config["proxy_auth_enabled"] == "on" and not authorization_credentials and ip_packet.src not in self.proxy_logins:
                 # Only log the error if in check list
                 if "NO_AUTH" in self.config["check_list"]:
                     # Log/Report NO_AUTH error

@@ -1,8 +1,11 @@
 {
   "incomingNIC": "eth1",
   "outgoingNIC": "eth2",
+  "directNIC": "eth3",
   "handlers": [],
-  "echo": "off",
+  "echo": "on",
   "email": "off",
+  "stat_logging": "on",
+  "stat_interval": 5,
   "restrictedIPs": []
 }

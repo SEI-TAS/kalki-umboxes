@@ -15,7 +15,7 @@
 usage()
 {
   echo "Udoo Neo Compromise Script: Parameter Options"
-  echo "-s is source IP, which is where the packet should come from; should be set to the IP of the simulated IoT device, which must be within the configured IoT subnet (currently set to 10.27.151); default is 10.27.151.5"
+  echo "-s is source IP, which is where the packet should come from; should be set to the IP of the simulated IoT device, which must be within the configured IoT subnet (currently set to 10.27.151); default is 10.27.151.101"
   echo "-d is destination IP, which is where the packet is addressed to go; should be set to the address of the sniffer so that it is received and processed; default is 127.0.0.1"
   echo "-u is udp packets, which is the number of UDP packets that will be sent from that address; default is 5"
   echo "-t is tcp packets, which is the number of TCP packets that will be sent from that address; default is 0"
@@ -23,8 +23,8 @@ usage()
   echo "-h is help, which prints this message."
 }
 
-sourceIP=10.27.151.5
-destIP=127.0.0.1
+sourceIP=10.27.151.101
+destIP=10.27.152.5
 udpPackets=5
 tcpPackets=0
 tcpPort=31

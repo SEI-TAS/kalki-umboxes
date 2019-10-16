@@ -81,7 +81,7 @@ def setup_email_login(host, port, username, password):
     while retry_count > 0:
         try:
             # Establish Connection
-            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+            email_server = smtplib.SMTP(host=host, port=port, timeout=30)
 
             # Start TLS
             email_server.starttls()
@@ -103,7 +103,7 @@ def setup_email_no_login(host, port):
     while retry_count > 0:
         try:
             # Establish Connection
-            email_server = smtplib.SMTP(host=host, port=port, timeout=3)
+            email_server = smtplib.SMTP(host=host, port=port, timeout=30)
 
             # Successful connection; return the server object
             print ("Email reporting set up successfully.", flush=True)
@@ -349,8 +349,11 @@ def main():
 
         # Only echo packet if echo is on and src IP is not restricted
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
-            outgoing.send(raw_data)
-            last_echo = raw_data
+            try:
+                outgoing.send(raw_data)
+                last_echo = raw_data
+            except Exception as e:
+                print("Error echoing: " + str(e))
 
 if __name__ == '__main__':
     main()
