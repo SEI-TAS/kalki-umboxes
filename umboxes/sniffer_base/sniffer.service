@@ -1,0 +1,11 @@
+[Unit]
+Description=Sniffer service
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/home/vagrant/sniffer/sniffer.sh
+WorkingDirectory=/home/vagrant/sniffer/
+
+[Install]
+WantedBy=multi-user.target

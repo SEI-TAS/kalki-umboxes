@@ -1,0 +1,11 @@
+[Unit]
+Description=AntiDoS service
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/home/vagrant/antidos/setup_iptables.sh
+WorkingDirectory=/home/vagrant/antidos/
+
+[Install]
+WantedBy=multi-user.target

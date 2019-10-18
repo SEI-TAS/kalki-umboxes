@@ -1,0 +1,42 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+BASELINE_BOX = 'generic/ubuntu1604'
+VM_USER = 'vagrant'
+
+Vagrant.configure(2) do |config|
+
+  # Base and name setup.
+  config.vm.box = BASELINE_BOX
+  config.vm.hostname = VM_NAME
+
+  # Defaults RAM to 1 GB
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.memory = 1024
+  end
+
+  # Keep default keys to simplify repackaging.
+  config.ssh.insert_key = false
+
+  # Ensure we have at least 3 network interfaces.
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.network "private_network", type: "dhcp"
+
+  # NOTE: this is only needed if behind a proxy.
+  #config.vm.provision "shell", path: "../common/proxy_setup.sh"
+
+  # Setup network config.
+  config.vm.provision "shell", path: "../common/network_setup.sh"
+
+  # Copy and setup Alerter.
+  config.vm.provision "file", source: "../../alerter", destination: "$HOME/"
+  config.vm.provision "file", source: "../common/alerter.service", destination: "$HOME/alerter/alerter.service"
+  config.vm.provision "file", source: "../common/config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "shell" do |s|
+    s.path = "../common/alerter_setup.sh"
+    s.args = ["/home/" + VM_USER + "/alerter"]
+  end
+
+end

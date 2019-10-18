@@ -10,12 +10,18 @@ ALERT_HANDLER_URL = "/alert/"
 ALERT_HANDLER_PORT = 6060
 
 
-def send_umbox_alert(server_ip, alert_text):
+def send_umbox_alert(server_ip, alert_text, alert_details=""):
     """An API request to the Alert Handler to send alerts about the current mbox, using MAC to identify it."""
 
     # Get the mac of the card we will use for the control plane. Then extract the umbox id.
-    local_mac = _local_mac_for_remote_ip(server_ip.decode('utf-8'))
-    umbox_id = int(local_mac[-5:-4]) * 100 + int(local_mac[-2:-1])
+    local_mac = _local_mac_for_remote_ip(server_ip)
+    print("Server IP: " + server_ip + "; local mac: " + str(local_mac))
+    if local_mac == "":
+        print("Not sending alert. Local MAC not found, server IP not associated to any of the local NICs.")
+        return
+
+    umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
+    print("Umbox id: " + str(umbox_id))
 
     # Try sending the alert a couple of times.
     max_retries = 3
@@ -24,8 +30,8 @@ def send_umbox_alert(server_ip, alert_text):
     print("Sending alert {}".format(alert_text))
     while curr_retry < max_retries:
         try:
-            return send_alert(server_ip, alerter_id=umbox_id, alert_text=alert_text)
-        except requests.exceptions.ConnectionError, e:
+            return send_alert(server_ip, alerter_id=umbox_id, alert_text=alert_text, alert_details=alert_details)
+        except requests.exceptions.ConnectionError as e:
             curr_retry += 1
             print("Error sending alert: " + str(e))
             if curr_retry < max_retries:
@@ -36,17 +42,18 @@ def send_umbox_alert(server_ip, alert_text):
                 break
 
 
-def send_alert(server_ip, alerter_id, alert_text):
+def send_alert(server_ip, alerter_id, alert_text, alert_details):
     """A generic API request to Alert Handler."""
 
     url = "http://" + str(server_ip) + ":" + str(ALERT_HANDLER_PORT) + ALERT_HANDLER_URL
-    print url
+    print(url)
     headers = {}
     headers["Content-Type"] = "application/json"
 
     payload = {}
     payload['umbox'] = alerter_id
     payload['alert'] = alert_text
+    payload['details'] = alert_details
 
     req = requests.Request('POST', url, headers=headers, json=payload)
     prepared = req.prepare()
@@ -54,8 +61,8 @@ def send_alert(server_ip, alerter_id, alert_text):
 
     reply = requests.post(url, json=payload, headers=headers)
 
-    print reply
-    print reply.content
+    print(reply)
+    print(reply.content)
     return reply.content
 
 

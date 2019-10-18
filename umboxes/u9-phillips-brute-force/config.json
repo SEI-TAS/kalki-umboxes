@@ -1,0 +1,23 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "directNIC": "eth3",
+  "handlers": ["phillipsHue"],
+  "echo": "on",
+  "email": "off",
+  "stat_logging": "off",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
+
+  "action_list": {
+    "BRUTE_FORCE": ["ALERT"]
+  },
+
+  "phillipsHue": {
+    "max_attempts": 5,
+    "max_attempts_interval_secs": 10,
+    "logging_timeout": 60,
+    "restrictAPI": "off",
+    "check_list": ["BRUTE_FORCE"]
+  }
+}

@@ -1,10 +1,62 @@
 {
-  "port": "9010",
-  "nic": "eth1",
+  "incomingNIC": "enp0s3",
+  "outgoingNIC": "lo",
+  "directNIC": "enp0s3",
+  "handlers": ["httpAuth"],
+  "echo": "on",
+  "email": "off",
+  "stat_logging": "on",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
 
-  "default_username": "Username",
-  "default_password": "Password",
+  "action_list": {
+    "MULTIPLE_LOGIN": ["ALERT", "EMAIL", "BLACKLIST"],
+    "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
+    "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
+    "COMPROMISE": ["ALERT", "EMAIL"],
+    "NO_AUTH": ["ALERT"],
+    "FAILED_AUTH": ["ALERT", "EMAIL"],
+    "NON_HTTP": ["ALERT"]
+  },
 
-  "max_attempts": "4",
-  "max_attempts_interval_mins": "30"
+  "emailConfig": {
+    "email_server_address": "10.64.22.12",
+    "email_server_port": "25",
+    "email_source_address": "kalki@sei.cmu.edu",
+    "email_server_login": "off",
+    "email_account_username": "kalki",
+    "email_account_password": "password",
+    "email_destination_address_list": ["novakom@sei.cmu.edu"]
+  },
+
+  "httpAuth": {
+    "proxy_auth_enabled" : "on",
+    "proxy_auth_login_timer" : 10,
+    "proxy_auth_timeout" : 3600,
+    "proxy_auth_port" : 9010,
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "default_username": "Username",
+    "default_password": "Password",
+    "proxy_auth_username": "Kalki_User",
+    "proxy_auth_password": "Kalki_Password",
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
+  },
+
+  "phillipsHue": {
+  	"max_attempts": 10,
+  	"max_attempts_interval_secs": 60, 
+    "logging_timeout": 60,
+    "restrictAPI": "on",
+    "check_list": ["BRUTE_FORCE"]
+  },
+
+  "udooNeo": {
+  	"max_attempts": 10,
+  	"max_attempts_interval_secs": 60,
+    "logging_timeout": 60,
+    "check_list": ["BRUTE_FORCE", "COMPROMISE"],
+    "compromise_threshold": 5,
+    "iot_subnet": "10.27.151"
+  }
 }
