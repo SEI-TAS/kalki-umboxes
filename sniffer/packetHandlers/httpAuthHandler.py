@@ -23,6 +23,7 @@ class HttpAuthHandler:
         self.login_requests = {}
         self.result = result
         self.proxy_logins = {}
+        self.last_log_time = 0
 
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
@@ -165,7 +166,6 @@ class HttpAuthHandler:
         return
 
     def track_logins(self, ip, user_name):
-
         key = hash(str(ip) + user_name)
         if key not in self.login_requests.keys():
             login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
@@ -180,9 +180,7 @@ class HttpAuthHandler:
                 print("Time from first attempt in mins: " + str(minutes_from_first_attempt))
 
                 if minutes_from_first_attempt < self.config["max_attempts_interval_mins"]:
-                    msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
-                    self.logger.error(msg)
-                    print(msg)
+                    self.log_multiple_attempts(minutes_from_first_attempt)
 
                 # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks.
                 login_request.attempt_times.pop(0)
@@ -192,12 +190,21 @@ class HttpAuthHandler:
             # Store this last attempt.
             login_request.attempt_times[login_request.count - 1] = current_attempt_time
 
+    def log_multiple_attempts(self, minutes_from_first_attempt):
+        current_time = time.time()
+        if current_time - self.last_log_time > self.config["logging_timeout"]:
+            msg = "MULTIPLE_LOGIN : More than " + str(self.config["max_attempts"]) + " attempts in " + str(minutes_from_first_attempt) + " minutes from same IP address"
+            self.logger.warning(msg)
+            self.last_log_time = current_time
+            print(msg)
+            self.result.issues_found.append("MULTIPLE_LOGIN")
+
     def log_default_creds(self, ip):
         msg = "DEFAULT_CRED: Login attempt with default credentials from " + str(ip)
         self.logger.warning(msg)
         print(msg)
         self.result.issues_found.append("DEFAULT_CRED")
-        return
+
 
 class LoginRequest:
     def __init__(self, ip, user, max_attempts):
@@ -207,5 +214,3 @@ class LoginRequest:
         self.delete = 0
         self.attempt_times = [0] * max_attempts
         self.attempt_times[0] = time.time()
-
-

@@ -25,6 +25,7 @@
     "proxy_auth_password": "kpass",
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
+    "logging_timeout": 60,
     "default_username": "Username",
     "default_password": "Password",
     "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]

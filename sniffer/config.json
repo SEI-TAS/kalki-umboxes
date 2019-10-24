@@ -36,6 +36,7 @@
     "proxy_auth_port" : 9010,
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
+    "logging_timeout": 60,
     "default_username": "Username",
     "default_password": "Password",
     "proxy_auth_username": "Kalki_User",
