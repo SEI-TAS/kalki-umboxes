@@ -58,6 +58,7 @@
     "logging_timeout": 60,
     "check_list": ["BRUTE_FORCE", "COMPROMISE"],
     "compromise_threshold": 5,
-    "iot_subnet": "10.27.151"
+    "iot_subnet": "10.27.151",
+    "external_subnet": "10.27.152"
   }
 }
