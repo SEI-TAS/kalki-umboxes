@@ -62,10 +62,7 @@ class HttpAuthHandler:
 
         # If proxy auth is enabled and there is data, process active logins and determine echoing
         if self.config["proxy_auth_enabled"] == "on":
-            track_proxy(tcp_packet, ip_packet, http, packet_has_data)
-
-                # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
-                self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
+            self.track_proxy(tcp_packet, ip_packet, http, packet_has_data)
 
         # Now process HTTP traffic
         if http is not None:
@@ -91,33 +88,7 @@ class HttpAuthHandler:
 
                         # Only process proxy auth if it is in the config file
                         if self.config["proxy_auth_enabled"] == "on":
-                            # Process a new auth request from the current IP, as long as it isn't the proxy auth server, and at the configured port
-                            if ip_packet.src not in self.proxy_logins and tcp_packet.dest_port == self.config["proxy_auth_port"]:
-                                # Check against the proper credentials
-                                if username == self.config["proxy_auth_username"] and password == self.config["proxy_auth_password"]:
-                                    # Successful login; mark the time and IP
-                                    print("Successful proxy login from " + str(ip_packet.src), flush=True)
-                                    new_login = ProxyLogin()
-                                    self.proxy_logins[ip_packet.src] = new_login
-
-                                    # Build a custom HTTP response to the successful login
-                                    response = ("HTTP/1.1 200 OK \r\n" +
-                                                "WWW-Authenticate: Basic \r\n" +
-                                                "Connection: close \r\n\r\n")
-                                    build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
-                                else:
-                                    # Failed login; respond with HTTP error and log if enabled
-                                    if "FAILED_AUTH" in self.config["check_list"]:
-                                        msg = "FAILED_AUTH: HTTP request with incorrect authentication credentials, with proxy auth enabled; from " + str(ip_packet.src)
-                                        self.logger.warning(msg)
-                                        print(msg)
-                                        self.result.issues_found.append("FAILED_AUTH")
-
-                                    # Build a custom HTTP response to the failed login
-                                    response = ("HTTP/1.1 403 Forbidden \r\n" +
-                                                "WWW-Authenticate: Basic \r\n" +
-                                                "Connection: close \r\n\r\n")
-                                    build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                            self.process_auth_request(username, password)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
@@ -127,21 +98,8 @@ class HttpAuthHandler:
                     print("Exception processing credentials: " + str(ex), flush=True)
                     traceback.print_exc()
 
-            # If no http basic credentials provided (or exception), proxy auth is enabled, and there is no successful login, log & respond
-            if self.config["proxy_auth_enabled"] == "on" and not authorization_credentials and ip_packet.src not in self.proxy_logins:
-                # Only log the error if in check list
-                if "NO_AUTH" in self.config["check_list"]:
-                    # Log/Report NO_AUTH error
-                    msg = "NO_AUTH: HTTP request without authentication credentials with proxy auth enabled from " + str(ip_packet.src)
-                    self.logger.warning(msg)
-                    print(msg)
-                    self.result.issues_found.append("NO_AUTH")
-
-                # Build a custom HTTP response to the lack of login credentials
-                response = ("HTTP/1.1 401 Unauthorized \r\n" +
-                            "WWW-Authenticate: Basic \r\n" +
-                            "Connection: close \r\n\r\n")
-                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+            if self.config["proxy_auth_enabled"] == "on" and not authorization_credentials:
+                self.check_no_credentials(tcp_packet, ip_packet)
 
         return
 
@@ -191,6 +149,55 @@ class HttpAuthHandler:
         elif tcp_packet.flag_syn is True and tcp_packet.flag_ack is False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
             # TCP connection request received on the configured port. This could be a login request, allow to pass through
             print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
+
+            # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
+            self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
+
+    def process_auth_request(self, tcp_packet, ip_packet, username, password):
+        # Process a new auth request from the current IP, as long as it isn't the proxy auth server, and at the configured port
+        if ip_packet.src not in self.proxy_logins and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+            # Check against the proper credentials
+            if username == self.config["proxy_auth_username"] and password == self.config["proxy_auth_password"]:
+                # Successful login; mark the time and IP
+                print("Successful proxy login from " + str(ip_packet.src), flush=True)
+                new_login = ProxyLogin()
+                self.proxy_logins[ip_packet.src] = new_login
+
+                # Build a custom HTTP response to the successful login
+                response = ("HTTP/1.1 200 OK \r\n" +
+                            "WWW-Authenticate: Basic \r\n" +
+                            "Connection: close \r\n\r\n")
+                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+            else:
+                # Failed login; respond with HTTP error and log if enabled
+                if "FAILED_AUTH" in self.config["check_list"]:
+                    msg = "FAILED_AUTH: HTTP request with incorrect authentication credentials, with proxy auth enabled; from " + str(ip_packet.src)
+                    self.logger.warning(msg)
+                    print(msg)
+                    self.result.issues_found.append("FAILED_AUTH")
+
+                # Build a custom HTTP response to the failed login
+                response = ("HTTP/1.1 403 Forbidden \r\n" +
+                            "WWW-Authenticate: Basic \r\n" +
+                            "Connection: close \r\n\r\n")
+                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+
+    def check_no_credentials(self, tcp_packet, ip_packet):
+        # If no http basic credentials provided (or exception), proxy auth is enabled, and there is no successful login, log & respond
+        if ip_packet.src not in self.proxy_logins:
+            # Only log the error if in check list
+            if "NO_AUTH" in self.config["check_list"]:
+                # Log/Report NO_AUTH error
+                msg = "NO_AUTH: HTTP request without authentication credentials with proxy auth enabled from " + str(ip_packet.src)
+                self.logger.warning(msg)
+                print(msg)
+                self.result.issues_found.append("NO_AUTH")
+
+            # Build a custom HTTP response to the lack of login credentials
+            response = ("HTTP/1.1 401 Unauthorized \r\n" +
+                        "WWW-Authenticate: Basic \r\n" +
+                        "Connection: close \r\n\r\n")
+            build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
     def track_logins(self, ip, user_name):
         key = hash(str(ip) + user_name)
