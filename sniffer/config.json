@@ -34,13 +34,13 @@
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
     "proxy_auth_port" : 9010,
+    "proxy_auth_username": "kalki_user",
+    "proxy_auth_password": "kalki_pass",
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "logging_timeout": 60,
-    "default_username": "Username",
-    "default_password": "Password",
-    "proxy_auth_username": "Kalki_User",
-    "proxy_auth_password": "Kalki_Password",
+    "default_username": "username",
+    "default_password": "password",
     "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
   },
 
