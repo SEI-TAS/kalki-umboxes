@@ -15,6 +15,7 @@ class ProxyLogin:
 # Global Authorization pattern
 basic_authorization_pattern = None
 
+
 class HttpAuthHandler:
 
     def __init__(self, config, logger, result):
@@ -27,6 +28,10 @@ class HttpAuthHandler:
 
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
+
+    def handleUDPPacket(self, ip_packet):
+        # This handler does not process UDP packets; simply return
+        return
 
     def handleTCPPacket(self, tcp_packet, ip_packet):
 
@@ -55,51 +60,7 @@ class HttpAuthHandler:
 
         # If proxy auth is enabled and there is data, process active logins and determine echoing
         if self.config["proxy_auth_enabled"] == "on":
-            # Ignore all traffic coming from the proxy authentication server
-            if tcp_packet.src_port == self.config["proxy_auth_port"]:
-                pass
-            # See if there's an active proxy login for this IP
-            elif ip_packet.src in self.proxy_logins:
-                # If the current IP is not yet confirmed, check timer window
-                if self.proxy_logins[ip_packet.src].confirmed_login == False:
-                    # If the timer window has not elapsed, confirm
-                    if time.time() - self.proxy_logins[ip_packet.src].auth_time <= self.config["proxy_auth_login_timer"]:
-                        # TCP packet sent within timer window; confirm this connection
-                        self.proxy_logins[ip_packet.src].confirmed_login = True
-                        print("Successful proxy login confirmation from " + str(ip_packet.src), flush=True)
-                    else:
-                        # TCP packet NOT sent within timer window; therefore cancel this authorization/disable echoing;
-                        # TBD: log the packet that missed the timer(?)
-                        del self.proxy_logins[ip_packet.src]
-                        self.result.echo_decision = False
-                        print("Proxy login timed out; no TCP packet received within " + str(self.config["proxy_auth_login_timer"]) + " sec from " + str(ip_packet.src), flush=True)
-                # Proxy login is confirmed; see if configured timeout window has elapsed
-                elif time.time() - self.proxy_logins[ip_packet.src].auth_time > self.config["proxy_auth_timeout"]:
-                    # Proxy Auth timeout has been exceeded; kill the active login/disable echoing;
-                    # TBD: log the packet that timed out the connection(?)
-                    del self.proxy_logins[ip_packet.src]
-                    self.result.echo_decision = False
-                    print("Confirmed proxy login timed out after " + str(self.config["proxy_auth_timeout"]) + " sec for " + str(ip_packet.src), flush=True)
-                # Confirmed proxy login that hasn't timed out; traffic is authorized and can be passed on
-                else:
-                    # TBD: Add logs/printouts as necessary
-                    pass
-            # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
-            elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
-                msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
-                self.logger.warning(msg)
-                print(msg)
-                self.result.issues_found.append("NON_HTTP")
-                self.result.echo_decision = False
-                print("Non-HTTP traffic sent from " + str(ip_packet.src) + " without proxy login", flush=True)
-            # All other cases where a non-confirmed IP address sends a TCP packet with data; disable echoing
-            elif packet_has_data:
-                self.result.echo_decision = False
-                #print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
-            # Now process tcp connection requests on the configured port; requires a TCP packet with SYN set and ACK cleared
-            elif tcp_packet.flag_syn == True and tcp_packet.flag_ack == False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
-                # TCP connection request received on the configured port. This could be a login request, allow to pass through
-                print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
+            track_proxy(tcp_packet, ip_packet, http, packet_has_data)
 
         # Now process HTTP traffic
         if http is not None:
@@ -161,9 +122,52 @@ class HttpAuthHandler:
 
         return
 
-    def handleUDPPacket(self, ip_packet):
-        # This handler does not process UDP packets; simply return
-        return
+    def track_proxy(self, tcp_packet, ip_packet, http, packet_has_data):
+        # Ignore all replies from the proxy authentication server
+        if tcp_packet.src_port == self.config["proxy_auth_port"]:
+            pass
+        # See if there's an active proxy login for this IP
+        elif ip_packet.src in self.proxy_logins:
+            # If the current IP is not yet confirmed, check timer window
+            if self.proxy_logins[ip_packet.src].confirmed_login is False:
+                # If the timer window has not elapsed, confirm
+                if time.time() - self.proxy_logins[ip_packet.src].auth_time <= self.config["proxy_auth_login_timer"]:
+                    # TCP packet sent within timer window; confirm this connection
+                    self.proxy_logins[ip_packet.src].confirmed_login = True
+                    print("Successful proxy login confirmation from " + str(ip_packet.src), flush=True)
+                else:
+                    # TCP packet NOT sent within timer window; therefore cancel this authorization/disable echoing;
+                    # TBD: log the packet that missed the timer(?)
+                    del self.proxy_logins[ip_packet.src]
+                    self.result.echo_decision = False
+                    print("Proxy login timed out; no TCP packet received within " + str(self.config["proxy_auth_login_timer"]) + " sec from " + str(ip_packet.src), flush=True)
+            # Proxy login is confirmed; see if configured timeout window has elapsed
+            elif time.time() - self.proxy_logins[ip_packet.src].auth_time > self.config["proxy_auth_timeout"]:
+                # Proxy Auth timeout has been exceeded; kill the active login/disable echoing;
+                # TBD: log the packet that timed out the connection(?)
+                del self.proxy_logins[ip_packet.src]
+                self.result.echo_decision = False
+                print("Confirmed proxy login timed out after " + str(self.config["proxy_auth_timeout"]) + " sec for " + str(ip_packet.src), flush=True)
+            # Confirmed proxy login that hasn't timed out; traffic is authorized and can be passed on
+            else:
+                # TBD: Add logs/printouts as necessary
+                pass
+        # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
+        elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
+            msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
+            self.logger.warning(msg)
+            print(msg)
+            self.result.issues_found.append("NON_HTTP")
+            self.result.echo_decision = False
+            print("Non-HTTP traffic sent from " + str(ip_packet.src) + " without proxy login", flush=True)
+        # All other cases where a non-confirmed IP address sends a TCP packet with data; disable echoing
+        elif packet_has_data:
+            self.result.echo_decision = False
+            #print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
+        # Now process tcp connection requests on the configured port; requires a TCP packet with SYN set and ACK cleared
+        elif tcp_packet.flag_syn is True and tcp_packet.flag_ack is False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+            # TCP connection request received on the configured port. This could be a login request, allow to pass through
+            print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
 
     def track_logins(self, ip, user_name):
         key = hash(str(ip) + user_name)
