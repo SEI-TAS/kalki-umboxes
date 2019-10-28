@@ -1,0 +1,11 @@
+[Unit]
+Description=Snort service
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/usr/bin/sudo /usr/local/bin/snort -Q --daq afpacket -i eth1:eth2 -c /etc/snort/snort.conf
+WorkingDirectory=/etc/snort/
+
+[Install]
+WantedBy=multi-user.target

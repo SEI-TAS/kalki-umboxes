@@ -1,0 +1,21 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Sets current start folder, and loads parent Vagrantfile
+UMBOX_FOLDER = File.dirname(__FILE__)
+VM_NAME = File.basename(UMBOX_FOLDER)
+load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+  # Copy all files to the VM, and set up depdencies and service.
+  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.conf", destination: "$HOME/snort/snort.conf"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "$HOME/snort/local.rules"  
+  config.vm.provision "file", source: UMBOX_FOLDER + "/snortrules-snapshot-2990.tar.gz", destination: "$HOME/snort/snortrules-snapshot-2990.tar.gz"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.service", destination: "$HOME/snort/snort.service"
+  config.vm.provision "shell" do |s|
+    s.path = UMBOX_FOLDER + "/umbox_setup.sh"
+  end
+
+end
