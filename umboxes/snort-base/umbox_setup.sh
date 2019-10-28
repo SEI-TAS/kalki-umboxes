@@ -26,7 +26,7 @@ wget https://www.snort.org/downloads/snort/daq-${DAQ_VERSION}.tar.gz \
 	&& make \
 	&& sudo make install && cd ..
 
-wget https://www.snort.org/downloads/snort/snort-${SNORT_VERSION}.tar.gz \
+wget https://www.snort.org/downloads/archive/snort/snort-${SNORT_VERSION}.tar.gz \
 	&& tar xvfz snort-${SNORT_VERSION}.tar.gz \
 	&& cd snort-${SNORT_VERSION} \
 	&& ./configure --enable-sourcefire \
