@@ -12,8 +12,4 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: UMBOX_FOLDER + "/snort.conf", destination: "$HOME/snort/snort.conf"
   config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "$HOME/snort/local.rules"
   config.vm.provision "shell", inline: "systemctl restart snort"
-
-  # Copy a properly configured alerter config file for this software to the VM, and restart alerter.
-  config.vm.provision "file", source: "config_alerter.json", destination: "$HOME/alerter/config.json"
-  config.vm.provision "shell", inline: "systemctl restart alerter"
 end

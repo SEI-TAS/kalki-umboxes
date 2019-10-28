@@ -1,5 +1,0 @@
-{
-  "control_node_ip": "10.27.153.3",
-  "log_file": "/var/log/snort/alert",
-  "patterns": [{"search_text": "Blocking Packet", "alert_text": "external-traffic"}]
-}
