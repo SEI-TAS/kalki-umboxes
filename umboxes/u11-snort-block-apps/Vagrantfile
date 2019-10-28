@@ -9,7 +9,9 @@ load File.expand_path(UMBOX_FOLDER + '/../snort-base/Vagrantfile', __FILE__)
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
   # Copy all files to the VM, and set up dependencies and service.
-  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.conf", destination: "/etc/snort/snort.conf"
-  config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "/etc/snort/rules/local.rules"
-  config.vm.provision "shell", inline: "systemctl restart snort"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.conf", destination: "$HOME/snort/snort.conf"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "$HOME/snort/local.rules"
+  config.vm.provision "shell" do |s|
+    s.path = UMBOX_FOLDER + "/umbox_setup.sh"
+  end
 end
