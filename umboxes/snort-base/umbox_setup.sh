@@ -49,6 +49,7 @@ mkdir -p /usr/local/lib/snort_dynamicrules \
 	&& touch /etc/snort/rules/white_list.rules \
 	&& touch /etc/snort/rules/black_list.rules
 
+mkdir -p "/var/log/snort"
 
 sudo cp /home/vagrant/snort/snort.service /etc/systemd/system
 
