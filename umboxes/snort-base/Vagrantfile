@@ -14,6 +14,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "$HOME/snort/local.rules"  
   config.vm.provision "file", source: UMBOX_FOLDER + "/snortrules-snapshot-2990.tar.gz", destination: "$HOME/snort/snortrules-snapshot-2990.tar.gz"
   config.vm.provision "file", source: UMBOX_FOLDER + "/snort.service", destination: "$HOME/snort/snort.service"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/alert", destination: "/var/log/snort/alert"
   config.vm.provision "shell" do |s|
     s.path = UMBOX_FOLDER + "/umbox_setup.sh"
   end
