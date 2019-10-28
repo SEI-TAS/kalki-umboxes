@@ -20,6 +20,6 @@ Vagrant.configure(2) do |config|
   end
 
   # Copy a properly configured alerter config file for this software to the VM, and restart alerter.
-  config.vm.provision "file", source: "config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "file", source: UMBOX_FOLDER + "/config_alerter.json", destination: "$HOME/alerter/config.json"
   config.vm.provision "shell", inline: "systemctl restart alerter"
 end
