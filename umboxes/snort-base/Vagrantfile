@@ -9,16 +9,16 @@ load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
   # Copy all files to the VM, and set up depdencies and service.
-  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.conf", destination: "$HOME/snort/snort.conf"
-  config.vm.provision "file", source: UMBOX_FOLDER + "/local.rules", destination: "$HOME/snort/local.rules"  
-  config.vm.provision "file", source: UMBOX_FOLDER + "/snortrules-snapshot-2990.tar.gz", destination: "$HOME/snort/snortrules-snapshot-2990.tar.gz"
-  config.vm.provision "file", source: UMBOX_FOLDER + "/snort.service", destination: "$HOME/snort/snort.service"
-  config.vm.provision "file", source: UMBOX_FOLDER + "/alert", destination: "/var/log/snort/alert"
+  config.vm.provision "file", source: "../snort-base/snort.conf", destination: "$HOME/snort/snort.conf"
+  config.vm.provision "file", source: "../snort-base/local.rules", destination: "$HOME/snort/local.rules"
+  config.vm.provision "file", source: "../snort-base/snortrules-snapshot-2990.tar.gz", destination: "$HOME/snort/snortrules-snapshot-2990.tar.gz"
+  config.vm.provision "file", source: "../snort-base/snort.service", destination: "$HOME/snort/snort.service"
+  config.vm.provision "file", source: "../snort-base/alert", destination: "/var/log/snort/alert"
   config.vm.provision "shell" do |s|
     s.path = UMBOX_FOLDER + "/umbox_setup.sh"
   end
 
   # Copy a properly configured alerter config file for this software to the VM, and restart alerter.
-  config.vm.provision "file", source: UMBOX_FOLDER + "/config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "file", source: "../snort-base/config_alerter.json", destination: "$HOME/alerter/config.json"
   config.vm.provision "shell", inline: "systemctl restart alerter"
 end
