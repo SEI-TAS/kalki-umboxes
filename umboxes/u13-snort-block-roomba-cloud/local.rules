@@ -1,0 +1,1 @@
+drop tcp $IROBOT_CLOUD_API any -> $HOME_NET 8883 (msg:"Blocking Roomba cloud access"; sid:10000003; rev:1;)
