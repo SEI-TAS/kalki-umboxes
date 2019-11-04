@@ -1,5 +1,5 @@
 import time
-import traceback
+
 
 class UdooNeoHandler:
 
@@ -17,21 +17,20 @@ class UdooNeoHandler:
         if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
             self.trackConnection(ip_packet.src)
 
-        # Ignore compromise check for TCP for now.
-        return
-
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"]:
             # Only consider packets coming from the IoT device, which means the source is the IoT subnet
-            if (ip_packet.src.find(self.config["iot_subnet"]) > -1):
-                # TCP traffic originating from the IoT device.  Only TCP traffic from port 22 is SSH traffic (thus valid)
-                if tcp_packet.src_port != 22:
-                    # TCP traffic that is definitely not coming from a SSH server port on the IoT device.  Count as compromise evidence
-                    self.tcp_compromise_count += 1
+            if ip_packet.src.find(self.config["iot_subnet"]) > -1:
+                # Only check for traffic going to our defined external network
+                if ip_packet.target.find(self.config["external_subnet"]) > -1:
+                    # TCP traffic originating from the IoT device.  Only TCP traffic from port 22 is SSH traffic (thus valid)
+                    if tcp_packet.src_port != 22:
+                        # TCP traffic that is definitely not coming from a SSH server port on the IoT device.  Count as compromise evidence
+                        self.tcp_compromise_count += 1
 
-                    # Check compromise threshold
-                    if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
-                        self.logCompromise(ip_packet.src)
+                        # Check compromise threshold
+                        if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
+                            self.logCompromise(ip_packet.src)
 
         return
 
@@ -39,9 +38,9 @@ class UdooNeoHandler:
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"]:
             # Any UDP Packet originating from the UN IoT device is questionable; flagged for compromise
-            if (ip_packet.src.find(self.config["iot_subnet"]) > -1):
+            if ip_packet.src.find(self.config["iot_subnet"]) > -1:
                 # Only check for traffic going to our defined external network
-                if ip_packet.target.find("10.27.152") > -1:
+                if ip_packet.target.find(self.config["external_subnet"]) > -1:
                     self.udp_compromise_count += 1
 
                 # Check compromise threshold
@@ -58,7 +57,6 @@ class UdooNeoHandler:
         
         current_attempt_time = time.time()
         connection_times.append(current_attempt_time)
-
 
         if len(connection_times) >= self.config["max_attempts"]:
             seconds_from_first_attempt = (current_attempt_time - connection_times[0])
