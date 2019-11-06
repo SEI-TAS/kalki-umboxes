@@ -10,24 +10,14 @@
   "restrictedIPs": [],
 
   "action_list": {
-    "MULTIPLE_LOGIN": ["ALERT"],
-    "DEFAULT_CRED": ["ALERT"],
-    "NO_AUTH": ["ALERT"],
-    "FAILED_AUTH": ["ALERT"]
+    "MULTIPLE_LOGIN": ["ALERT"]
   },
 
   "httpAuth": {
     "proxy_auth_enabled" : "off",
-    "proxy_auth_login_timer" : 10,
-    "proxy_auth_timeout" : 3600,
-    "proxy_auth_port" : 9010,
-    "proxy_auth_username": "kuser",
-    "proxy_auth_password": "kpass",
-    "max_attempts": 4,
-    "max_attempts_interval_mins": 30,
+    "max_attempts": 5,
+    "max_attempts_interval_mins": 1,
     "logging_timeout": 60,
-    "default_username": "Username",
-    "default_password": "Password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
+    "check_list": ["MULTIPLE_LOGIN"]
   }
 }
