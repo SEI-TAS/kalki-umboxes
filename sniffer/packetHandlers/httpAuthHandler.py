@@ -32,7 +32,7 @@ class HttpAuthHandler:
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
         global digest_authorization_pattern
-        digest_authorization_pattern = re.compile('Authorization: Digest username="(.*)"(.*)')
+        digest_authorization_pattern = re.compile('Authorization: Digest username="([^"]*)"(.*)')
 
     def handleUDPPacket(self, ip_packet):
         # This handler does not process UDP packets; simply return
