@@ -16,6 +16,7 @@ class ProxyLogin:
 
 # Global Authorization pattern
 basic_authorization_pattern = None
+digest_authorization_pattern= None
 
 
 class HttpAuthHandler:
@@ -30,6 +31,8 @@ class HttpAuthHandler:
 
         global basic_authorization_pattern
         basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
+        global digest_authorization_pattern
+        digest_authorization_pattern = re.compile('Authorization: Digest username="(.*)"(.*)')
 
     def handleUDPPacket(self, ip_packet):
         # This handler does not process UDP packets; simply return
@@ -66,33 +69,25 @@ class HttpAuthHandler:
 
         # Now process HTTP traffic
         if http is not None:
-            authorization_credentials = False
-
             # Check to see if there are authorization credentials using Basic authorization
+            authorization_credentials = False
             if http.authorization is not None:
                 try:
-                    # Make sure basic authorization is matched
-                    auth_line = "Authorization: " + http.authorization
-                    match = basic_authorization_pattern.match(auth_line)
-                    if match:
-                        authorization_credentials = True
-                        print("Found authorization info in http request: ", flush=True)
-                        credentials = b64decode(match.group(1)).decode("ascii")
-                        print("Credentials: " + credentials, flush=True)
-                        username, password = credentials.split(":")
-
+                    username, password = self.getCredentials(http.authorization)
+                    authorization_credentials = username is not None
+                    if authorization_credentials:
                         # Only check for Default Credentials if it is in the config file
                         if "DEFAULT_CRED" in self.config["check_list"]:
-                            if username == self.config["default_username"] and password == self.config["default_password"]:
+                            if username == self.config["default_username"] and (password == self.config["default_password"] or password is None):
                                 self.log_default_creds(ip_packet.src)
-
-                        # Only process proxy auth if it is in the config file
-                        if self.config["proxy_auth_enabled"] == "on":
-                            self.process_auth_request(username, password)
 
                         # Only process multiple logins if it is in the config file
                         if "MULTIPLE_LOGIN" in self.config["check_list"]:
                             self.track_logins(ip_packet.src, username)
+
+                        # Only process proxy auth if it is in the config file
+                        if self.config["proxy_auth_enabled"] == "on":
+                            self.process_auth_request(tcp_packet, ip_packet, username, password)
 
                 except Exception as ex:
                     print("Exception processing credentials: " + str(ex), flush=True)
@@ -102,6 +97,31 @@ class HttpAuthHandler:
                 self.check_no_credentials(tcp_packet, ip_packet)
 
         return
+
+    def getCredentials(self, authorization):
+        username = None
+        password = None
+        try:
+            # Make sure basic or digest authorization is matched
+            auth_line = "Authorization: " + authorization
+            basic_match = basic_authorization_pattern.match(auth_line)
+            digest_match = digest_authorization_pattern.match(auth_line)
+            if basic_match or digest_match:
+                print("Found authorization info in http request: ", flush=True)
+
+                if basic_match:
+                    credentials = b64decode(basic_match.group(1)).decode("ascii")
+                    print("Credentials: " + credentials, flush=True)
+                    username, password = credentials.split(":")
+                else:
+                    username = digest_match.group(1)
+                    password = None
+                    print("Username: " + username, flush=True)
+        except Exception as ex:
+            print("Exception processing credentials: " + str(ex), flush=True)
+            traceback.print_exc()
+
+        return username, password
 
     def track_proxy(self, tcp_packet, ip_packet, http, packet_has_data):
         # Ignore all replies from the proxy authentication server
