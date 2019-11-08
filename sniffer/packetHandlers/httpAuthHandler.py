@@ -8,48 +8,48 @@ from networking.rawPacketHandling import build_response
 from base64 import b64decode
 
 
-class ProxyLogin:
+class LoginRequest:
+    def __init__(self, ip, user, max_attempts):
+        self.ip = ip
+        self.user = user
+        self.count = 1
+        self.delete = 0
+        self.attempt_times = [0] * max_attempts
+        self.attempt_times[0] = time.time()
 
+
+class ProxyLogin:
     def __init__(self):
         self.confirmed_login = False
         self.auth_time = time.time()
 
-# Global Authorization pattern
-basic_authorization_pattern = None
-digest_authorization_pattern= None
-
 
 class HttpAuthHandler:
-
     def __init__(self, config, logger, result):
         self.config = config["httpAuth"]
         self.logger = logger
         self.login_requests = {}
         self.result = result
-        self.proxy_logins = {}
         self.last_log_time = 0
 
-        global basic_authorization_pattern
-        basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
-        global digest_authorization_pattern
-        digest_authorization_pattern = re.compile('Authorization: Digest username="([^"]*)"(.*)')
+        self.proxy_logins = {}
+
+        self.basic_authorization_pattern = re.compile('Authorization: Basic (.*)')
+        self.digest_authorization_pattern = re.compile('Authorization: Digest username="([^"]*)"(.*)')
 
     def handleUDPPacket(self, ip_packet):
         # This handler does not process UDP packets; simply return
         return
 
     def handleTCPPacket(self, tcp_packet, ip_packet):
-
         # The first thing to do is confirm that we have something to check/proxy enabled, and return if not
         if not self.config["check_list"] and self.config["proxy_auth_enabled"] != "on":
             # Nothing to do; return
             return
 
-        # Empty TCP packets are only relevant to establishing connections; ignore for processing
-        packet_has_data = (len(tcp_packet.data) > 0)
-
         # For non-empty packets, check to see if they are valid HTTP requests
         http = None
+        packet_has_data = (len(tcp_packet.data) > 0)
         if packet_has_data:
             try:
                 http = HTTP(tcp_packet.data)
@@ -60,52 +60,48 @@ class HttpAuthHandler:
                       "Host: " + str(http.host) + "\n" +
                       "Authorization: " + str(http.authorization) + "\n")
             except Exception as ex:
+                # Non-HTTP packet with data was received.
                 #print("HTTP exception: " + str(ex), flush=True)
                 pass
 
-        # If proxy auth is enabled and there is data, process active logins and determine echoing
+        # Evaluate HTTP authentication requests.
+        if http and http.authorization:
+            try:
+                username, password = self.parse_credentials(http.authorization)
+                credentials_parsed = username is not None
+                if credentials_parsed:
+                    # Only check for Default Credentials if it is in the config file
+                    if "DEFAULT_CRED" in self.config["check_list"]:
+                        if username == self.config["default_username"] and (password == self.config["default_password"] or password is None):
+                            self.log_default_creds(ip_packet.src)
+
+                    # Only process multiple logins if it is in the config file
+                    if "MULTIPLE_LOGIN" in self.config["check_list"]:
+                        self.track_logins(ip_packet.src, username)
+
+                    # Only process proxy auth if it is in the config file
+                    if self.config["proxy_auth_enabled"] == "on":
+                        self.proxy_process_auth_request(tcp_packet, ip_packet, username, password)
+                else:
+                    print("Authorization header received, but credentials could not be parsed.")
+
+            except Exception as ex:
+                print("Exception processing credentials: " + str(ex), flush=True)
+                traceback.print_exc()
+
         if self.config["proxy_auth_enabled"] == "on":
-            self.track_proxy(tcp_packet, ip_packet, http, packet_has_data)
+            # If proxy is enabled, process which packets to pass through, and which replies to send back directly.
+            self.proxy_process_packet(http, tcp_packet, ip_packet)
 
-        # Now process HTTP traffic
-        if http is not None:
-            # Check to see if there are authorization credentials using Basic authorization
-            authorization_credentials = False
-            if http.authorization is not None:
-                try:
-                    username, password = self.getCredentials(http.authorization)
-                    authorization_credentials = username is not None
-                    if authorization_credentials:
-                        # Only check for Default Credentials if it is in the config file
-                        if "DEFAULT_CRED" in self.config["check_list"]:
-                            if username == self.config["default_username"] and (password == self.config["default_password"] or password is None):
-                                self.log_default_creds(ip_packet.src)
-
-                        # Only process multiple logins if it is in the config file
-                        if "MULTIPLE_LOGIN" in self.config["check_list"]:
-                            self.track_logins(ip_packet.src, username)
-
-                        # Only process proxy auth if it is in the config file
-                        if self.config["proxy_auth_enabled"] == "on":
-                            self.process_auth_request(tcp_packet, ip_packet, username, password)
-
-                except Exception as ex:
-                    print("Exception processing credentials: " + str(ex), flush=True)
-                    traceback.print_exc()
-
-            if self.config["proxy_auth_enabled"] == "on" and not authorization_credentials:
-                self.check_no_credentials(tcp_packet, ip_packet)
-
-        return
-
-    def getCredentials(self, authorization):
+    def parse_credentials(self, authorization_info):
+        """Obtain credential information from the authorization field value."""
         username = None
         password = None
         try:
             # Make sure basic or digest authorization is matched
-            auth_line = "Authorization: " + authorization
-            basic_match = basic_authorization_pattern.match(auth_line)
-            digest_match = digest_authorization_pattern.match(auth_line)
+            auth_line = "Authorization: " + authorization_info
+            basic_match = self.basic_authorization_pattern.match(auth_line)
+            digest_match = self.digest_authorization_pattern.match(auth_line)
             if basic_match or digest_match:
                 print("Found authorization info in http request: ", flush=True)
 
@@ -123,58 +119,8 @@ class HttpAuthHandler:
 
         return username, password
 
-    def track_proxy(self, tcp_packet, ip_packet, http, packet_has_data):
-        # Ignore all replies from the proxy authentication server
-        if tcp_packet.src_port == self.config["proxy_auth_port"]:
-            pass
-        # See if there's an active proxy login for this IP
-        elif ip_packet.src in self.proxy_logins:
-            # If the current IP is not yet confirmed, check timer window
-            if self.proxy_logins[ip_packet.src].confirmed_login is False:
-                # If the timer window has not elapsed, confirm
-                if time.time() - self.proxy_logins[ip_packet.src].auth_time <= self.config["proxy_auth_login_timer"]:
-                    # TCP packet sent within timer window; confirm this connection
-                    self.proxy_logins[ip_packet.src].confirmed_login = True
-                    print("Successful proxy login confirmation from " + str(ip_packet.src), flush=True)
-                else:
-                    # TCP packet NOT sent within timer window; therefore cancel this authorization/disable echoing;
-                    # TBD: log the packet that missed the timer(?)
-                    del self.proxy_logins[ip_packet.src]
-                    self.result.echo_decision = False
-                    print("Proxy login timed out; no TCP packet received within " + str(self.config["proxy_auth_login_timer"]) + " sec from " + str(ip_packet.src), flush=True)
-            # Proxy login is confirmed; see if configured timeout window has elapsed
-            elif time.time() - self.proxy_logins[ip_packet.src].auth_time > self.config["proxy_auth_timeout"]:
-                # Proxy Auth timeout has been exceeded; kill the active login/disable echoing;
-                # TBD: log the packet that timed out the connection(?)
-                del self.proxy_logins[ip_packet.src]
-                self.result.echo_decision = False
-                print("Confirmed proxy login timed out after " + str(self.config["proxy_auth_timeout"]) + " sec for " + str(ip_packet.src), flush=True)
-            # Confirmed proxy login that hasn't timed out; traffic is authorized and can be passed on
-            else:
-                # TBD: Add logs/printouts as necessary
-                pass
-        # No active proxy login; if this is a non-HTTP packet with data and the NON_HTTP check is enabled, flag it and disable echoing
-        elif packet_has_data and http is None and "NON_HTTP" in self.config["check_list"]:
-            msg = "NON_HTTP: Non HTTP TCP traffic received without proxy auth completed, from " + str(ip_packet.src)
-            self.logger.warning(msg)
-            print(msg)
-            self.result.issues_found.append("NON_HTTP")
-            self.result.echo_decision = False
-            print("Non-HTTP traffic sent from " + str(ip_packet.src) + " without proxy login", flush=True)
-        # All other cases where a non-confirmed IP address sends a TCP packet with data; disable echoing
-        elif packet_has_data:
-            self.result.echo_decision = False
-            #print("Denying echo of TCP packet that has HTTP data without proxy login, may however be successful login request; processing", flush=True)
-        # Now process tcp connection requests on the configured port; requires a TCP packet with SYN set and ACK cleared
-        elif tcp_packet.flag_syn is True and tcp_packet.flag_ack is False and tcp_packet.dest_port == self.config["proxy_auth_port"]:
-            # TCP connection request received on the configured port. This could be a login request, allow to pass through
-            print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
-
-            # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
-            self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
-
-    def process_auth_request(self, tcp_packet, ip_packet, username, password):
-        # Process a new auth request from the current IP, as long as it isn't the proxy auth server, and at the configured port
+    def proxy_process_auth_request(self, tcp_packet, ip_packet, username, password):
+        """Process a new auth request from the current IP"""
         if ip_packet.src not in self.proxy_logins and tcp_packet.dest_port == self.config["proxy_auth_port"]:
             # Check against the proper credentials
             if username == self.config["proxy_auth_username"] and password == self.config["proxy_auth_password"]:
@@ -188,38 +134,77 @@ class HttpAuthHandler:
                             "WWW-Authenticate: Basic \r\n" +
                             "Connection: close \r\n\r\n")
                 build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
-            else:
-                # Failed login; respond with HTTP error and log if enabled
-                if "FAILED_AUTH" in self.config["check_list"]:
-                    msg = "FAILED_AUTH: HTTP request with incorrect authentication credentials, with proxy auth enabled; from " + str(ip_packet.src)
-                    self.logger.warning(msg)
-                    print(msg)
-                    self.result.issues_found.append("FAILED_AUTH")
 
-                # Build a custom HTTP response to the failed login
-                response = ("HTTP/1.1 403 Forbidden \r\n" +
-                            "WWW-Authenticate: Basic \r\n" +
-                            "Connection: close \r\n\r\n")
-                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+    def proxy_queue_unauthorized_reply(self, tcp_packet, ip_packet):
+        """Builds and queues an Unauthorized HTTP reply, logging this too if needed."""
+        # Only log the error if in check list
+        if "FAILED_AUTH" in self.config["check_list"]:
+            # Log/Report NO_AUTH error
+            msg = "FAILED_AUTH: HTTP request without authentication or with invalid credentials with proxy auth enabled from " + str(ip_packet.src)
+            self.logger.warning(msg)
+            print(msg)
+            self.result.issues_found.append("FAILED_AUTH")
 
-    def check_no_credentials(self, tcp_packet, ip_packet):
-        # If no http basic credentials provided (or exception), proxy auth is enabled, and there is no successful login, log & respond
+        # Build a custom HTTP response to the lack of or invalidity of login credentials
+        response = ("HTTP/1.1 401 Unauthorized \r\n" +
+                    "WWW-Authenticate: Basic \r\n" +
+                    "Connection: close \r\n\r\n")
+        build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+
+    def proxy_process_packet(self, http, tcp_packet, ip_packet):
+        # See if there's an active proxy login for this IP.
+        if ip_packet.src in self.proxy_logins:
+            # Check and apply timeouts if needed, drop packet if timed out.
+            self.result.echo_decision = self.proxy_check_auth_timeouts(ip_packet)
+
+        # Handle IP that is not currently logged in successfully.
         if ip_packet.src not in self.proxy_logins:
-            # Only log the error if in check list
-            if "NO_AUTH" in self.config["check_list"]:
-                # Log/Report NO_AUTH error
-                msg = "NO_AUTH: HTTP request without authentication credentials with proxy auth enabled from " + str(ip_packet.src)
-                self.logger.warning(msg)
-                print(msg)
-                self.result.issues_found.append("NO_AUTH")
+            # A non-confirmed IP address sent a TCP packet; they won't be passed through.
+            self.result.echo_decision = False
 
-            # Build a custom HTTP response to the lack of login credentials
-            response = ("HTTP/1.1 401 Unauthorized \r\n" +
-                        "WWW-Authenticate: Basic \r\n" +
-                        "Connection: close \r\n\r\n")
-            build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+            if http:
+                # HTTP messages while not logged in will get an unauthorized reply.
+                self.proxy_queue_unauthorized_reply(tcp_packet, ip_packet)
+            else:
+                # TCP connection requests can be HTTP login connection attempts if sent to proxy port; reply to the directly.
+                if tcp_packet.flag_syn and not tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+                    # TCP connection request received on the configured port. This could be a login request.
+                    print("TCP connection SYN message received at configured port " + str(self.config["proxy_auth_port"]), flush=True)
+
+                    # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
+                    self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
+
+    def proxy_check_auth_timeouts(self, ip_packet):
+        """Check if initial timeout to wait for first packet after auth has elapsed, or if timeout for auth has elapsed as well."""
+        # If the current IP is not yet confirmed, check timer window
+        time_since_auth = time.time() - self.proxy_logins[ip_packet.src].auth_time
+        if self.proxy_logins[ip_packet.src].confirmed_login is False:
+            # If the timer window has not elapsed, confirm
+            if time_since_auth <= self.config["proxy_auth_login_timer"]:
+                # TCP packet sent within timer window; confirm this connection
+                self.proxy_logins[ip_packet.src].confirmed_login = True
+                print("Successful proxy login confirmation from " + str(ip_packet.src), flush=True)
+                return True
+            else:
+                # TCP packet NOT sent within timer window; therefore cancel this authorization/disable echoing;
+                # TBD: log the packet that missed the timer(?)
+                del self.proxy_logins[ip_packet.src]
+                print("Proxy login timed out; no TCP packet received within " + str(self.config["proxy_auth_login_timer"]) + " sec from " + str(ip_packet.src), flush=True)
+                return False
+        # Proxy login is confirmed; see if configured timeout window has elapsed
+        else:
+            if time_since_auth <= self.config["proxy_auth_timeout"]:
+                # Auth has not timed out yet; nothing to do.
+                return True
+            else:
+                # Proxy Auth timeout has been exceeded; kill the active login/disable echoing;
+                # TBD: log the packet that timed out the connection(?)
+                del self.proxy_logins[ip_packet.src]
+                print("Confirmed proxy login timed out after " + str(self.config["proxy_auth_timeout"]) + " sec for " + str(ip_packet.src), flush=True)
+                return False
 
     def track_logins(self, ip, user_name):
+        """Track loging attempts, and log that if needed."""
         key = hash(str(ip) + user_name)
         if key not in self.login_requests.keys():
             login_request = LoginRequest(ip, user_name, self.config["max_attempts"])
@@ -258,13 +243,3 @@ class HttpAuthHandler:
         self.logger.warning(msg)
         print(msg)
         self.result.issues_found.append("DEFAULT_CRED")
-
-
-class LoginRequest:
-    def __init__(self, ip, user, max_attempts):
-        self.ip = ip
-        self.user = user
-        self.count = 1
-        self.delete = 0
-        self.attempt_times = [0] * max_attempts
-        self.attempt_times[0] = time.time()

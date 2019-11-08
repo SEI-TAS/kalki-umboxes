@@ -14,9 +14,7 @@
     "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
     "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
     "COMPROMISE": ["ALERT", "EMAIL"],
-    "NO_AUTH": ["ALERT"],
     "FAILED_AUTH": ["ALERT", "EMAIL"],
-    "NON_HTTP": ["ALERT"]
   },
 
   "emailConfig": {
@@ -41,7 +39,7 @@
     "logging_timeout": 60,
     "default_username": "username",
     "default_password": "password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "FAILED_AUTH"]
   },
 
   "phillipsHue": {
