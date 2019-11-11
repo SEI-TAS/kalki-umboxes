@@ -56,6 +56,9 @@
     "logging_timeout": 60,
     "check_list": ["BRUTE_FORCE", "COMPROMISE"],
     "compromise_threshold": 5,
+    "compromise_allowed_ports": [22],
+    "compromise_tcp": "on",
+    "compromise_udp": "on",
     "iot_subnet": "10.27.151",
     "external_subnet": "10.27.152"
   }
