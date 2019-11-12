@@ -13,9 +13,9 @@ class IpConnectionsHandler:
         self.tcp_compromise_count = 0
 
     def handleTCPPacket(self, tcp_packet, ip_packet):
-        # Track all connection requests
-        if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
-            self.trackConnection(ip_packet.src)
+        # Only check for Brute Force if it is in the config file
+        if "BRUTE_FORCE" in self.config["check_list"]:
+            self.trackConnection(tcp_packet, ip_packet.src)
 
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"] and self.config["compromise_tcp"] == "on":
@@ -27,6 +27,26 @@ class IpConnectionsHandler:
         # Only check for Compromise if it is in the config file
         if "COMPROMISE" in self.config["check_list"] and self.config["compromise_udp"] == "on":
             self.checkCompromise(ip_packet, None)
+
+    def trackConnection(self, tcp_packet, ip):
+        # Track all connection requests
+        if tcp_packet.flag_syn == 1 and tcp_packet.flag_ack == 0:
+            if ip not in self.connections.keys():
+                connection_times = []
+                self.connections[ip] = connection_times
+            else:
+                connection_times = self.connections[ip]
+
+            current_attempt_time = time.time()
+            connection_times.append(current_attempt_time)
+
+            if len(connection_times) >= self.config["max_attempts"]:
+                seconds_from_first_attempt = (current_attempt_time - connection_times[0])
+                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
+                    self.logBruteForce(ip)
+
+                # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
+                connection_times.pop(0)
 
     def checkCompromise(self, ip_packet, tcp_port):
         # Only consider packets coming from the IoT device, which means the source is the IoT subnet
@@ -44,27 +64,6 @@ class IpConnectionsHandler:
                     # Check compromise threshold
                     if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
                         self.logCompromise(ip_packet.src)
-
-    def trackConnection(self, ip):
-        if ip not in self.connections.keys():
-            connection_times = []
-            self.connections[ip] = connection_times
-        else:
-            connection_times = self.connections[ip]
-        
-        current_attempt_time = time.time()
-        connection_times.append(current_attempt_time)
-
-        if len(connection_times) >= self.config["max_attempts"]:
-            seconds_from_first_attempt = (current_attempt_time - connection_times[0])
-
-            # Only check for Brute Force if it is in the config file
-            if "BRUTE_FORCE" in self.config["check_list"]:
-                if seconds_from_first_attempt < self.config["max_attempts_interval_secs"]:
-                    self.logBruteForce(ip)
-                
-            # If we've reached the max attempts, trim the first one and keep the other N-1 ones for future checks
-            connection_times.pop(0)
 
     def logBruteForce(self, ip):
         current_time = time.time()
