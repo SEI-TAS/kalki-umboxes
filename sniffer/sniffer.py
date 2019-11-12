@@ -59,6 +59,15 @@ def load_config():
     return config
 
 
+def bind_raw_socket(nic, action, nic_type):
+    raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
+    raw_socket.bind((nic, 0))
+    print("{} on raw socket on interface {}...".format(action, nic), flush=True)
+    nic_mac = netifaces.ifaddresses(nic)[netifaces.AF_LINK][0]['addr']
+    print("Local MAC on {} NIC is {}\n".format(nic_type, nic_mac), flush=True)
+    return raw_socket
+
+
 def main():
     global logger
     logger = setup_custom_logger("main", LOG_FILE_PATH)
@@ -98,23 +107,9 @@ def main():
     else:
         print("Initializing handlers {}".format(handlers), flush=True)
 
-    incoming = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    incoming.bind((config["incomingNIC"], 0))
-    print("Listening on raw socket on interface {}...".format(config["incomingNIC"]), flush=True)
-    incoming_nic_mac = netifaces.ifaddresses(config["incomingNIC"])[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on incoming NIC is {}\n".format(incoming_nic_mac), flush=True)
-
-    outgoing = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    outgoing.bind((config["outgoingNIC"], 0))
-    print("Echoing back on raw socket on interface {}...".format(config["outgoingNIC"]), flush=True)
-    outgoing_nic_mac = netifaces.ifaddresses(config["outgoingNIC"])[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on outgoing NIC is {}\n".format(outgoing_nic_mac), flush=True)
-
-    direct = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    direct.bind((config["directNIC"], 0))
-    print("Echoing back on raw socket on interface {}...".format(config["directNIC"]), flush=True)
-    direct_nic_mac = netifaces.ifaddresses(config["directNIC"])[netifaces.AF_LINK][0]['addr']
-    print("Local MAC on direct NIC is {}\n".format(direct_nic_mac), flush=True)
+    incoming = bind_raw_socket(config["incomingNIC"], "Listening", "incoming")
+    outgoing = bind_raw_socket(config["outgoingNIC"], "Echoing back", "outgoing")
+    direct = bind_raw_socket(config["directNIC"], "Echoing back direct packets", "direct")
 
     last_data = None
     last_echo = None
