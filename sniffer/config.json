@@ -50,7 +50,7 @@
     "check_list": ["BRUTE_FORCE"]
   },
 
-  "udooNeo": {
+  "ipConnections": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
     "logging_timeout": 60,

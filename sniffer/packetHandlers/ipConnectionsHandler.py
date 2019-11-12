@@ -1,10 +1,10 @@
 import time
 
 
-class UdooNeoHandler:
+class IpConnectionsHandler:
 
     def __init__(self, config, logger, result):
-        self.config = config["udooNeo"]
+        self.config = config["ipConnections"]
         self.logger = logger
         self.connections = {}
         self.last_log_time = 0

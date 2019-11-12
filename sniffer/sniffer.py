@@ -20,7 +20,7 @@ from networking.tcp import TCP
 
 from packetHandlers.httpAuthHandler import HttpAuthHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
-from packetHandlers.udooNeoHandler import UdooNeoHandler
+from packetHandlers.ipConnectionsHandler import IpConnectionsHandler
 
 # Internal parameters.
 LOG_FILE_PATH = "sniffer.log"
@@ -239,8 +239,8 @@ def main():
             handlers.append(HttpAuthHandler(config, logger, combined_results))
         elif handler_name == "phillipsHue":
             handlers.append(PhillipsHueHandler(config, logger, combined_results))
-        elif handler_name == "udooNeo":
-            handlers.append(UdooNeoHandler(config, logger, combined_results))
+        elif handler_name == "ipConnections":
+            handlers.append(IpConnectionsHandler(config, logger, combined_results))
         else:
             print("Invalid handler name {} in config file".format(handler_name), flush=True)
     if len(handlers) == 0:
