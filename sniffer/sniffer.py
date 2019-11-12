@@ -138,7 +138,6 @@ def send_email(email_server, source_address, destination_address, email_subject,
     del msg
 
 
-
 def logPacketStatistics(ip_packet, log_interval, logger):
     # Log the current packet to the total stats
     packet_stats_total.packet_count += 1
@@ -178,7 +177,7 @@ def logPacketStatistics(ip_packet, log_interval, logger):
 
     # Now log based on timer
     global packet_stats_last_log_time
-    if  time.time() - packet_stats_last_log_time > log_interval:
+    if time.time() - packet_stats_last_log_time > log_interval:
         msg = "LOG_INFO: Packet stats total: {} tcp: {} udp: {} other: {}".format(packet_stats_total.packet_count, packet_stats_total.tcp_count, packet_stats_total.udp_count, packet_stats_total.other_count)
         logger.warning(msg)
         for sender_ip in packet_stats_senders:
@@ -338,10 +337,6 @@ def main():
             for message in combined_results.direct_messages_to_send:
                 print("Sending response message!")
                 direct.send(message)
-
-            # Send any messages from the configured port (assumed to be responses from the proxy Python server) through the direct NIC
-            if "httpAuth" in handler_names and config["httpAuth"]["proxy_auth_enabled"] == "on" and tcp.src_port == config["httpAuth"]["proxy_auth_port"]:
-                direct.send(raw_data)
 
             # Do stat logging if enabled
             if config["stat_logging"] == "on":
