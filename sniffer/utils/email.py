@@ -13,6 +13,7 @@ class EmailServer:
         email_server_address = config["email_server_address"]
         email_server_port = config["email_server_port"]
         self.email_source_address = config["email_source_address"]
+        self.destination_address_list = config["email_destination_address_list"]
 
         # Check to see if the server needs to be logged into
         if config["email_server_login"] == "on":
@@ -63,6 +64,10 @@ class EmailServer:
 
         print("Failed to connect to " + host + ":" + port + ".  Email unavailable.", flush=True)
         return None
+
+    def send_emails(self, email_subject, email_body):
+        for destination_address in self.destination_address_list:
+            self.send_email(destination_address, email_subject, email_body)
 
     def send_email(self, destination_address, email_subject, email_body):
         # Make sure the email server is connected

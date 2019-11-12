@@ -11,7 +11,6 @@ class PacketStats:
 
 
 class StatLogger:
-    # Global stats map
     logger = None
     stat_interval = 0
     packet_stats_total = None

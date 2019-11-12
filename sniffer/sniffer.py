@@ -101,21 +101,18 @@ def main():
     incoming = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     incoming.bind((config["incomingNIC"], 0))
     print("Listening on raw socket on interface {}...".format(config["incomingNIC"]), flush=True)
-
     incoming_nic_mac = netifaces.ifaddresses(config["incomingNIC"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on incoming NIC is {}\n".format(incoming_nic_mac), flush=True)
 
     outgoing = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     outgoing.bind((config["outgoingNIC"], 0))
     print("Echoing back on raw socket on interface {}...".format(config["outgoingNIC"]), flush=True)
-
     outgoing_nic_mac = netifaces.ifaddresses(config["outgoingNIC"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on outgoing NIC is {}\n".format(outgoing_nic_mac), flush=True)
 
     direct = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
     direct.bind((config["directNIC"], 0))
     print("Echoing back on raw socket on interface {}...".format(config["directNIC"]), flush=True)
-
     direct_nic_mac = netifaces.ifaddresses(config["directNIC"])[netifaces.AF_LINK][0]['addr']
     print("Local MAC on direct NIC is {}\n".format(direct_nic_mac), flush=True)
 
@@ -152,7 +149,6 @@ def main():
                 # Filter SSH packets as necessary; primarily during test
                 #if tcp.src_port == 22 or tcp.dest_port == 22:
                     #continue
-
                 #print("INCOMING: TCP packet found with macs {}|{}, src {}:{}, dest {}:{}, syn {}, ack {}, seq # {}, ack # {} ... data: [{}]".format(eth.src_mac, eth.dest_mac, ipv4.src, tcp.src_port, ipv4.target, tcp.dest_port, tcp.flag_syn, tcp.flag_ack, tcp.sequence, tcp.acknowledgment, tcp.data), flush=True)
 
                 for handler in handlers:
@@ -177,8 +173,7 @@ def main():
                     if action == "ALERT":
                         print("ALERT: " + result + " detected!", flush=True)
                     elif action == "EMAIL" and email_on:
-                        for destination_address in config["emailConfig"]["email_destination_address_list"]:
-                            email_server.send_email(destination_address, 'Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
+                        email_server.send_emails('Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
                     elif action == "BLACKLIST":
                         print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)
                         restricted_list.append(ipv4.src)
@@ -192,7 +187,7 @@ def main():
             if stat_logging_on:
                 stat_logger.log_packet_statistics(ipv4)
 
-        # Only echo packet if echo is on and src IP is not restricted
+        # Only echo packet if it is IPv4, echo is on, src IP is not restricted, no handler asked to drop, and we are not repeating data.
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             try:
                 outgoing.send(raw_data)
