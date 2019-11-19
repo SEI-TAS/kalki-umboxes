@@ -5,6 +5,8 @@ class IpConnectionsHandler:
 
     def __init__(self, config, logger, result):
         self.config = config["ipConnections"]
+        self.config["iot_subnet"] = config["iot_subnet"]
+        self.config["external_subnet"] = config["external_subnet"]
         self.logger = logger
         self.connections = {}
         self.last_log_time = 0

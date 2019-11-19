@@ -4,8 +4,14 @@ import traceback
 
 from networking.http import HTTP
 from networking.rawPacketHandling import build_tcp_syn_ack
-from networking.rawPacketHandling import build_response
+from networking.rawPacketHandling import build_tcp_response
+from networking.rawPacketHandling import build_tcp_ack
 from base64 import b64decode
+
+# Stock HTTP Responses
+HTTP_OK_RESPONSE = 'HTTP/1.0 200 OK\r\n'
+HTTP_SERVER_DEFAULT_RESPONSE = 'Server: SimpleHTTP/0.6 Python/2.7.12\r\nDate: Mon, 18 Nov 2019 21:46:16 GMT\r\nContent-type: text/html; charset=UTF-8\r\nContent-Length: 178\r\n\r\n<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html>\n<title>Directory listing for /</title>\n<body>\n<h2>Directory listing for /</h2>\n<hr>\n<ul>\n</ul>\n<hr>\n</body>\n</html>\n'
+HTTP_UNAUTH_RESPONSE = 'HTTP/1.0 401 Unauthorized\r\n'
 
 
 class LoginRequest:
@@ -27,6 +33,8 @@ class ProxyLogin:
 class HttpAuthHandler:
     def __init__(self, config, logger, result):
         self.config = config["httpAuth"]
+        self.config["iot_subnet"] = config["iot_subnet"]
+        self.config["external_subnet"] = config["external_subnet"]
         self.logger = logger
         self.login_requests = {}
         self.result = result
@@ -65,6 +73,7 @@ class HttpAuthHandler:
                 pass
 
         # Evaluate HTTP authentication requests.
+        successful_proxy_auth = False
         if http and http.authorization:
             try:
                 username, password = self.parse_credentials(http.authorization)
@@ -79,9 +88,9 @@ class HttpAuthHandler:
                     if "MULTIPLE_LOGIN" in self.config["check_list"]:
                         self.track_logins(ip_packet.src, username)
 
-                    # Only process proxy auth if it is in the config file
-                    if self.config["proxy_auth_enabled"] == "on":
-                        self.proxy_process_auth_request(tcp_packet, ip_packet, username, password)
+                    # Only process proxy auth if it is in the config file and not from the IoT device
+                    if self.config["proxy_auth_enabled"] == "on" and ip_packet.src.find(self.config["iot_subnet"]) == -1:
+                        successful_proxy_auth = self.proxy_process_auth_request(tcp_packet, ip_packet, username, password)
                 else:
                     print("Authorization header received, but credentials could not be parsed.")
 
@@ -89,8 +98,9 @@ class HttpAuthHandler:
                 print("Exception processing credentials: " + str(ex), flush=True)
                 traceback.print_exc()
 
-        if self.config["proxy_auth_enabled"] == "on":
-            # If proxy is enabled, process which packets to pass through, and which replies to send back directly.
+        if self.config["proxy_auth_enabled"] == "on" and ip_packet.src.find(self.config["iot_subnet"]) == -1 and not successful_proxy_auth:
+            # If proxy is enabled, process which external packets to pass through, and which replies to send back directly.
+            # Packets from the IoT subnet are always ignored by the proxy.
             self.proxy_process_packet(http, tcp_packet, ip_packet)
 
     def parse_credentials(self, authorization_info):
@@ -129,11 +139,28 @@ class HttpAuthHandler:
                 new_login = ProxyLogin()
                 self.proxy_logins[ip_packet.src] = new_login
 
-                # Build a custom HTTP response to the successful login
-                response = ("HTTP/1.1 200 OK \r\n" +
-                            "WWW-Authenticate: Basic \r\n" +
-                            "Connection: close \r\n\r\n")
-                build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+                # First, acknowledge the HTTP message.
+                acknowledgement = build_tcp_ack(ip_packet, tcp_packet, False)
+
+                # Second, construct an OK response to send.
+                response_content = HTTP_OK_RESPONSE
+                response = build_tcp_response(response_content, ip_packet, tcp_packet, False)
+
+                # Third, construct a dummy Curl content response (TBD: this would have to be different if not a GET command)
+                # This response should be flagged as a fin to close the connection
+                dummy_content = HTTP_SERVER_DEFAULT_RESPONSE
+                dummy = build_tcp_response(dummy_content, ip_packet, tcp_packet, True)
+
+                # Finally, queue all 3 messages for responding directly
+                self.result.direct_messages_to_send.append(acknowledgement)
+                self.result.direct_messages_to_send.append(response)
+                self.result.direct_messages_to_send.append(dummy)
+
+                # Return true to ensure this packet is not evaluated for proxy confirmation
+                return True
+
+        # All other cases, return False ot ensure the packet is evaluated for proxy confirmation
+        return False
 
     def proxy_queue_unauthorized_reply(self, tcp_packet, ip_packet):
         """Builds and queues an Unauthorized HTTP reply, logging this too if needed."""
@@ -145,17 +172,32 @@ class HttpAuthHandler:
             print(msg)
             self.result.issues_found.append("FAILED_AUTH")
 
+        # First, acknowledge the HTTP message.
+        acknowledgement = build_tcp_ack(ip_packet, tcp_packet, False)
+
+        # Second, construct an Unauthorized response to send.  Set as fin to close the connection.
+        response_content = HTTP_UNAUTH_RESPONSE
+        response = build_tcp_response(response_content, ip_packet, tcp_packet, True)
+
+        # Finally, queue both messages for responding directly
+        self.result.direct_messages_to_send.append(acknowledgement)
+        self.result.direct_messages_to_send.append(response)
+
         # Build a custom HTTP response to the lack of or invalidity of login credentials
-        response = ("HTTP/1.1 401 Unauthorized \r\n" +
-                    "WWW-Authenticate: Basic \r\n" +
-                    "Connection: close \r\n\r\n")
-        build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
+        #response = ("HTTP/1.1 401 Unauthorized \r\n" +
+         #           "WWW-Authenticate: Basic \r\n" +
+          #          "Connection: close \r\n\r\n")
+        #build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
 
     def proxy_process_packet(self, http, tcp_packet, ip_packet):
-        # See if there's an active proxy login for this IP.
+        # See if there's an active proxy login for this IP
         if ip_packet.src in self.proxy_logins:
+            # if this is a simple ack packet from the remote client, ignore
+            if not http and tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"] and len(tcp_packet.data) == 0:
+                pass
             # Check and apply timeouts if needed, drop packet if timed out.
-            self.result.echo_decision = self.proxy_check_auth_timeouts(ip_packet)
+            else:
+                self.result.echo_decision = self.proxy_check_auth_timeouts(ip_packet)
 
         # Handle IP that is not currently logged in successfully.
         if ip_packet.src not in self.proxy_logins:
@@ -173,6 +215,12 @@ class HttpAuthHandler:
 
                     # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
                     self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
+
+        # Handle any close connection (TCP FIN messages) from the remote client
+        if not http and tcp_packet.flag_ack and tcp_packet.flag_fin and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+            # Constuct the fin acknowledgement message and queue for responding directly
+            acknowledgement = build_tcp_ack(ip_packet, tcp_packet, True)
+            self.result.direct_messages_to_send.append(acknowledgement)
 
     def proxy_check_auth_timeouts(self, ip_packet):
         """Check if initial timeout to wait for first packet after auth has elapsed, or if timeout for auth has elapsed as well."""
