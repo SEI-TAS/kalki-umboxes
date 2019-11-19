@@ -8,6 +8,8 @@
   "stat_logging": "off",
   "stat_interval": 3600,
   "restrictedIPs": [],
+  "iot_subnet": "10.27.151",
+  "external_subnet": "10.27.152",
 
   "action_list": {
     "MULTIPLE_LOGIN": ["ALERT"],
