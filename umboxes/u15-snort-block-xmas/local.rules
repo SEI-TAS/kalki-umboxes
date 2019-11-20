@@ -1,0 +1,2 @@
+alert tcp any any -> $HOME_NET any (msg:"XMAS Scan"; flags:FPU; sid:10000003; rev:1;)
+drop tcp any any -> $HOME_NET any (msg:"XMAS Scan"; flags:FPU; sid:10000003; rev:1;)
