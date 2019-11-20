@@ -179,7 +179,7 @@ def main():
                 print("Sending response message!")
                 #deth = Ethernet(message)
                 #dipv4 = IPv4(deth.data)
-                #dtcp = TCP(dipv4, deth)
+                #dtcp = TCP(dipv4.data, deth)
                 #print("OUTGOING DIRECT: TCP packet sent with src {}:{}, dest {}:{}, header len {}, packet len {}, syn {}, ack {}, rst {}, fin {}, seq {}, ack {} ... data: [{}]".format(dipv4.src, dtcp.src_port, dipv4.total_packet_length, len(deth.data), dipv4.target, dtcp.dest_port, dtcp.flag_syn, dtcp.flag_ack, dtcp.flag_rst, dtcp.flag_fin, dtcp.sequence, dtcp.acknowledgment, dtcp.data), flush=True)
                 direct.send(message)
 
