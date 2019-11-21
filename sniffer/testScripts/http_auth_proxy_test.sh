@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Information configred in the auth proxy.
+# Information configured in the auth proxy.
 PROXY_PORT=9010
 RIGHT_USER=kuser
 RIGHT_PASS=kpass
