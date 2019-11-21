@@ -9,13 +9,17 @@ export http_proxy='';
 
 OPTION=$1
 
-if ["$OPTION" == "API"]; then
+# Test code to verify command line processing
+
+if [ "$OPTION" = "API" ]; then
     # API call.
     curl -s -o /dev/null -w "Status: %{http_code}\n" http://${DEVICE_IP}:${DEVICE_PORT}/
-elif ["$OPTION" == "WRONG"]; then
+elif [ "$OPTION" = "WRONG" ]; then
     # Wrong credentials.
     curl -s -o /dev/null -w "Status: %{http_code}\n" -u Wrong:Wrong http://${DEVICE_IP}:${PROXY_PORT}/
-elif ["$OPTION" == "RIGHT"]; then
+elif [ "$OPTION" = "RIGHT" ]; then
     # Appropriate credentials.
     curl -s -o /dev/null -w "Status: %{http_code}\n" -u ${USER}:${PASS} http://${DEVICE_IP}:${PROXY_PORT}/
 fi
+
+
