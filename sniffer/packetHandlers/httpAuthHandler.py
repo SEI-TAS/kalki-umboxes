@@ -89,7 +89,7 @@ class HttpAuthHandler:
                         self.track_logins(ip_packet.src, username)
 
                     # Only process proxy auth if it is in the config file and not from the IoT device
-                    if self.config["proxy_auth_enabled"] == "on" and ip_packet.src.find(self.config["iot_subnet"]) == -1:
+                    if self.config["proxy_auth_enabled"] == "on":
                         successful_proxy_auth = self.proxy_process_auth_request(tcp_packet, ip_packet, username, password)
                 else:
                     print("Authorization header received, but credentials could not be parsed.")
@@ -186,17 +186,11 @@ class HttpAuthHandler:
         self.result.direct_messages_to_send.append(acknowledgement)
         self.result.direct_messages_to_send.append(response)
 
-        # Build a custom HTTP response to the lack of or invalidity of login credentials
-        #response = ("HTTP/1.1 401 Unauthorized \r\n" +
-         #           "WWW-Authenticate: Basic \r\n" +
-          #          "Connection: close \r\n\r\n")
-        #build_response(response, ip_packet, tcp_packet, self.result.direct_messages_to_send)
-
     def proxy_process_packet(self, http, tcp_packet, ip_packet):
         # See if there's an active proxy login for this IP
         if ip_packet.src in self.proxy_logins:
             # if this is one of the ack packets from the remote client, ignore and do not forward
-            if ip_packet.src.find(self.config["iot_subnet"]) == -1 and tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+            if tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"]:
                 self.result.echo_decision = False
             # Check and apply timeouts if needed, drop packet if timed out.
             else:
