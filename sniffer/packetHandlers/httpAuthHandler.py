@@ -102,6 +102,9 @@ class HttpAuthHandler:
             # If proxy is enabled, process which external packets to pass through, and which replies to send back directly.
             # Packets from the IoT subnet are always ignored by the proxy.
             self.proxy_process_packet(http, tcp_packet, ip_packet)
+        elif successful_proxy_auth:
+            # If this is the packet that successfully caused login, do not echo it
+            self.result.echo_decision = False
 
     def parse_credentials(self, authorization_info):
         """Obtain credential information from the authorization field value."""
@@ -144,12 +147,12 @@ class HttpAuthHandler:
 
                 # Second, construct an OK response to send.
                 response_content = HTTP_OK_RESPONSE
-                response = build_tcp_response(response_content, ip_packet, tcp_packet, False)
+                response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, 0)
 
                 # Third, construct a dummy Curl content response (TBD: this would have to be different if not a GET command)
                 # This response should be flagged as a fin to close the connection
                 dummy_content = HTTP_SERVER_DEFAULT_RESPONSE
-                dummy = build_tcp_response(dummy_content, ip_packet, tcp_packet, True)
+                dummy, dummy_len = build_tcp_response(dummy_content, ip_packet, tcp_packet, True, response_len)
 
                 # Finally, queue all 3 messages for responding directly
                 self.result.direct_messages_to_send.append(acknowledgement)
@@ -177,7 +180,7 @@ class HttpAuthHandler:
 
         # Second, construct an Unauthorized response to send.  Set as fin to close the connection.
         response_content = HTTP_UNAUTH_RESPONSE
-        response = build_tcp_response(response_content, ip_packet, tcp_packet, True)
+        response, data_len = build_tcp_response(response_content, ip_packet, tcp_packet, True, 0)
 
         # Finally, queue both messages for responding directly
         self.result.direct_messages_to_send.append(acknowledgement)
@@ -192,9 +195,9 @@ class HttpAuthHandler:
     def proxy_process_packet(self, http, tcp_packet, ip_packet):
         # See if there's an active proxy login for this IP
         if ip_packet.src in self.proxy_logins:
-            # if this is a simple ack packet from the remote client, ignore
-            if not http and tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"] and len(tcp_packet.data) == 0:
-                pass
+            # if this is one of the ack packets from the remote client, ignore and do not forward
+            if ip_packet.src.find(self.config["iot_subnet"]) == -1 and tcp_packet.flag_ack and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+                self.result.echo_decision = False
             # Check and apply timeouts if needed, drop packet if timed out.
             else:
                 self.result.echo_decision = self.proxy_check_auth_timeouts(ip_packet)
@@ -217,7 +220,7 @@ class HttpAuthHandler:
                     self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
 
         # Handle any close connection (TCP FIN messages) from the remote client
-        if not http and tcp_packet.flag_ack and tcp_packet.flag_fin and tcp_packet.dest_port == self.config["proxy_auth_port"]:
+        if tcp_packet.flag_ack and tcp_packet.flag_fin and tcp_packet.dest_port == self.config["proxy_auth_port"]:
             # Constuct the fin acknowledgement message and queue for responding directly
             acknowledgement = build_tcp_ack(ip_packet, tcp_packet, True)
             self.result.direct_messages_to_send.append(acknowledgement)

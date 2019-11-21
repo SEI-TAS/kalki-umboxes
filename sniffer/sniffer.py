@@ -135,7 +135,7 @@ def main():
         # Ignore non-IPv4 packets
         if eth.proto == 8:  # IPv4
             ipv4 = IPv4(eth.data)
-            #print("IPv4 packet with src {}, target {}, proto {} received...".format(ipv4.src, ipv4.target, ipv4.proto))
+            #print("IPv4 packet with src {}, target {}, proto {}, length {} received...".format(ipv4.src, ipv4.target, ipv4.proto, ipv4.total_packet_length))
 
             # Process TCP packets
             if ipv4.proto == 6:  # TCP
@@ -145,6 +145,7 @@ def main():
                 #if tcp.src_port == 22 or tcp.dest_port == 22:
                     #continue
                 #print("INCOMING: TCP packet found with macs {}|{}, src {}:{}, dest {}:{}, syn {}, ack {}, seq # {}, ack # {} ... data: [{}]".format(eth.src_mac, eth.dest_mac, ipv4.src, tcp.src_port, ipv4.target, tcp.dest_port, tcp.flag_syn, tcp.flag_ack, tcp.sequence, tcp.acknowledgment, tcp.data), flush=True)
+                #print("INCOMING: TCP packet found with src {}:{}, dest {}:{}, header len {}, packet len {}, syn {}, ack {}, rst {}, fin {}, seq {}, ack {} ... data: [{}]".format(ipv4.src, tcp.src_port, ipv4.target, tcp.dest_port, ipv4.total_packet_length, len(eth.data), tcp.flag_syn, tcp.flag_ack, tcp.flag_rst, tcp.flag_fin, tcp.sequence, tcp.acknowledgment, tcp.data), flush=True)
 
                 for handler in handlers:
                     try:
@@ -176,6 +177,10 @@ def main():
             # Send any generated messages to their targets via the Direct NIC
             for message in combined_results.direct_messages_to_send:
                 print("Sending response message!")
+                #deth = Ethernet(message)
+                #dipv4 = IPv4(deth.data)
+                #dtcp = TCP(dipv4.data, deth)
+                #print("OUTGOING DIRECT: TCP packet sent with src {}:{}, dest {}:{}, header len {}, packet len {}, syn {}, ack {}, rst {}, fin {}, seq {}, ack {} ... data: [{}]".format(dipv4.src, dtcp.src_port, dipv4.total_packet_length, len(deth.data), dipv4.target, dtcp.dest_port, dtcp.flag_syn, dtcp.flag_ack, dtcp.flag_rst, dtcp.flag_fin, dtcp.sequence, dtcp.acknowledgment, dtcp.data), flush=True)
                 direct.send(message)
 
             # Do stat logging if enabled
