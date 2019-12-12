@@ -16,6 +16,7 @@ from networking.tcp import TCP
 from packetHandlers.httpAuthHandler import HttpAuthHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
 from packetHandlers.ipConnectionsHandler import IpConnectionsHandler
+from packetHandlers.wemoHandler import WemoHandler
 
 from utils import stats
 from utils import email
@@ -100,6 +101,8 @@ def main():
             handlers.append(PhillipsHueHandler(config, logger, combined_results))
         elif handler_name == "ipConnections":
             handlers.append(IpConnectionsHandler(config, logger, combined_results))
+        elif handler_name == "wemo":
+            handlers.append(WemoHandler(config, logger, combined_results))
         else:
             print("Invalid handler name {} in config file".format(handler_name), flush=True)
     if len(handlers) == 0:
