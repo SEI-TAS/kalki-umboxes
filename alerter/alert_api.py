@@ -13,15 +13,11 @@ ALERT_HANDLER_PORT = 6060
 def send_umbox_alert(server_ip, alert_text, alert_details=""):
     """An API request to the Alert Handler to send alerts about the current mbox, using MAC to identify it."""
 
-    # Get the mac of the card we will use for the control plane. Then extract the umbox id.
-    local_mac = _local_mac_for_remote_ip(server_ip)
-    print("Server IP: " + server_ip + "; local mac: " + str(local_mac))
-    if local_mac == "":
-        print("Not sending alert. Local MAC not found, server IP not associated to any of the local NICs.")
+    # Gets the umbox ID from the NIC's MAC.
+    umbox_id = _get_umbox_id_from_mac(server_ip)
+    if umbox_id is None:
+        print("Umbox ID not found, can't send alert.")
         return
-
-    umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
-    print("Umbox id: " + str(umbox_id))
 
     # Try sending the alert a couple of times.
     max_retries = 3
@@ -64,6 +60,19 @@ def send_alert(server_ip, alerter_id, alert_text, alert_details):
     print(reply)
     print(reply.content)
     return reply.content
+
+
+def _get_umbox_id_from_mac(server_ip):
+    # Get the mac of the card we will use for the control plane. Then extract the umbox id.
+    local_mac = _local_mac_for_remote_ip(server_ip)
+    print("Server IP: " + server_ip + "; local mac: " + str(local_mac))
+    if local_mac == "":
+        print("Local MAC not found, server IP not associated to any of the local NICs.")
+        return None
+
+    umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
+    print("Umbox id: " + str(umbox_id))
+    return umbox_id
 
 
 def _pretty_print_POST(req):
