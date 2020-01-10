@@ -6,13 +6,13 @@ ARG UMBOX_PATH
 COPY ./alerter /alerter
 COPY $UMBOX_PATH/config_alerter.json /alerter/config.json
 COPY $UMBOX_PATH/alerter_setup.sh /
-RUN ["chmod", "+x", "alerter_setup.sh"]
+RUN ["bash", "alerter_setup.sh"]
 
 # Setup Sniffer.
 COPY ./sniffer /sniffer
 COPY $UMBOX_PATH/config.json /sniffer/config.json
 COPY $UMBOX_PATH/sniffer_setup.sh /
-RUN ["chmod", "+x", "sniffer_setup.sh"]
+RUN ["bash", "sniffer_setup.sh"]
 
 # Start up everything.
 COPY $UMBOX_PATH/startup.sh /startup.sh
