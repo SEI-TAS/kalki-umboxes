@@ -21,7 +21,7 @@ def send_alerts_from_tail(patterns, file_path, server_ip, id_source):
     for line in tail:
         for pattern in patterns:
             if pattern['search_text'] in line:
-                alert_api.send_umbox_alert(server_ip, alert_text=pattern['alert_text'], alert_details=line)
+                alert_api.send_umbox_alert(server_ip, alert_text=pattern['alert_text'], alert_details=line, id_source=id_source)
 
 
 def load_config():
