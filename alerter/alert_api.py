@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import time
+import socket
 
 import requests
 import netifaces
@@ -10,11 +11,15 @@ ALERT_HANDLER_URL = "/alert/"
 ALERT_HANDLER_PORT = 6060
 
 
-def send_umbox_alert(server_ip, alert_text, alert_details=""):
+def send_umbox_alert(server_ip, alert_text, alert_details="", id_source="mac"):
     """An API request to the Alert Handler to send alerts about the current mbox, using MAC to identify it."""
 
-    # Gets the umbox ID from the NIC's MAC.
-    umbox_id = _get_umbox_id_from_mac(server_ip)
+    if id_source == "mac":
+        # Gets the umbox ID from the NIC's MAC.
+        umbox_id = _get_umbox_id_from_mac(server_ip)
+    else:
+        umbox_id = _get_umbox_id_from_hostname()
+
     if umbox_id is None:
         print("Umbox ID not found, can't send alert.")
         return
@@ -71,6 +76,13 @@ def _get_umbox_id_from_mac(server_ip):
         return None
 
     umbox_id = int(local_mac[-5:-3], 16) * 100 + int(local_mac[-2:], 16)
+    print("Umbox id: " + str(umbox_id))
+    return umbox_id
+
+
+def _get_umbox_id_from_hostname():
+    hostname = socket.gethostname()
+    umbox_id = hostname.replace("umbox-", "")
     print("Umbox id: " + str(umbox_id))
     return umbox_id
 
