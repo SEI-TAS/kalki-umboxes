@@ -9,6 +9,5 @@ pip3 install pipenv
 echo "export PIPENV_VENV_IN_PROJECT=\"enabled\"" >> $HOME/.profile
 
 # Setup Alerter
-cd /alerter
 export PIPENV_VENV_IN_PROJECT="enabled"
 pipenv install
