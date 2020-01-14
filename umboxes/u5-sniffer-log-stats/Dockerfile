@@ -4,16 +4,16 @@ ARG UMBOX_PATH
 
 # Setup Alerter.
 COPY ./alerter /alerter
-COPY $UMBOX_PATH/config_alerter.json /alerter/config.json
-COPY $UMBOX_PATH/alerter_setup.sh /
+COPY ./umboxes/sniffer_docker/config_alerter.json /alerter/config.json
+COPY ./umboxes/sniffer_docker/alerter_setup.sh /
 RUN ["bash", "alerter_setup.sh"]
 
 # Setup Sniffer.
 COPY ./sniffer /sniffer
 COPY $UMBOX_PATH/config.json /sniffer/config.json
-COPY $UMBOX_PATH/sniffer_setup.sh /
+COPY ./umboxes/sniffer_docker/sniffer_setup.sh /
 RUN ["bash", "sniffer_setup.sh"]
 
 # Start up everything.
-COPY $UMBOX_PATH/startup.sh /startup.sh
+COPY ./umboxes/sniffer_docker/startup.sh /startup.sh
 ENTRYPOINT ["bash", "startup.sh"]

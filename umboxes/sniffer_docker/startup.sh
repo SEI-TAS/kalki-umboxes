@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Clear proxy vars to avoid issues communicating with Controller.
 export http_proxy=""
 export https_proxy=""
 export HTTP_PROXY=""
