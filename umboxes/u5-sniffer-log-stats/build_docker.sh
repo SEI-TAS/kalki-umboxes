@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 
-UMBOX_NAME=u5
-PATH_TO_UMBOX=umboxes/u5-sniffer-log-stats
-
-bash ../sniffer_docker/build_sniffer_image.sh ${UMBOX_NAME} ${PATH_TO_UMBOX}
+UMBOX_NAME=$PWD
+docker build -t ${UMBOX_NAME} .
