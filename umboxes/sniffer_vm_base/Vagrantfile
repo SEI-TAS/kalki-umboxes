@@ -6,7 +6,7 @@
 VM_NAME = File.basename(UMBOX_FOLDER)
 
 # Loads common_Vagrantfile
-load File.expand_path(UMBOX_FOLDER + '/../common/Vagrantfile', __FILE__)
+load File.expand_path(UMBOX_FOLDER + '/../alerter_vm_base/Vagrantfile', __FILE__)
 
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
