@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM python:3.8
 
 # Setup Alerter.
 COPY ./alerter /alerter
