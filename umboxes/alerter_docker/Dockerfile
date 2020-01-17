@@ -4,3 +4,4 @@ FROM python:3.5
 COPY ./alerter /alerter
 WORKDIR /alerter
 RUN ["bash", "alerter_setup.sh"]
+WORKDIR /
