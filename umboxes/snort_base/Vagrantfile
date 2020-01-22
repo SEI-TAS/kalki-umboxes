@@ -1,0 +1,23 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Sets current start folder, and loads parent Vagrantfile
+VM_NAME = File.basename(UMBOX_FOLDER)
+load File.expand_path(UMBOX_FOLDER + '/../alerter_vm_base/Vagrantfile', __FILE__)
+
+# All Vagrant configuration is done below.
+Vagrant.configure(2) do |config|
+  # Copy all files to the VM, and set up depdencies and service.
+  config.vm.provision "file", source: "../snort_base/snort.conf", destination: "$HOME/snort/snort.conf"
+  config.vm.provision "file", source: "../snort_base/local.rules", destination: "$HOME/snort/local.rules"
+  config.vm.provision "file", source: "../snort_base/snortrules-snapshot-2990.tar.gz", destination: "$HOME/snort/snortrules-snapshot-2990.tar.gz"
+  config.vm.provision "file", source: "../snort_base/snort.service", destination: "$HOME/snort/snort.service"
+  config.vm.provision "shell" do |s|
+    s.path = "../snort_base/umbox_setup.sh"
+  end
+
+  # Copy a properly configured alerter config file for this software to the VM, and restart alerter.
+  config.vm.provision "file", source: "../snort_base/config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "shell", inline: "systemctl restart alerter"
+end

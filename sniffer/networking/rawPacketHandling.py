@@ -4,11 +4,11 @@ import socket
 import random
 import binascii
 
-# Constructs an acknowledgement packet to a tcp packet and a response TCP message given a response string;
-# Constructs the raw packets to send and adds them to a provided response list.
-def build_response(response, ip_packet, tcp_packet, responseList):
+
+# Constructs a tcp response packet given a response string
+def build_tcp_response(response, ip_packet, tcp_packet, set_fin, seq_offset):
     is_syn = False
-    is_fin = False
+    is_fin = set_fin
 
     # Get source/dest from sending packet
     src_ip = ip_packet.target
@@ -20,23 +20,22 @@ def build_response(response, ip_packet, tcp_packet, responseList):
     if isinstance(response, str):
         response = response.encode("utf-8")
 
-    # Create & populate the IP header
-    ip_header = createIPHeader(src_ip, dest_ip)
-    seq_num = tcp_packet.acknowledgment
+    seq_num = tcp_packet.acknowledgment + seq_offset # in case several data messages are going out in sequence, add the seq offset from the previous message
     ack_num = tcp_packet.sequence + len(tcp_packet.data)
-    ack_tcp_header = createTCPHeader("".encode("utf-8"), is_syn, is_fin, seq_num, ack_num, src_port, dest_port, src_ip, dest_ip)
     tcp_header = createTCPHeader(response, is_syn, is_fin, seq_num, ack_num, src_port, dest_port, src_ip, dest_ip)
 
     # Create the Ethernet Frame header; swap dest & src macs to send back to sender
     eth_frame = createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
 
+    # Create & populate the IP header; include length of tcp header and payload
+    packet_length = len(tcp_header) + len(response)
+    ip_header = createIPHeader(src_ip, dest_ip, packet_length)
+
     # Put the ack and response packets together
-    ackPacket = eth_frame + ip_header + ack_tcp_header
     responsePacket = eth_frame + ip_header + tcp_header + response
 
-    # Add the packets to the response list
-    responseList.append(ackPacket)
-    responseList.append(responsePacket)
+    # Return both the packet and the size of the tcp payload in case it is required for seq number offsets
+    return responsePacket, len(response)
 
 
 # Constructs a basic TCP SYN/ACK packet in order to ack an initial connection request
@@ -47,11 +46,41 @@ def build_tcp_syn_ack(ip_packet, tcp_packet):
     src_port = tcp_packet.dest_port
     dest_port = tcp_packet.src_port
 
-    # Create & populate the IP header
-    ip_header = createIPHeader(src_ip, dest_ip)
     seq_num = random.randrange(1000000000)  # Pick a random staring sequence number, per normal TCP rules
     ack_num = tcp_packet.sequence + 1 # We are acknowledging the initial sequence number, so use that + 1
     ack_tcp_header = createTCPHeader("".encode("utf-8"), True, False, seq_num, ack_num, src_port, dest_port, src_ip, dest_ip)
+
+    # Create & populate the IP header
+    ip_header = createIPHeader(src_ip, dest_ip, len(ack_tcp_header))
+
+    # Create the Ethernet Frame header; swap dest & src macs to send back to sender
+    eth_frame = createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
+
+    # Put the ack and response packets together
+    ackPacket = eth_frame + ip_header + ack_tcp_header
+    return ackPacket
+
+# Constructs a basic TCP ACK packet in order to acknowledge a data or fin message message
+def build_tcp_ack(ip_packet, tcp_packet, is_fin):
+    # Get source/dest from sending packet and swap to reply
+    src_ip = ip_packet.target
+    dest_ip = ip_packet.src
+    src_port = tcp_packet.dest_port
+    dest_port = tcp_packet.src_port
+
+    seq_num = tcp_packet.acknowledgment  # Sequence # of a basic acknowledge message will always be the ack of the message that you are responding to
+
+    # If we are ACKing a fin message from the remote host, set the ack # to the seq # + 1
+    if is_fin:
+        ack_num = tcp_packet.sequence + 1
+    # For non-fin data messages, we are acknowledging the data, so add the size of the data to the given sequence #
+    else:
+        ack_num = tcp_packet.sequence + len(tcp_packet.data)
+
+    ack_tcp_header = createTCPHeader("".encode("utf-8"), False, False, seq_num, ack_num, src_port, dest_port, src_ip, dest_ip)
+
+    # Create & populate the IP header
+    ip_header = createIPHeader(src_ip, dest_ip, len(ack_tcp_header))
 
     # Create the Ethernet Frame header; swap dest & src macs to send back to sender
     eth_frame = createEthFrame(tcp_packet.src_mac, tcp_packet.dest_mac)
@@ -66,15 +95,20 @@ def createEthFrame(dest_mac, src_mac):
     return rawFrame
 
 # Creates the header of an IPv4 packet given source & destination addresses
-def createIPHeader(source_ip, destination_ip):
+def createIPHeader(source_ip, destination_ip, packet_len):
+    # Constants
     version = 4
     ihl = 5
     tos = 0
-    total_length = 40 # Length is assumed; may have to calculate this at some point
     ident = 54321  # Arbitrary number; could be random (?)
     frag_offset = 0  # Should be zero for non-truncated packets
     ttl = 64
     prot = socket.IPPROTO_TCP
+
+    # Length of the whole IP packet is the IP header plus the TCP header + data;
+    # packet_len should give TCP header + data; IP packet header will always be 20 due to setting ihl to 5.
+    total_length = 20 + packet_len
+
     src_ip = socket.inet_aton (source_ip)
     dest_ip = socket.inet_aton (destination_ip)
 

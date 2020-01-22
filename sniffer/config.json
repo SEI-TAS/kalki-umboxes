@@ -8,15 +8,15 @@
   "stat_logging": "on",
   "stat_interval": 3600,
   "restrictedIPs": [],
+  "iot_subnet": "10.27.151",
+  "external_subnet": "10.27.152",
 
   "action_list": {
     "MULTIPLE_LOGIN": ["ALERT", "EMAIL", "BLACKLIST"],
     "DEFAULT_CRED": ["ALERT", "EMAIL", "BLACKLIST"],
     "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
     "COMPROMISE": ["ALERT", "EMAIL"],
-    "NO_AUTH": ["ALERT"],
-    "FAILED_AUTH": ["ALERT", "EMAIL"],
-    "NON_HTTP": ["ALERT"]
+    "FAILED_AUTH": ["ALERT", "EMAIL"]
   },
 
   "emailConfig": {
@@ -34,14 +34,14 @@
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
     "proxy_auth_port" : 9010,
-    "proxy_auth_username": "kalki_user",
-    "proxy_auth_password": "kalki_pass",
+    "proxy_auth_username": "kuser",
+    "proxy_auth_password": "kpass",
     "max_attempts": 4,
     "max_attempts_interval_mins": 30,
     "logging_timeout": 60,
     "default_username": "username",
     "default_password": "password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "FAILED_AUTH"]
   },
 
   "phillipsHue": {
@@ -52,13 +52,14 @@
     "check_list": ["BRUTE_FORCE"]
   },
 
-  "udooNeo": {
+  "ipConnections": {
   	"max_attempts": 10,
   	"max_attempts_interval_secs": 60,
     "logging_timeout": 60,
     "check_list": ["BRUTE_FORCE", "COMPROMISE"],
     "compromise_threshold": 5,
-    "iot_subnet": "10.27.151",
-    "external_subnet": "10.27.152"
+    "compromise_allowed_ports": [22],
+    "compromise_tcp": "on",
+    "compromise_udp": "on"
   }
 }

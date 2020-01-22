@@ -8,16 +8,17 @@
   "stat_logging": "off",
   "stat_interval": 3600,
   "restrictedIPs": [],
+  "iot_subnet": "10.27.151",
+  "external_subnet": "10.27.152",
 
   "action_list": {
     "MULTIPLE_LOGIN": ["ALERT"],
     "DEFAULT_CRED": ["ALERT"],
-    "NO_AUTH": ["ALERT"],
     "FAILED_AUTH": ["ALERT"]
   },
 
   "httpAuth": {
-    "proxy_auth_enabled" : "off",
+    "proxy_auth_enabled" : "on",
     "proxy_auth_login_timer" : 10,
     "proxy_auth_timeout" : 3600,
     "proxy_auth_port" : 9010,
@@ -28,6 +29,6 @@
     "logging_timeout": 60,
     "default_username": "Username",
     "default_password": "Password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "NO_AUTH", "FAILED_AUTH"]
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "FAILED_AUTH"]
   }
 }
