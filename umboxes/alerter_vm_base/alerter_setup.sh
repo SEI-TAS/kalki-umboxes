@@ -13,8 +13,10 @@ export PIPENV_VENV_IN_PROJECT="enabled"
 
 # Setup Alerter
 cd ${ALERTER_HOME}
-chmod ugo+x alerter.sh
 pipenv install
+
+# Setup service.
+chmod ugo+x alerter.sh
 cp alerter.service /etc/systemd/system/
 systemctl enable alerter
 systemctl start alerter

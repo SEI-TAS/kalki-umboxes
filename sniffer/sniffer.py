@@ -6,6 +6,7 @@ import logging
 import sys
 import json
 import traceback
+import time
 
 import netifaces
 
@@ -62,8 +63,23 @@ def load_config():
 
 def bind_raw_socket(nic, action, nic_type):
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
-    raw_socket.bind((nic, 0))
-    print("{} on raw socket on interface {}...".format(action, nic), flush=True)
+
+    max_attempts = 3
+    curr_attempt = 0
+    connected = 0
+    while curr_attempt < max_attempts:
+        try:
+            curr_attempt += 1
+            raw_socket.bind((nic, 0))
+            connected = 1
+        except Exception as e:
+            print("Error connecting to NIC {}, waiting and retrying (attempt {})".format(nic, curr_attempt))
+            time.sleep(3)
+
+    if not connected:
+        raise Exception("Could not connect to NIC {}".format(nic))
+
+    print("{} connected on raw socket on interface {}...".format(action, nic), flush=True)
     nic_mac = netifaces.ifaddresses(nic)[netifaces.AF_LINK][0]['addr']
     print("Local MAC on {} NIC is {}\n".format(nic_type, nic_mac), flush=True)
     return raw_socket
