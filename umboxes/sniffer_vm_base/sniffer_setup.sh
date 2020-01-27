@@ -6,8 +6,10 @@ SNIFFER_HOME=$1
 
 # Setup Sniffer
 cd ${SNIFFER_HOME}
-chmod ugo+x sniffer.sh
 pipenv install
+
+# Set up service.
+chmod ugo+x sniffer.sh
 cp sniffer.service /etc/systemd/system/
 systemctl enable sniffer
 systemctl start sniffer

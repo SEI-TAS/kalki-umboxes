@@ -4,7 +4,7 @@
 
 # Sets current start folder, and loads parent Vagrantfile
 UMBOX_FOLDER = File.dirname(__FILE__)
-load File.expand_path(UMBOX_FOLDER + '/../snort-base/Vagrantfile', __FILE__)
+load File.expand_path(UMBOX_FOLDER + '/../snort_base/Vagrantfile', __FILE__)
 
 $script = <<-SCRIPT
 sudo cp snort/snort.conf /etc/snort/snort.conf

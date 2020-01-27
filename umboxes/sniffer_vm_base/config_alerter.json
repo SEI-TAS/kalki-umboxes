@@ -1,6 +1,7 @@
 {
   "control_node_ip": "10.27.153.3",
   "log_file": "../sniffer/sniffer.log",
+  "id_source": "mac",
   "patterns": [{"search_text": "DEFAULT_CRED", "alert_text": "default-login"},
                {"search_text": "MULTIPLE_LOGIN", "alert_text": "max-login-attempts"},
                {"search_text": "BRUTE_FORCE", "alert_text":  "brute-force"},

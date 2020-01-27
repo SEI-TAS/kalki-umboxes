@@ -10,18 +10,18 @@ import alert_api
 UMBOX_READY_ALERT = "umbox-ready"
 
 
-def send_alerts_from_tail(patterns, file_path, server_ip):
+def send_alerts_from_tail(patterns, file_path, server_ip, id_source):
     """Sends an alert by tailing a file and looking for the given patterns in it."""
 
     # Send initial alert to indicate that umbox has started properly.
-    alert_api.send_umbox_alert(server_ip, alert_text=UMBOX_READY_ALERT)
+    alert_api.send_umbox_alert(server_ip, alert_text=UMBOX_READY_ALERT, id_source=id_source)
 
     # Note that this loops continues forever, as tail is constantly blocking and fetching more lines.
     tail = FileTail(file_path, max_wait=3)
     for line in tail:
         for pattern in patterns:
             if pattern['search_text'] in line:
-                alert_api.send_umbox_alert(server_ip, alert_text=pattern['alert_text'], alert_details=line)
+                alert_api.send_umbox_alert(server_ip, alert_text=pattern['alert_text'], alert_details=line, id_source=id_source)
 
 
 def load_config():
@@ -38,7 +38,7 @@ def main():
     print("Starting log checker on file: " + full_file_path)
     print("Alert handler server set to: " + server_ip)
 
-    send_alerts_from_tail(config["patterns"], full_file_path, server_ip)
+    send_alerts_from_tail(config["patterns"], full_file_path, server_ip, config["id_source"])
 
 
 if __name__ == '__main__':
