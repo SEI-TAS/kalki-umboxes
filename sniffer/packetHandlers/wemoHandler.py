@@ -281,7 +281,7 @@ class WemoHandler:
                 pass
 
             # Extract the source ip/port for checking partial fragments
-            source = ip_packet.src + ":" + tcp_packet.src_port
+            source = str(ip_packet.src) + ":" + str(tcp_packet.src_port)
 
             # Before processing, check to see if this is part of a partial message
             if http:
@@ -328,9 +328,12 @@ class WemoHandler:
                         # TODO: this approach does NOT work for sequence #s that wrap around the 32 bit u_int max
                         # TODO: this approach assumes all fragments available when the last comes in.  Should check the full sequence # count or HTTP length for total bytes.
                         self.partial_soap_messages[source].fragments.sort(key=lambda tup: tup[0])
-                        final_http_message_bytes = []
-                        for fragment in self.partial_soap_messsages[source].fragments:
-                            final_http_message_bytes += fragment
+                        final_http_message_bytes = None
+                        for fragment in self.partial_soap_messages[source].fragments:
+                            if not final_http_message_bytes:
+                                final_http_message_bytes = fragment[1]
+                            else:
+                                final_http_message_bytes += str(fragment[1])
 
                         # Clear out the existing fragment content; either it works or it doesn't, clear for next set of fragments
                         del self.partial_soap_messages[source]
@@ -393,6 +396,7 @@ class WemoHandler:
                         seq_num_offset = 0
                         response_content = HTTP_RESPONSE_COMMAND_OK
                         response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                        seq_num_offset += response_len
                         self.result.direct_messages_to_send.append(response)
 
                         # Determine commanded state by checking for presence of "ON" command field.
@@ -403,6 +407,7 @@ class WemoHandler:
                             # Build the SOAP response to indicate that state has been set to on
                             response_content = HTTP_RESPONSE_COMMAND_ON
                             response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                            seq_num_offset += response_len
                             self.result.direct_messages_to_send.append(response)
 
                             # Finally, build and send a fin message to close the interaction
@@ -416,6 +421,7 @@ class WemoHandler:
                             # Build the SOAP response to indicate that state has been set to on
                             response_content = HTTP_RESPONSE_COMMAND_OFF
                             response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                            seq_num_offset += response_len
                             self.result.direct_messages_to_send.append(response)
 
                             # Finally, build and send a fin message to close the interaction
@@ -427,6 +433,7 @@ class WemoHandler:
                         seq_num_offset = 0
                         response_content = HTTP_RESPONSE_STATUS_OK
                         response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                        seq_num_offset += response_len
                         self.result.direct_messages_to_send.append(response)
 
                         # Determine status to return based on current simulated state
@@ -434,6 +441,7 @@ class WemoHandler:
                             # Build the SOAP response to indicate that state is currently on
                             response_content = HTTP_RESPONSE_STATUS_ON
                             response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                            seq_num_offset += response_len
                             self.result.direct_messages_to_send.append(response)
 
                             # Finally, build and send a fin message to close the interaction
@@ -444,6 +452,7 @@ class WemoHandler:
                             # Build the SOAP response to indicate that state is currently off
                             response_content = HTTP_RESPONSE_STATUS_OFF
                             response, response_len = build_tcp_response(response_content, ip_packet, tcp_packet, False, seq_num_offset)
+                            seq_num_offset += response_len
                             self.result.direct_messages_to_send.append(response)
 
                             # Finally, build and send a fin message to close the interaction
