@@ -5,8 +5,9 @@ class IpConnectionsHandler:
 
     def __init__(self, config, logger, result):
         self.config = config["ipConnections"]
-        self.config["iot_subnet"] = config["iot_subnet"]
-        self.config["external_subnet"] = config["external_subnet"]
+        self.config["deviceIpAddress"] = config["deviceIpAddress"]
+        #self.config["iot_subnet"] = config["iot_subnet"]
+        #self.config["external_subnet"] = config["external_subnet"]
         self.logger = logger
         self.connections = {}
         self.last_log_time = 0
@@ -52,20 +53,20 @@ class IpConnectionsHandler:
 
     def checkCompromise(self, ip_packet, tcp_port):
         # Only consider packets coming from the IoT device, which means the source is the IoT subnet
-        if ip_packet.src.find(self.config["iot_subnet"]) > -1:
-            # Only check for traffic going to our defined external network
-            if ip_packet.target.find(self.config["external_subnet"]) > -1:
-                # TCP traffic originating from the IoT device.  Only TCP traffic from designed ports is valid
-                if tcp_port and tcp_port not in self.config["compromise_allowed_ports"]:
-                    # TCP traffic that is not coming from an allowed port on the IoT device.
-                    self.tcp_compromise_count += 1
-                else:
-                    # All non-TCP traffic is counted as compromised as well.
-                    self.udp_compromise_count += 1
+        if ip_packet.src.find(self.config["deviceIpAddress"]) > -1:
+            # Only check for traffic going to our defined external network - OBE given assumption of all devices on same subnet
+            #if ip_packet.target.find(self.config["external_subnet"]) > -1:
+            # TCP traffic originating from the IoT device.  Only TCP traffic from designed ports is valid
+            if tcp_port and tcp_port not in self.config["compromise_allowed_ports"]:
+                # TCP traffic that is not coming from an allowed port on the IoT device.
+                self.tcp_compromise_count += 1
+            else:
+                # All non-TCP traffic is counted as compromised as well.
+                self.udp_compromise_count += 1
 
-                    # Check compromise threshold
-                    if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
-                        self.logCompromise(ip_packet.src)
+                # Check compromise threshold
+                if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
+                    self.logCompromise(ip_packet.src)
 
     def logBruteForce(self, ip):
         current_time = time.time()

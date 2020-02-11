@@ -58,6 +58,12 @@ def load_config():
     """Loads config from external file."""
     with open("config.json") as json_config:
         config = json.load(json_config)
+
+    with open("device_info.json") as json_device:
+        device_config = json.load(json_device)
+
+    config["deviceIpAddress"] = device_config["deviceIpAddress"]
+
     return config
 
 

@@ -140,8 +140,9 @@ class SoapMessageFragmentHandler:
 class WemoHandler:
     def __init__(self, config, logger, result):
         self.config = config["wemo"]
-        self.config["iot_subnet"] = config["iot_subnet"]
-        self.config["external_subnet"] = config["external_subnet"]
+        self.config["deviceIpAddress"] = config["deviceIpAddress"]
+        #self.config["iot_subnet"] = config["iot_subnet"]
+        #self.config["external_subnet"] = config["external_subnet"]
         self.logger = logger
         self.result = result
         self.partial_soap_messages = {}
@@ -483,8 +484,8 @@ class WemoHandler:
          #           fin, fin_len = build_tcp_response(fin_content, ip_packet, tcp_packet, True, seq_num_offset)
          #           self.result.direct_messages_to_send.append(fin)
 
-        # If not a HTTP message, make sure it's not coming from the IOT subnet and then process SYN messages to set up connections
-        if not http and ip_packet.src.find(self.config["iot_subnet"]) == -1:
+        # If not a HTTP message, make sure it's not coming from the IOT device and then process SYN messages to set up connections
+        if not http and ip_packet.src.find(self.config["deviceIpAddress"]) == -1:
             if tcp_packet.flag_syn and not tcp_packet.flag_ack:
                 # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
                 self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
