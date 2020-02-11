@@ -334,7 +334,7 @@ class WemoHandler:
                             if not final_http_message_bytes:
                                 final_http_message_bytes = fragment[1]
                             else:
-                                final_http_message_bytes += str(fragment[1])
+                                final_http_message_bytes += fragment[1]
 
                         # Clear out the existing fragment content; either it works or it doesn't, clear for next set of fragments
                         del self.partial_soap_messages[source]
@@ -362,7 +362,8 @@ class WemoHandler:
 
             # The message has data, failed the check for a valid HTTP header, and does not have any fragments saved.  For now, do nothing with it.
             else:
-                print("Spurious TCP message with data, no HTTP header, and no saved fragments", flush=True)
+                pass
+                #print("Spurious TCP message with data, no HTTP header, and no saved fragments", flush=True)
 
             # Evaluate to see if we received a known command to respond to
             if http:

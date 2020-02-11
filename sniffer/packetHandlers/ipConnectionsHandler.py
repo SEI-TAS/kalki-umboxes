@@ -64,9 +64,9 @@ class IpConnectionsHandler:
                 # All non-TCP traffic is counted as compromised as well.
                 self.udp_compromise_count += 1
 
-                # Check compromise threshold
-                if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
-                    self.logCompromise(ip_packet.src)
+            # Check compromise threshold
+            if self.udp_compromise_count + self.tcp_compromise_count == self.config["compromise_threshold"]:
+                self.logCompromise(ip_packet.src)
 
     def logBruteForce(self, ip):
         current_time = time.time()
