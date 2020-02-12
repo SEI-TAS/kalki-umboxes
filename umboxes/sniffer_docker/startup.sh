@@ -15,4 +15,6 @@ cd ..
 cd sniffer
 echo "{\"deviceIpAddress\": \"${IP_ADDRESS}\"}" > device_info.json
 bash sniffer.sh 2>&1 | tee -a sniffer.log &
+
+# Dummy proxy to keep container running, while allowing to restart alerter or sniffer for debugginng.
 tail -f sniffer.sh
