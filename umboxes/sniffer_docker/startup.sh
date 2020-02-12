@@ -14,4 +14,5 @@ bash alerter.sh 2>&1 | tee -a alerter.log &
 cd ..
 cd sniffer
 echo "{\"deviceIpAddress\": \"${IP_ADDRESS}\"}" > device_info.json
-bash sniffer.sh 2>&1 | tee -a sniffer.log
+bash sniffer.sh 2>&1 | tee -a sniffer.log &
+tail -f sniffer.sh
