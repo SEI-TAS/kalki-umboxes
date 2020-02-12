@@ -5,7 +5,7 @@ update_umbox() {
 
     echo "Updating ${umbox_name}"
     cd ${umbox_name}
-    time bash ../vm_full_process.sh
+    time bash ../../vm_full_process.sh
     cd ..
     echo "Finished updating ${umbox_name}"
 }

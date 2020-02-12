@@ -25,17 +25,17 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", type: "dhcp"
 
   # NOTE: this is only needed if behind a proxy.
-  config.vm.provision "shell", path: "../alerter_vm_base/proxy_setup.sh"
+  config.vm.provision "shell", path: "../../common/alerter_vm_base/proxy_setup.sh"
 
   # Setup network config.
-  config.vm.provision "shell", path: "../alerter_vm_base/network_setup.sh"
+  config.vm.provision "shell", path: "../../common/alerter_vm_base/network_setup.sh"
 
   # Copy and setup Alerter.
-  config.vm.provision "file", source: "../../alerter", destination: "$HOME/"
-  config.vm.provision "file", source: "../alerter_vm_base/alerter.service", destination: "$HOME/alerter/alerter.service"
-  config.vm.provision "file", source: "../alerter_vm_base/config_alerter.json", destination: "$HOME/alerter/config.json"
+  config.vm.provision "file", source: "../../../alerter", destination: "$HOME/"
+  config.vm.provision "file", source: "../../common/alerter_vm_base/alerter.service", destination: "$HOME/alerter/alerter.service"
+  config.vm.provision "file", source: "../../common/alerter_vm_base/config_alerter.json", destination: "$HOME/alerter/config.json"
   config.vm.provision "shell" do |s|
-    s.path = "../alerter_vm_base/alerter_setup.sh"
+    s.path = "../../common/alerter_vm_base/alerter_setup.sh"
     s.args = ["/home/" + VM_USER + "/alerter"]
   end
 

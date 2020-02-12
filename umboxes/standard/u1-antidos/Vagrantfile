@@ -5,7 +5,7 @@
 # Sets current start folder, and loads parent Vagrantfile
 UMBOX_FOLDER = File.dirname(__FILE__)
 VM_NAME = File.basename(UMBOX_FOLDER)
-load File.expand_path(UMBOX_FOLDER + '/../alerter_vm_base/Vagrantfile', __FILE__)
+load File.expand_path(UMBOX_FOLDER + '/../../common/alerter_vm_base/Vagrantfile', __FILE__)
 
 # All Vagrant configuration is done below.
 Vagrant.configure(2) do |config|
