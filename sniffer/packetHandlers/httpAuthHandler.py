@@ -33,8 +33,9 @@ class ProxyLogin:
 class HttpAuthHandler:
     def __init__(self, config, logger, result):
         self.config = config["httpAuth"]
-        self.config["iot_subnet"] = config["iot_subnet"]
-        self.config["external_subnet"] = config["external_subnet"]
+        #self.config["iot_subnet"] = config["iot_subnet"]
+        #self.config["external_subnet"] = config["external_subnet"]
+        self.config["deviceIpAddress"] = config["deviceIpAddress"]
         self.logger = logger
         self.login_requests = {}
         self.result = result
@@ -98,9 +99,9 @@ class HttpAuthHandler:
                 print("Exception processing credentials: " + str(ex), flush=True)
                 traceback.print_exc()
 
-        if self.config["proxy_auth_enabled"] == "on" and ip_packet.src.find(self.config["iot_subnet"]) == -1 and not successful_proxy_auth:
+        if self.config["proxy_auth_enabled"] == "on" and ip_packet.src.find(self.config["deviceIpAddress"]) == -1 and not successful_proxy_auth:
             # If proxy is enabled, process which external packets to pass through, and which replies to send back directly.
-            # Packets from the IoT subnet are always ignored by the proxy.
+            # Packets from the IoT device are always ignored by the proxy.
             self.proxy_process_packet(http, tcp_packet, ip_packet)
         elif successful_proxy_auth:
             # If this is the packet that successfully caused login, do not echo it

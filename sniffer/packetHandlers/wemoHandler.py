@@ -140,8 +140,9 @@ class SoapMessageFragmentHandler:
 class WemoHandler:
     def __init__(self, config, logger, result):
         self.config = config["wemo"]
-        self.config["iot_subnet"] = config["iot_subnet"]
-        self.config["external_subnet"] = config["external_subnet"]
+        self.config["deviceIpAddress"] = config["deviceIpAddress"]
+        #self.config["iot_subnet"] = config["iot_subnet"]
+        #self.config["external_subnet"] = config["external_subnet"]
         self.logger = logger
         self.result = result
         self.partial_soap_messages = {}
@@ -333,7 +334,7 @@ class WemoHandler:
                             if not final_http_message_bytes:
                                 final_http_message_bytes = fragment[1]
                             else:
-                                final_http_message_bytes += str(fragment[1])
+                                final_http_message_bytes += fragment[1]
 
                         # Clear out the existing fragment content; either it works or it doesn't, clear for next set of fragments
                         del self.partial_soap_messages[source]
@@ -361,7 +362,8 @@ class WemoHandler:
 
             # The message has data, failed the check for a valid HTTP header, and does not have any fragments saved.  For now, do nothing with it.
             else:
-                print("Spurious TCP message with data, no HTTP header, and no saved fragments", flush=True)
+                pass
+                #print("Spurious TCP message with data, no HTTP header, and no saved fragments", flush=True)
 
             # Evaluate to see if we received a known command to respond to
             if http:
@@ -483,8 +485,8 @@ class WemoHandler:
          #           fin, fin_len = build_tcp_response(fin_content, ip_packet, tcp_packet, True, seq_num_offset)
          #           self.result.direct_messages_to_send.append(fin)
 
-        # If not a HTTP message, make sure it's not coming from the IOT subnet and then process SYN messages to set up connections
-        if not http and ip_packet.src.find(self.config["iot_subnet"]) == -1:
+        # If not a HTTP message, make sure it's not coming from the IOT device and then process SYN messages to set up connections
+        if not http and ip_packet.src.find(self.config["deviceIpAddress"]) == -1:
             if tcp_packet.flag_syn and not tcp_packet.flag_ack:
                 # Build the SYN/ACK response to simulate a TCP connection, and put it in the queue for responding
                 self.result.direct_messages_to_send.append(build_tcp_syn_ack(ip_packet, tcp_packet))
