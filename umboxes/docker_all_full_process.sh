@@ -22,7 +22,8 @@ cd ../..
 
 echo "Updating all docker umboxes"
 
-for DIR in ./standard/*/   # list directories with full path
+cd standard
+for DIR in ./*/   # list directories with full path
 do
     DIR=${DIR%*/}          # remove the trailing "/"
     UMBOX_NAME=${DIR##*/}  # remove all path before current directory
