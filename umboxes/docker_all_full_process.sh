@@ -13,12 +13,12 @@ update_umbox() {
 echo "Updating base umboxes - alerter"
 cd common/alerter_docker
 bash build_alerter_image.sh
-cd ..
+cd ../..
 
 echo "Updating base umboxes - sniffer"
 cd common/sniffer_docker
 bash build_sniffer_image.sh
-cd ..
+cd ../..
 
 echo "Updating all docker umboxes"
 
