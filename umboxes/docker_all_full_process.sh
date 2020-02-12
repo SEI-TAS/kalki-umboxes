@@ -5,7 +5,7 @@ update_umbox() {
 
     echo "Updating ${umbox_name}"
     cd ${umbox_name}
-    time bash ../common/sniffer_docker/build_umbox_image.sh
+    time bash ../../common/sniffer_docker/build_umbox_image.sh
     cd ..
     echo "Finished updating ${umbox_name}"
 }
