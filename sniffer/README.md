@@ -17,16 +17,13 @@ entering and leaving the Ubuntu network stack using a raw socket in Python.  The
 ## Setup
 The sniffer is implemented in Python 3.5 and run using pipenv as a virtual environment.
 Since the sniffer utilizes Python raw sockets, it must be run as a root user and is only runnable on a linux based machine.
-1. Update apt-get: `sudo apt-get update`
-1. Install Python 3.5 by running `sudo apt-get install python3` 
-1. Install `pip` by running `sudo apt-get install python3-pip` 
-1. Install `pipenv` as the root user by running `sudo -H pip3 install pipenv`
-1. Configure `pipenv` to create env folders locally by running:
-    1. `echo "export PIPENV_VENV_IN_PROJECT=\"enabled\"" >> $HOME/.profile`
-    1. `export PIPENV_VENV_IN_PROJECT="enabled"`
-1. Install all environment dependencies specified in the pipfile by running `pipenv install` inside the /sniffer folder
+
+1. Install Python 3 and pip3.
+    1. If running in Ubuntu, execute `bash sniffer_deps_setup.sh` for the appropriate debian packages to be installed.
+1. Install pipenv and set up the Python environment with the needed dependencies:
+    1. Execute `sudo -H bash sniffer_setup.sh`
 1. Configure the sniffer by changing `config.json` as needed.
-1. Run the sniffer by running `sudo ./sniffer.sh`
+1. Run the sniffer by executing `sudo bash sniffer.sh`
 
 ## Packet Handlers
 
@@ -50,8 +47,8 @@ The sniffer is configured through the configuration file *config.json*.
 
 ## Test Scripts
 In the testScripts folder can be found scripts to:
-* run a simple HTTP server
-* send an HTTP request to the server with Basic HTTP Authentication using a default username and password
+* Run a simple HTTP server
+* Send an HTTP request to the server with Basic HTTP Authentication using a default username and password
 * Send an HTTP request using to `/api/[token]/lights` where token is a random 16 character UUID
 * Simulate a phillips hue brute force API attack by sending multiple successive requests with different tokens
 * Simulate an SSH brute force attack by trying to ssh a specified number of times with random passwords of length 16
