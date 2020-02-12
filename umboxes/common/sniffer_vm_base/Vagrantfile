@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "../../../sniffer", destination: "$HOME/"
   config.vm.provision "file", source: "../../common/sniffer_vm_base/sniffer.service", destination: "$HOME/sniffer/sniffer.service"
   config.vm.provision "shell" do |s|
-    s.path = "../sniffer_vm_base/sniffer_setup.sh"
+    s.path = "../common/sniffer_vm_base/sniffer_setup.sh"
     s.args = ["/home/" + VM_USER + "/sniffer"]
   end
 
