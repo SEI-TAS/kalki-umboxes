@@ -17,6 +17,7 @@ from networking.tcp import TCP
 from packetHandlers.httpAuthHandler import HttpAuthHandler
 from packetHandlers.phillipsHueHandler import PhillipsHueHandler
 from packetHandlers.ipConnectionsHandler import IpConnectionsHandler
+from packetHandlers.wemoHandler import WemoHandler
 
 from utils import stats
 from utils import email
@@ -57,6 +58,12 @@ def load_config():
     """Loads config from external file."""
     with open("config.json") as json_config:
         config = json.load(json_config)
+
+    with open("device_info.json") as json_device:
+        device_config = json.load(json_device)
+
+    config["deviceIpAddress"] = device_config["deviceIpAddress"]
+
     return config
 
 
@@ -116,6 +123,8 @@ def main():
             handlers.append(PhillipsHueHandler(config, logger, combined_results))
         elif handler_name == "ipConnections":
             handlers.append(IpConnectionsHandler(config, logger, combined_results))
+        elif handler_name == "wemo":
+            handlers.append(WemoHandler(config, logger, combined_results))
         else:
             print("Invalid handler name {} in config file".format(handler_name), flush=True)
     if len(handlers) == 0:

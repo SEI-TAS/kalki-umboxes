@@ -61,5 +61,9 @@
     "compromise_allowed_ports": [22],
     "compromise_tcp": "on",
     "compromise_udp": "on"
+  },
+
+  "wemo": {
+    "wemo_false_messages_enabled" : "on"
   }
 }

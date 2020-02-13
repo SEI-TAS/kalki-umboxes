@@ -1,0 +1,7 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Sets current start folder, and loads parent Vagrantfile
+UMBOX_FOLDER = File.dirname(__FILE__)
+load File.expand_path(UMBOX_FOLDER + '/../../common/sniffer_vm_base/Vagrantfile', __FILE__)
