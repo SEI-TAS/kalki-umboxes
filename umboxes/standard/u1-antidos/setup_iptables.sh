@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure that all interfaces are up
+/bin/sh iface_check/wait_on_ifaces.sh
+
 # Link incoming and outgoing NICs by a virtual bridge.
 brctl addbr bridge0
 ifconfig eth1 down
