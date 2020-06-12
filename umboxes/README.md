@@ -98,3 +98,7 @@ The remaining steps depend on whether the VM will be based on the common Sniffer
         - This will create a Docker image in the local repo with a name equal to the umbox folder's name.
     2. Not sniffer-based:
         1. Use a `docker build` command to build your umbox based on your Dockerfile.
+1. Go to the `deployments` folder, and choose one deployment config to use from the subfolders there. Then execute:
+    - `bash build_umbox_image.sh <image_name> <deployment_name>` where
+       - <image_name> is the name of the docker image of the umbox created in the previous step
+       - <deployment> is the name of a subfolder that contains the appropriate alerter configuration for that deployment
