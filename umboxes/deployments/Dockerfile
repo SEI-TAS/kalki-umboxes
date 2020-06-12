@@ -1,4 +1,6 @@
-FROM kalki/<ARG-TODO>
+ARG UMBOX_IMAGE
+FROM kalki/$UMBOX_IMAGE
 
 # Setup deployment-specific config for this umbox.
-COPY <ARG_TODO>/config_alerter.json /sniffer/config.json
+ARG DEPLOYMENT
+COPY $DEPLOYMENT/config_alerter.json /sniffer/config.json
