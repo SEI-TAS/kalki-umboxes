@@ -1,9 +1,5 @@
 FROM kalki/alerter
 
-# For debugging.
-RUN apt-get update
-RUN apt-get install nano
-
 # Setup Sniffer.
 COPY ./sniffer /sniffer
 WORKDIR /sniffer
