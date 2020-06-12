@@ -7,6 +7,9 @@ RUN pip3 install pipenv==2018.11.26
 COPY ./alerter /alerter
 WORKDIR /alerter
 
+# Used to wait for required eth interfaces
+COPY wait_on_ifaces.sh /wait_on_ifaces.sh
+
 # Install packages, temporarily installing GCC and deps.
 RUN apk --no-cache add build-base linux-headers && \
     pipenv install --system --deploy --ignore-pipfile && \
