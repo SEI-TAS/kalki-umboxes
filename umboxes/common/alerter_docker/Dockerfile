@@ -8,8 +8,8 @@ COPY ./alerter /alerter
 WORKDIR /alerter
 
 # Install packages, temporarily installing GCC and deps.
-RUN apk --no-cache add build-base && \
+RUN apk --no-cache add build-base linux-headers && \
     pipenv install --system --deploy --ignore-pipfile && \
-    apk del build-base libffi-dev
+    apk del build-base linux-headers
 
 WORKDIR /
