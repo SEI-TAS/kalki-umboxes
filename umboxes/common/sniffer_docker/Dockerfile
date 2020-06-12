@@ -3,7 +3,11 @@ FROM kalki/alerter
 # Setup Sniffer.
 COPY ./sniffer /sniffer
 WORKDIR /sniffer
-RUN ["bash", "sniffer_setup.sh"]
+
+# Install packages, temporarily installing GCC and deps.
+RUN apk --no-cache add build-base && \
+    pipenv install --system --deploy --ignore-pipfile && \
+    apk del build-base libffi-dev
 
 # Copy Sniffer-specific Alerter config.
 COPY ./umboxes/common/sniffer_docker/config_alerter.json /alerter/config.json

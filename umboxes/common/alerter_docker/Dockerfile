@@ -1,9 +1,15 @@
 FROM python:3.5-alpine
 
 RUN apk --no-cache add bash iproute2 nano
+RUN pip3 install pipenv==2018.11.26
 
 # Setup Alerter.
 COPY ./alerter /alerter
 WORKDIR /alerter
-RUN ["bash", "alerter_setup.sh"]
+
+# Install packages, temporarily installing GCC and deps.
+RUN apk --no-cache add build-base && \
+    pipenv install --system --deploy --ignore-pipfile && \
+    apk del build-base libffi-dev
+
 WORKDIR /
