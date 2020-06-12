@@ -8,7 +8,7 @@ COPY ./alerter /alerter
 WORKDIR /alerter
 
 # Used to wait for required eth interfaces
-COPY ./alerter/wait_on_ifaces.sh /wait_on_ifaces.sh
+COPY ./umboxes/common/alerter_docker/wait_on_ifaces.sh /wait_on_ifaces.sh
 
 # Install packages, temporarily installing GCC and deps.
 RUN apk --no-cache add build-base linux-headers && \
