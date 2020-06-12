@@ -1,5 +1,5 @@
 ARG UMBOX_IMAGE
-FROM kalki/$UMBOX_IMAGE
+FROM $UMBOX_IMAGE
 
 # Setup deployment-specific config for this umbox.
 ARG DEPLOYMENT
