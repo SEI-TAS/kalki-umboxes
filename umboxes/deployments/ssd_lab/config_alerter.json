@@ -1,5 +1,5 @@
 {
-  "control_node_ip": "localhost",
+  "control_node_ip": "10.27.153.3",
   "log_file": "../sniffer/sniffer.log",
   "id_source": "hostname",
   "patterns": [{"search_text": "DEFAULT_CRED", "alert_text": "default-login"},
