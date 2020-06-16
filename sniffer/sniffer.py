@@ -138,10 +138,11 @@ def main():
 
     last_data = None
     last_echo = None
+
     while True:
         # Received data from raw socket.
         raw_data, addr = incoming.recvfrom(65535)
-
+        incoming.send(raw_data)
         # Ignore duplicate packets
         if last_data == raw_data:
             continue
@@ -157,6 +158,7 @@ def main():
         # Ethernet
         eth = Ethernet(raw_data)
         #print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
+
         # Ignore non-IPv4 packets
         if eth.proto == 8:  # IPv4
             ipv4 = IPv4(eth.data)
@@ -201,7 +203,7 @@ def main():
 
             # Send any generated messages to their targets via the Direct NIC
             for message in combined_results.direct_messages_to_send:
-                print("Sending response message!")
+                #print("Sending message to eth3!")
                 #deth = Ethernet(message)
                 #dipv4 = IPv4(deth.data)
                 #dtcp = TCP(dipv4.data, deth)
@@ -219,7 +221,6 @@ def main():
                 last_echo = raw_data
             except Exception as e:
                 print("Error echoing: " + str(e))
-
 
 if __name__ == '__main__':
     main()

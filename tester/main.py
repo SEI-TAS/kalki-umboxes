@@ -2,11 +2,6 @@ import subprocess
 
 tool_pipe = subprocess.PIPE
 
-#Build the images
-subprocess.Popen("docker build -t c_eth1 c_eth1/", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
-subprocess.Popen("docker build -t c_eth2 c_eth2/", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
-subprocess.Popen("docker build -t c_eth3 c_eth3/", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
-
 #Reset
 subprocess.Popen("docker stop $(docker ps -a -q)", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 subprocess.Popen("docker rm $(docker ps -a -q)", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
@@ -18,7 +13,7 @@ subprocess.Popen("docker network create --opt com.docker.network.bridge.name=br_
 subprocess.Popen("docker network create --opt com.docker.network.bridge.name=br_eth3 eth3", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 
 #Create the containers
-subprocess.Popen("docker container create -it --name umbox u0-sniffer-based", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
+subprocess.Popen("docker container create --privileged -it --name umbox u0-sniffer-based", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 
 #Connect the networks
 subprocess.Popen("docker network connect eth1 umbox", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
