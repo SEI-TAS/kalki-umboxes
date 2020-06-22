@@ -156,8 +156,8 @@ def main():
 
         # Ethernet
         eth = Ethernet(raw_data)
-        #print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
-        
+        print("Ethernet packet with src {}, dest {}, proto {} received...".format(eth.src_mac, eth.dest_mac, eth.proto), flush=True)
+        outgoing.send(raw_data)
         # Ignore non-IPv4 packets
         if eth.proto == 8:  # IPv4
             ipv4 = IPv4(eth.data)
@@ -216,7 +216,7 @@ def main():
         # Only echo packet if it is IPv4, echo is on, src IP is not restricted, no handler asked to drop, and we are not repeating data.
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             try:
-                outgoing.send(raw_data + " | Sent Back".encode())
+                outgoing.send(raw_data)
                 last_echo = raw_data
             except Exception as e:
                 print("Error echoing: " + str(e))

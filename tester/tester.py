@@ -55,6 +55,7 @@ def startSender():
 		#print("Data Sent: {} to {}".format(eth1Mac, umboxMac))
 		payload = "TESTING Data for Connection: {}".format(counter)
 		raw_data = createEthFrameHeader(umboxMac, eth1Mac)+payload.encode()
+		print(raw_data)
 		eth1Socket.send(raw_data)
 		sendQueue.append((raw_data, time.time()))
 		time.sleep(1)
@@ -65,9 +66,9 @@ def startReceiver():
 	out, err = subprocess.Popen("brctl show", shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
 	outArr = out.decode().split("\n")[2].split("\t")[-1]
 
-	eth2Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
+	eth2Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 	eth2Socket.bind((outArr, 0))
-	
+	print(outArr)
 	while(True):
 	    raw_data, addr = eth2Socket.recvfrom(65535)
 	    print(raw_data)
