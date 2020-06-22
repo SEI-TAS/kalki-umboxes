@@ -30,15 +30,15 @@ umboxMac = data["NetworkSettings"]["MacAddress"]
 eth1Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 eth1Socket.bind(("br_eth1", 0))
 
-payload = ("TEST_PAYLOAD"*10)
-
-data = createEthFrameHeader(umboxMac, eth1Mac)+payload.encode()
-
-for x in range(10):
+counter = 0
+while True:
 	#print("Data Sent: {} to {}".format(eth1Mac, umboxMac))
+	payload = "TESTING Data for Connection: {}".format(counter)
+	data = createEthFrameHeader(umboxMac, eth1Mac)+payload.encode()
 	eth1Socket.send(data)
 	print(data)
-	#time.sleep(1)
+	time.sleep(1)
+	counter += 1
 
 #sysctl net.ipv4.conf.all.forwarding=1
 #sudo iptables -P FORWARD ACCEPT
