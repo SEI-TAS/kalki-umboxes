@@ -1,6 +1,6 @@
 FROM python:3
 
 ADD server.py /
-COPY index.html /
-COPY alert.html /
-CMD [ "python", "./server.py" ]
+ADD index.html /
+ADD alert.html /
+CMD [ "python3", "./server.py" ]

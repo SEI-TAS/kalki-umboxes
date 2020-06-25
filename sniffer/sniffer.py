@@ -218,7 +218,6 @@ def main():
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             try:
                 if(counter%3 != 0):
-                    print("Sent!", counter)
                     outgoing.send(raw_data)
                 counter += 1
                 last_echo = raw_data
