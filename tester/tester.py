@@ -5,6 +5,7 @@ import subprocess
 import json
 import time
 from threading import Thread
+import requests
 
 def createEthFrameHeader(dest_mac, src_mac):
     ETH_P_IP = 0x0800
@@ -42,17 +43,21 @@ for key in eth1MacDict:
 	eth1Mac = eth1MacDict[key]["MacAddress"]
 out, err = subprocess.Popen("docker inspect umbox", shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
 data = json.loads(out)[0]
-#umboxMac = data["NetworkSettings"]["Networks"]["eth0"]["MacAddress"]
 umboxMac = data["NetworkSettings"]["MacAddress"]
+out, err = subprocess.Popen("docker inspect alert-server", shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
+data = json.loads(out)[0]
+alertPort = data["NetworkSettings"]["Networks"]["eth0"]["IPAddress"]
 
 eth1Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 eth1Socket.bind(("br_eth1", 0))
 
 out, err = subprocess.Popen("brctl show", shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
-outArr = out.decode().split("\n")[2].split("\t")[-1]
+outArr = out.decode().split("\n")[4].split("\t")[-1]
 
 eth2Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 eth2Socket.bind((outArr, 0))
+
+
 
 def startSender():
 	counter = 0
@@ -64,10 +69,6 @@ def startSender():
 		sendQueue.append(raw_data)
 		time.sleep(1)
 		counter += 1
-		#print(sendQueue)
-		#print(recvQueue)
-		#print("_------------------------")
-
 
 def startReceiver():
 	while(True):
@@ -87,11 +88,22 @@ def startQueueProcessor():
 			notFound = sendQueue.pop(0)
 			print("Not Received: ", notFound)
 			lastTime = time.time()
+		time.sleep(1)
+
+def startAlertProcesser():
+	while(True):
+		x = requests.get("http://"+alertPort+":6060/")
+		contents = x.content.decode()
+		if(len(contents.split("\n")) > 1):
+			print(contents)
+		time.sleep(3)
 
 t1 = Thread(target=startSender)
 t2 = Thread(target=startReceiver)
 t3 = Thread(target=startQueueProcessor)
+t4 = Thread(target=startAlertProcesser)
 
 t1.start()
 t2.start()
 t3.start()
+t4.start()
