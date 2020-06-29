@@ -3,6 +3,7 @@ from io import BytesIO
 
 alert_handler = []
 
+#RETURN AS A JSON ARRAY
 def process_queue():
 	output = "Alerts Recieved\n"
 	while(len(alert_handler) > 0):

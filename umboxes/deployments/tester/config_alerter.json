@@ -1,5 +1,5 @@
 {
-  "control_node_ip": "127.0.0.1",
+  "control_node_ip": "alert-server",
   "log_file": "../sniffer/sniffer.log",
   "id_source": "hostname",
   "patterns": [{"search_text": "DEFAULT_CRED", "alert_text": "default-login"},

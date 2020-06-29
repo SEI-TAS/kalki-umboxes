@@ -46,7 +46,7 @@ data = json.loads(out)[0]
 umboxMac = data["NetworkSettings"]["MacAddress"]
 out, err = subprocess.Popen("docker inspect alert-server", shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
 data = json.loads(out)[0]
-alertPort = data["NetworkSettings"]["Networks"]["eth0"]["IPAddress"]
+alertAddress = data["NetworkSettings"]["Networks"]["eth0"]["IPAddress"]
 
 eth1Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 eth1Socket.bind(("br_eth1", 0))
@@ -57,24 +57,28 @@ outArr = out.decode().split("\n")[4].split("\t")[-1]
 eth2Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 eth2Socket.bind((outArr, 0))
 
-
+ip = 'netflix.com'
+HOST = ip    # The remote host
+PORT = 80              # The same port as used by the server
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+query = 'GET / HTTP/1.1\r\nHost: ' + ip + '\r\n\r\n'
 
 def startSender():
-	counter = 0
 	while True:
-		#print("Data Sent: {} to {}".format(eth1Mac, umboxMac))
-		payload = "TESTING Data for Connection: {}".format(counter)
-		raw_data = createEthFrameHeader(umboxMac, eth1Mac)+payload.encode()
+		s.send(query.encode())
+		payload = s.recv(65535)
+		raw_data = createEthFrameHeader(umboxMac, eth1Mac)+payload
 		eth1Socket.send(raw_data)
 		sendQueue.append(raw_data)
 		time.sleep(1)
-		counter += 1
 
 def startReceiver():
 	while(True):
 	    raw_data, addr = eth2Socket.recvfrom(65535)
 	    if(addr[4] == binascii.unhexlify(eth1Mac.replace(":",""))):
 	    	recvQueue.append(raw_data)
+	    time.sleep(1)
 
 def startQueueProcessor():
 	lastTime = time.time()
@@ -92,7 +96,7 @@ def startQueueProcessor():
 
 def startAlertProcesser():
 	while(True):
-		x = requests.get("http://"+alertPort+":6060/")
+		x = requests.get("http://"+alertAddress+":6060/")
 		contents = x.content.decode()
 		if(len(contents.split("\n")) > 1):
 			print(contents)
@@ -107,3 +111,5 @@ t1.start()
 t2.start()
 t3.start()
 t4.start()
+
+#To send UDP instead of TCP change SOCK_STREAM to SOCK_DGRAM. 
