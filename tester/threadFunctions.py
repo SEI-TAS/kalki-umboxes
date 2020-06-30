@@ -12,7 +12,7 @@ umboxMac = getMac(1)
 alertAddress = getAlertIP()
 
 # A thread that will send packets to the umbox
-def startSender(eth1Socket, ipAddr="google.com", port = 80):
+def startSender(eth1Socket, ipAddr, port):
 	ip = ipAddr
 	HOST = ip
 	PORT = port
@@ -42,7 +42,7 @@ def startReceiverETH3(eth3Socket):
 	    	recvQueue.append(raw_data)
 
 # A thread that checks if what was sent was sent back
-def startQueueProcessor(timeout=3):
+def startQueueProcessor(timeout):
 	lastTime = time.time()
 	while(True):
 		if(len(sendQueue) > 0 and len(recvQueue) > 0 and sendQueue[0] == recvQueue[0]):

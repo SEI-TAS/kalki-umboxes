@@ -8,6 +8,7 @@ import sys
 from threading import Thread
 from helper import *
 from threadFunctions import *
+import argparse
 
 ETH_P_ALL = 3
 eth1_bridge_name = "br_eth1"
@@ -40,7 +41,13 @@ def main(timeout, ipAddr, port):
 
 
 if(__name__=="__main__"):
-	timeout = int(sys.argv[1])
-	ip = sys.argv[2]
-	port = int(sys.argv[3])
-	main(timeout, ip, port)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--time", type=int, help="enter time to wait for checker",
+                    nargs='?', default=3)
+	parser.add_argument("--ip", type=str, help="enter ip address to get traffic",
+                    nargs='?', default="google.com")
+	parser.add_argument("--port", type=int, help="enter port for ip address",
+                    nargs='?', default=80)
+	
+	args = vars(parser.parse_args())
+	main(args["time"], args["ip"], args["port"])
