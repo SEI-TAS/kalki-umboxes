@@ -1,0 +1,34 @@
+version: '3.5'
+services:
+  alert-server:
+    build: ./server
+    ports:
+      - "6060:6060"
+    networks:
+      - eth0_device
+    container_name: alert-server
+  umbox:
+    image: "${IMAGE}"
+    networks:
+      - eth0_device
+      - eth1_device
+      - eth2_device
+      - eth3_device
+    container_name: umbox
+networks:
+  eth0_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth0
+    name: eth0_device
+  eth1_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth1
+    name: eth1_device
+  eth2_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth2
+    name: eth2_device
+  eth3_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth3
+    name: eth3_device
