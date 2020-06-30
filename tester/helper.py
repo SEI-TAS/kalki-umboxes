@@ -5,7 +5,8 @@ import json
 
 tool_pipe = subprocess.PIPE
 inspect_umbox = "docker inspect umbox"
-inspect_alert_erver = "docker inspect alert-server"
+inspect_alert_server = "docker inspect alert-server"
+bridge_show = "brctl show"
 
 """
 Creates Eth Frame Header. Original code at sniffer/networking/rawPacketHandling.py
@@ -35,10 +36,16 @@ def getMac(device):
 
 # Gets the alert-server IP address
 def getAlertIP():
-	process = subprocess.Popen("docker inspect alert-server", shell=True, stdout=tool_pipe, stderr=tool_pipe)
+	process = subprocess.Popen(inspect_alert_server, shell=True, stdout=tool_pipe, stderr=tool_pipe)
 	out,err = process.communicate()
 	if(process.returncode != 0):
 		raise Exception(err)
 
 	data = json.loads(out)[0]
 	return data["NetworkSettings"]["Networks"]["eth0_device"]["IPAddress"]
+
+def getVeth():
+	out, err = subprocess.Popen(bridge_show, shell=True, stdout=tool_pipe, stderr=tool_pipe).communicate()
+	eth2_veth = out.decode().split("\n")[4].split("\t")[-1]
+	eth3_veth = out.decode().split("\n")[5].split("\t")[-1]
+	return (eth2_veth, eth3_veth)

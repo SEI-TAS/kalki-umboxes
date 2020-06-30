@@ -1,18 +1,12 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from io import BytesIO
+import json
 
-alert_handler = []
-
-#RETURN AS A JSON ARRAY
-def process_queue():
-	output = "Alerts Recieved\n"
-	while(len(alert_handler) > 0):
-		output += alert_handler.pop(0).decode() + "\n"
-	return output[0:len(output)-1]
+alert_handler = ["Alerts Recieved"]
 
 class Serv(BaseHTTPRequestHandler):
-	
 	def do_GET(self):
+		global alert_handler
 		if self.path == "/":
 			self.path = "/index.html"
 		if self.path == "/alert/":
@@ -22,13 +16,14 @@ class Serv(BaseHTTPRequestHandler):
 		except:
 			self.send_response(404)
 		self.end_headers()
-		self.wfile.write(process_queue().encode())
+		self.wfile.write(json.dumps(alert_handler).encode())
+		alert_handler = ["Alerts Recieved"]
 
 	def do_POST(self):
 		path = self.path
 		content_length = int(self.headers['Content-Length']) 
 		body = self.rfile.read(content_length)
-		alert_handler.append(body)
+		alert_handler.append(body.decode())
 		self.send_response(200)
 		self.end_headers()
 		response = BytesIO()

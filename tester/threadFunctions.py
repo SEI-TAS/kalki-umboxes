@@ -11,6 +11,7 @@ eth1Mac = getMac(0)
 umboxMac = getMac(1) 
 alertAddress = getAlertIP()
 
+# A thread that will send packets to the umbox
 def startSender(eth1Socket, ipAddr="google.com", port = 80):
 	ip = ipAddr
 	HOST = ip
@@ -26,12 +27,21 @@ def startSender(eth1Socket, ipAddr="google.com", port = 80):
 		sendQueue.append(raw_data)
 		time.sleep(1)
 
-def startReceiver(eth2Socket):
+# A thread that will receive packets from the eth2 of the umbox
+def startReceiverETH2(eth2Socket):
 	while(True):
 	    raw_data, addr = eth2Socket.recvfrom(65535)
 	    if(addr[4] == binascii.unhexlify(eth1Mac.replace(":",""))):
 	    	recvQueue.append(raw_data)
 
+# A thread that will receive packets from the eth3 of the umbox
+def startReceiverETH3(eth3Socket):
+	while(True):
+	    raw_data, addr = eth3Socket.recvfrom(65535)
+	    if(addr[4] == binascii.unhexlify(eth1Mac.replace(":",""))):
+	    	recvQueue.append(raw_data)
+
+# A thread that checks if what was sent was sent back
 def startQueueProcessor(timeout=3):
 	lastTime = time.time()
 	while(True):
@@ -45,9 +55,10 @@ def startQueueProcessor(timeout=3):
 			print("Not Received: ", notFound)
 			lastTime = time.time()
 
+# A thread that will recieve 
 def startAlertProcesser():
 	while(True):
 		x = requests.get("http://"+alertAddress+":6060/")
-		contents = x.content.decode()
-		if(len(contents.split("\n")) > 1):
-			print(contents)
+		contents = json.loads(x.content.decode())
+		if(len(contents) > 1):
+			print("\n".join(contents))

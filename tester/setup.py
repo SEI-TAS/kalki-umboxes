@@ -16,7 +16,7 @@ subprocess.Popen("docker network create --opt com.docker.network.bridge.name=br_
 subprocess.Popen("docker network create --opt com.docker.network.bridge.name=br_eth3 eth3_device", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 
 #Create the containers
-subprocess.Popen("docker container create -it --network eth0_device --name umbox u0-sniffer-based", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
+subprocess.Popen("docker container create -it --network eth0_device --name umbox u5-sniffer-log-stats", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 subprocess.Popen("docker container create -it --network eth0_device -p 6060:6060 --name alert-server alert-server-image", shell=True, stdin=tool_pipe, stdout=tool_pipe, stderr=tool_pipe).communicate()
 
 #Connect the networks
