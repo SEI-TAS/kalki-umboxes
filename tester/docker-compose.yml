@@ -15,6 +15,13 @@ services:
       - eth2_device
       - eth3_device
     container_name: umbox
+  traffic-server:
+    build: ./traffic
+    ports:
+      - "8080:8080"
+    networks:
+      - traffic_device
+    container_name: traffic-server
 networks:
   eth0_device:
     driver_opts:
@@ -32,3 +39,7 @@ networks:
     driver_opts:
       com.docker.network.bridge.name: br_eth3
     name: eth3_device
+  traffic_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_traffic
+    name: traffic_device

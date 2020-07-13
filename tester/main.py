@@ -16,7 +16,7 @@ veths = getVeth()
 eth2_veth = veths[0]
 eth3_veth = veths[1]
 
-def main(timeout, ipAddr, port):
+def main(timeout, interface, udp):
 
 	eth1Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 	eth1Socket.bind((eth1_bridge_name, 0))
@@ -27,7 +27,7 @@ def main(timeout, ipAddr, port):
 	eth3Socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(ETH_P_ALL))
 	eth3Socket.bind((eth3_veth, 0))
 	
-	t1 = Thread(target=startSender, args=[eth1Socket, ipAddr, port])
+	t1 = Thread(target=startSender, args=[eth1Socket, interface, udp])
 	t2 = Thread(target=startReceiverETH2, args=[eth2Socket])
 	t3 = Thread(target=startReceiverETH3, args=[eth3Socket])
 	t4 = Thread(target=startQueueProcessor, args=[timeout])
@@ -44,10 +44,9 @@ if(__name__=="__main__"):
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--time", type=int, help="enter time to wait for checker",
                     nargs='?', default=3)
-	parser.add_argument("--ip", type=str, help="enter ip address to get traffic",
-                    nargs='?', default="google.com")
-	parser.add_argument("--port", type=int, help="enter port for ip address",
-                    nargs='?', default=80)
+	parser.add_argument("--interface", type=str, help="enter interface",
+                    nargs='?', default="wlp3s0")
+	parser.add_argument("--udp", action="store_true")
 	
 	args = vars(parser.parse_args())
-	main(args["time"], args["ip"], args["port"])
+	main(args["time"], args["interface"], args["udp"])

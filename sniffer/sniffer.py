@@ -138,8 +138,6 @@ def main():
     last_data = None
     last_echo = None
 
-    counter = 0
-
     while True:
         # Received data from raw socket.
         raw_data, addr = incoming.recvfrom(65535)
@@ -217,9 +215,7 @@ def main():
         # Only echo packet if it is IPv4, echo is on, src IP is not restricted, no handler asked to drop, and we are not repeating data.
         if echo_on and (ipv4 is not None and ipv4.src not in restricted_list) and combined_results.echo_decision and last_echo != raw_data:
             try:
-                if(counter%3 != 0):
-                    outgoing.send(raw_data)
-                counter += 1
+                outgoing.send(raw_data)
                 last_echo = raw_data
             except Exception as e:
                 print("Error echoing: " + str(e))
