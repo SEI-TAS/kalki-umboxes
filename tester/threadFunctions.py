@@ -7,6 +7,7 @@ import netifaces as ni
 import struct
 from scapy.all import *
 
+
 sendQueue = []
 recvQueue = []
 
@@ -31,7 +32,7 @@ def startSender(eth1Socket, interface, udp):
 			payload = createEthFrameHeader(umboxMac, eth1Mac)+raw_data[14:]
 			#print()
 			try:
-				print("send payloads")
+				#print("send payloads")
 				sendQueue.append(payload)
 				eth1Socket.send(payload)
 			except:
