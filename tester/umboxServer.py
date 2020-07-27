@@ -2,8 +2,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from io import BytesIO
 import json
 
-alert_handler = ["Alerts Recieved"]
-
 class Serv(BaseHTTPRequestHandler):
 	def do_GET(self):
 		global alert_handler
@@ -17,7 +15,6 @@ class Serv(BaseHTTPRequestHandler):
 			self.send_response(404)
 		self.end_headers()
 		self.wfile.write(json.dumps(alert_handler).encode())
-		alert_handler = ["Alerts Recieved"]
 
 	def log_message(self, format, *args):
 		return 
@@ -34,5 +31,5 @@ class Serv(BaseHTTPRequestHandler):
 		response.write(body)
 		self.wfile.write(response.getvalue())
 
-httpd = HTTPServer(("0.0.0.0", 6060), Serv)
+httpd = HTTPServer(("10.27.151.106", 80), Serv)
 httpd.serve_forever()

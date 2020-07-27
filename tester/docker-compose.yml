@@ -15,6 +15,11 @@ services:
       - eth2_device
       - eth3_device
     container_name: umbox
+    privileged: true
+    volumes:
+      - /lib/modules:/lib/modules
+    cap_add:
+      - NET_ADMIN
 networks:
   eth0_device:
     driver_opts:

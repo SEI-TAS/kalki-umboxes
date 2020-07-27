@@ -7,7 +7,7 @@ RIGHT_PASS=kpass
 
 # Action and IoT device info, get from command line or use defaults.
 OPTION=${1:-API}
-DEVICE_IP=${2:-'10.27.151.114'}
+DEVICE_IP=${2:-'localhost'}
 DEVICE_PORT=${3:-80}
 
 echo "Action: ${OPTION}, IP: ${DEVICE_IP}, DEVICE PORT: ${DEVICE_PORT}"

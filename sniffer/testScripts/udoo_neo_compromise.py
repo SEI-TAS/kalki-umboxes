@@ -1,9 +1,9 @@
 import socket
 import time
 
-IP = "10.27.152.5"
+IP = "10.27.151.101"
 PORT = 6000
-MESSAGE = "test"
+MESSAGE = "test".encode()
 PACKETS = 10
 
 print("Opening UDP socket")
