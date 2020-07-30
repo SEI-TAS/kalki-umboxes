@@ -16,6 +16,8 @@
 - Run `bash phillips_put_test.sh`
  
 ## Intended Behavior/Result
+One should be able to observe a "restricted API request method: {method type}" if a request that is not GET is sent. As with u9-phillips-brute-force, there should be a brute-force alert with information regarding the brute-force
+
 The following is a snippet from Terminal 1
 
 b'Received: {"alert": "brute-force", "umbox": "4d30ab9097ad", "details": "2020-07-27 17:01:47 WARNING  BRUTE_FORCE: IP address 127.0.0.1 has attempted device api calls with 5 different tokens within 10 seconds\\n"}'

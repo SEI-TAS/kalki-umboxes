@@ -11,6 +11,13 @@
 - Run `python3 udoo_neo_brute_force.py` (from sniffer/testScripts)
 
 ## Intended Behavior/Result
+There are four things to look for:
+- A COMPROMISE alert
+- A BRUTE_FORCE alert
+- An "Email Sent!" notification
+	- Disregard the no email sent if testing locally
+- "{IP ADDRESS} adding to restricted list" statement where {IP ADDRESS} is source of traffic 
+
 The following are snippets from Terminal 1
 
 umbox           | 2020-07-30 15:23:25 WARNING  COMPROMISE: Detected 2 invalid UDP packets and + 3 invalid TCP packets from device at 127.0.0.1, exceeding limit of 5

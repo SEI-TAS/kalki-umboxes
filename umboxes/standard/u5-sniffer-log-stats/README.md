@@ -8,6 +8,8 @@
 - Send traffic
 
 ## Intended Behavior/Result
+One should be able to observe alerts sent from the umbox logging information.
+
 The following is a snippet from Terminal 1
 
 umbox           | 2020-07-21 06:21:34 WARNING  LOG_INFO: Packet stats total: 12 tcp: 10 udp: 2 other: 0

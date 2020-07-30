@@ -12,6 +12,8 @@
 - Run `bash phillips_brute_force.sh` (from sniffer/testScripts)
  
 ## Intended Behavior/Result
+We should be able to see a brute-force alert with information regarding who and how the brute-force was triggered
+
 The following is a snippet from Terminal 1
 
 b'{"alert": "brute-force", "details": "2020-07-22 14:57:19 WARNING  BRUTE_FORCE: IP address 127.0.0.1 has attempted device api calls with 5 different tokens within 10 seconds\\n", "umbox": "ba33a9022bf7"}'

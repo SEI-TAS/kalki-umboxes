@@ -11,6 +11,8 @@
 - Run `python3 udoo_neo_brute_force.py` (from sniffer/testScripts)
 
 ## Intended Behavior/Result
+One should be able to see two types of alerts: a COMPROMISE and a BRUTE_FORCE
+
 The following is a snippet from Terminal 1
 
 umbox           | 2020-07-22 16:44:37 WARNING  COMPROMISE: Detected 2 invalid UDP packets and + 3 invalid TCP packets from device at 127.0.0.1, exceeding limit of 5

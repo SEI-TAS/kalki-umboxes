@@ -9,6 +9,8 @@
 - Run `python3 client.py --device localhost --on` (from ouimeaux folder)
  
 ## Intended Behavior/Result
+From terminal 1, we should be able to see that there were response messages sent. From terminal 2, we should be able to see packets sent from the umbox to ETH3 
+
 #### The following is a snippet from Terminal 1
 
 umbox           | Received HTTP request: 

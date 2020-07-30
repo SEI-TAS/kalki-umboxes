@@ -10,6 +10,8 @@ Note: This umbox tests max-logins on digest authentication on the dlink camera. 
 - On Terminal 3, run `curl --ipv4 --user guest:guest --digest http://httpbin.org/digest-auth/auth/user/passwd` repeatedly
 
 ## Intended Behavior/Result
+An alert stating "max-login-attempts" should be sent with additional details regarding the event.
+
 The following is a snippet from Terminal 1
 
 2020-07-27 13:14:25 WARNING  MULTIPLE_LOGIN : More than 5 attempts in 0.9173427184422811 minutes from same IP address
