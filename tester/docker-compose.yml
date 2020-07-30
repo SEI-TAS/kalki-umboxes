@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   alert-server:
-    build: ./server
+    build: ./alert_server
     ports:
       - "6060:6060"
     networks:
@@ -20,6 +20,8 @@ services:
       - /lib/modules:/lib/modules
     cap_add:
       - NET_ADMIN
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
 networks:
   eth0_device:
     driver_opts:
