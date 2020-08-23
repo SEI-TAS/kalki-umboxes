@@ -24,7 +24,6 @@ After running:
 
 ## umbox Testing Notes
 Currently, the following umboxes have not been tested yet with this tester:
-- u1-antidos
 - u2-http-auth-proxy
 - u3-http-auth-proxy-block
 - u-12-snort-block-xmas
