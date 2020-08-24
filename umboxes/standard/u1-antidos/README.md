@@ -21,6 +21,7 @@ Something to note is that this test doesn't utilize `main.py`. It relies on the 
 		- Run `ip route add 172.30.0.0/16 dev eth0`
 	- Terminal 2
 		- Run `iperf3 -s 172.30.0.1`
+**Note: When running the following commands, if they do not work, first try to ping the server container from the client container and vice versa.**
 - Testing the TCP connection limit:
 	- In terminal 3, run
     	- `iperf3 -c 172.30.0.2 -P 4`
@@ -70,3 +71,5 @@ PING 172.30.0.2 (172.30.0.2): 56 data bytes
 64 bytes from 172.30.0.2: seq=12 ttl=64 time=0.209 ms
 64 bytes from 172.30.0.2: seq=24 ttl=64 time=0.242 ms
 64 bytes from 172.30.0.2: seq=36 ttl=64 time=0.202 ms
+
+
