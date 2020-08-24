@@ -22,6 +22,18 @@ services:
       - NET_ADMIN
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+  iperf-server:
+    image: "nginx:alpine"
+    privileged: true
+    networks: 
+      - eth1_device
+    container_name: iperf-server
+  iperf-client:
+    image: "nginx:alpine"
+    privileged: true
+    networks: 
+      - eth2_device
+    container_name: iperf-client
 networks:
   eth0_device:
     driver_opts:
