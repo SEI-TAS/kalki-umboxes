@@ -4,9 +4,9 @@
   "id_source": "hostname",
   "patterns": [{"search_text": "DEFAULT_CRED", "alert_text": "default-login"},
                {"search_text": "MULTIPLE_LOGIN", "alert_text": "max-login-attempts"},
-               {"search_text": "ALERT: BRUTE_FORCE", "alert_text":  "brute-force"},
+               {"search_text": "BRUTE_FORCE", "alert_text":  "brute-force"},
                {"search_text": "LOG_INFO", "alert_text": "log-info"},
-               {"search_text": "ALERT: COMPROMISE", "alert_text": "unts-abnormal-traffic"},
+               {"search_text": "COMPROMISE", "alert_text": "unts-abnormal-traffic"},
                {"search_text": "NO_AUTH", "alert_text": "proxy-no-auth"},
                {"search_text": "FAILED_AUTH", "alert_text": "proxy-failed-auth"}]
 }
