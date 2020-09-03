@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DEPLOYMENT="$2"
+DEPLOYMENT="$1"
 
 update_umbox() {
     local umbox_name="$1"
