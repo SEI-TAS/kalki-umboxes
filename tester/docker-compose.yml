@@ -1,0 +1,53 @@
+version: '3.5'
+services:
+  alert-server:
+    build: ./alert_server
+    ports:
+      - "6060:6060"
+    networks:
+      - eth0_device
+    container_name: alert-server
+  umbox:
+    image: "${IMAGE}"
+    networks:
+      - eth0_device
+      - eth1_device
+      - eth2_device
+      - eth3_device
+    container_name: umbox
+    privileged: true
+    volumes:
+      - /lib/modules:/lib/modules
+    cap_add:
+      - NET_ADMIN
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+  iperf-server:
+    image: "nginx:alpine"
+    privileged: true
+    networks: 
+      - eth1_device
+    container_name: iperf-server
+  iperf-client:
+    image: "nginx:alpine"
+    privileged: true
+    networks: 
+      - eth2_device
+    container_name: iperf-client
+networks:
+  eth0_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth0
+    name: eth0_device
+  eth1_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth1
+    name: eth1_device
+  eth2_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth2
+    name: eth2_device
+  eth3_device:
+    driver_opts:
+      com.docker.network.bridge.name: br_eth3
+    name: eth3_device

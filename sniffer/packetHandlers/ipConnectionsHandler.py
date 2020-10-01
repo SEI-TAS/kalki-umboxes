@@ -83,11 +83,9 @@ class IpConnectionsHandler:
                 connection_times.pop(0)
 
     def checkCompromise(self, ip_packet, tcp_port):
-        # Only consider packets coming from the IoT device, which means the source is the IoT subnet
+        # Only consider packets coming from the IoT device
         if ip_packet.src.find(self.config["deviceIpAddress"]) > -1:
-            # Only check for traffic going to our defined external network - OBE given assumption of all devices on same subnet
-            #if ip_packet.target.find(self.config["external_subnet"]) > -1:
-            # TCP traffic originating from the IoT device.  Only TCP traffic from designed ports is valid
+            # TCP traffic originating from the IoT device.  TCP traffic from designed ports is valid
             if tcp_port and tcp_port not in self.config["compromise_allowed_ports"]:
                 # TCP traffic that is not coming from an allowed port on the IoT device.
                 self.tcp_compromise_count += 1

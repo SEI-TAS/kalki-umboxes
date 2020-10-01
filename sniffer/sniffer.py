@@ -223,8 +223,10 @@ def main():
             for result in combined_results.issues_found:
                 for action in config["action_list"][result]:
                     if action == "ALERT":
-                        print("ALERT: " + result + " detected!", flush=True)
+                        # print("ALERT: " + result + " detected!", flush=True)
+                        print("Alert detected!", flush=True)
                     elif action == "EMAIL" and email_on:
+                        print("Email Sent!", flush=True)
                         email_server.send_emails('Alert: ' + result, result + ' attempt detected from ' + ipv4.src)
                     elif action == "BLACKLIST":
                         print(result + " attempt detected from " + ipv4.src + "; adding to restricted list", flush=True)

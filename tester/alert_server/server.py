@@ -29,21 +29,42 @@
 #  DM20-0543
 #
 #
-import socket
-import time
 
-IP = "10.27.151.101"
-PORT = 6000
-MESSAGE = "test".encode()
-PACKETS = 10
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from io import BytesIO
+import json
 
-print("Opening UDP socket")
-udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+alert_handler = ["Alerts Recieved"]
 
-for i in range(PACKETS):
-    curr_port = PORT+i
-    print("Sending UDP packet to {}, port {}".format(IP, str(curr_port)))
-    udp_socket.sendto(MESSAGE, (IP, curr_port))
-    time.sleep(1)
+class Serv(BaseHTTPRequestHandler):
+	def do_GET(self):
+		global alert_handler
+		if self.path == "/":
+			self.path = "/index.html"
+		if self.path == "/alert/":
+			self.path = "/alert.html"
+		try:
+			self.send_response(200)
+		except:
+			self.send_response(404)
+		self.end_headers()
+		self.wfile.write(json.dumps(alert_handler).encode())
+		alert_handler = ["Alerts Recieved"]
 
-print("Finished sending UDP packets")
+	def log_message(self, format, *args):
+		return 
+
+	def do_POST(self):
+		path = self.path
+		content_length = int(self.headers['Content-Length']) 
+		body = self.rfile.read(content_length)
+		alert_handler.append(body.decode())
+		self.send_response(200)
+		self.end_headers()
+		response = BytesIO()
+		response.write(b'Received: ')
+		response.write(body)
+		self.wfile.write(response.getvalue())
+
+httpd = HTTPServer(("0.0.0.0", 6060), Serv)
+httpd.serve_forever()

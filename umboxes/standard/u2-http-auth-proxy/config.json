@@ -29,6 +29,6 @@
     "logging_timeout": 60,
     "default_username": "Username",
     "default_password": "Password",
-    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED", "FAILED_AUTH"]
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED"]
   }
 }
