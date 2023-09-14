@@ -4,11 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "==2.25.1"
+requests = "==2.31.0"
 netifaces = "==0.10.7"
 ipaddress = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.5"
+python_version = "3.9"
