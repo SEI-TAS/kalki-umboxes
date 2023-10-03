@@ -1,0 +1,17 @@
+group 'edu.cmu.sei.kalki'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'edu.cmu.sei.kalki.mail.Program'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.subethamail', name: 'subethasmtp', version: '3.1.3'
+}

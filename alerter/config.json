@@ -1,5 +1,6 @@
 {
   "control_node_ip": "localhost",
   "log_file": "test.log",
+  "id_source": "mac",
   "patterns": []
 }

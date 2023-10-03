@@ -1,0 +1,23 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "directNIC": "eth3",
+  "handlers": ["httpAuth"],
+  "echo": "on",
+  "email": "off",
+  "stat_logging": "off",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
+
+  "action_list": {
+    "MULTIPLE_LOGIN": ["ALERT"]
+  },
+
+  "httpAuth": {
+    "proxy_auth_enabled" : "off",
+    "max_attempts": 5,
+    "max_attempts_interval_mins": 1,
+    "logging_timeout": 60,
+    "check_list": ["MULTIPLE_LOGIN"]
+  }
+}

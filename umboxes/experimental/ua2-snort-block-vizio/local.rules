@@ -1,0 +1,1 @@
+drop tcp $EXTERNAL_NET any -> $HOME_NET 7345 (msg:"Blocking VIZIO Port"; sid:10000003; rev:1;)

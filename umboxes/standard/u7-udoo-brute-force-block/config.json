@@ -1,0 +1,39 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "directNIC": "eth3",
+  "handlers": ["ipConnections"],
+  "echo": "on",
+  "email": "on",
+  "stat_logging": "off",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
+
+  "action_list": {
+    "BRUTE_FORCE": ["ALERT", "EMAIL", "BLACKLIST"],
+    "COMPROMISE": ["ALERT", "EMAIL", "BLACKLIST"]
+  },
+
+  "ipConnections": {
+    "max_attempts": 5,
+    "max_attempts_interval_secs": 10,
+    "logging_timeout": 60,
+    "check_list": ["BRUTE_FORCE", "COMPROMISE"],
+    "compromise_threshold": 5,
+    "compromise_allowed_ports": [22],
+    "compromise_tcp": "on",
+    "compromise_udp": "on",
+    "iot_subnet": "10.27.151",
+    "external_subnet": "10.27.152"
+  },
+
+  "emailConfig": {
+    "email_server_address": "10.27.153.3",
+    "email_server_port": "2555",
+    "email_source_address": "umbox@localhost.com",
+    "email_destination_address_list": ["kalkiadmin@localhost.com"],
+    "email_server_login": "off",
+    "email_account_username": "kalki",
+    "email_account_password": "password"
+  }
+}

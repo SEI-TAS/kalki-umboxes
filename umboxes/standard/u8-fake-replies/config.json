@@ -1,0 +1,20 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "directNIC": "eth3",
+  "handlers": ["wemo"],
+  "echo": "off",
+  "email": "off",
+  "stat_logging": "off",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
+  "iot_subnet": "10.27.151",
+  "external_subnet": "10.27.152",
+
+  "action_list": {
+  },
+
+  "wemo": {
+    "wemo_false_messages_enabled" : "on"
+  }
+}

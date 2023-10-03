@@ -1,0 +1,34 @@
+{
+  "incomingNIC": "eth1",
+  "outgoingNIC": "eth2",
+  "directNIC": "eth3",
+  "handlers": ["httpAuth"],
+  "echo": "on",
+  "email": "off",
+  "stat_logging": "off",
+  "stat_interval": 3600,
+  "restrictedIPs": [],
+  "iot_subnet": "10.27.151",
+  "external_subnet": "10.27.152",
+
+  "action_list": {
+    "MULTIPLE_LOGIN": ["ALERT"],
+    "DEFAULT_CRED": ["ALERT"],
+    "FAILED_AUTH": ["ALERT"]
+  },
+
+  "httpAuth": {
+    "proxy_auth_enabled" : "on",
+    "proxy_auth_login_timer" : 10,
+    "proxy_auth_timeout" : 3600,
+    "proxy_auth_port" : 9010,
+    "proxy_auth_username": "kuser",
+    "proxy_auth_password": "kpass",
+    "max_attempts": 4,
+    "max_attempts_interval_mins": 30,
+    "logging_timeout": 60,
+    "default_username": "Username",
+    "default_password": "Password",
+    "check_list": ["MULTIPLE_LOGIN", "DEFAULT_CRED"]
+  }
+}
